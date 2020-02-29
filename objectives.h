@@ -8,7 +8,7 @@
 #define MAX_CHILDS 50
 #define MAX_NOTES 50
 #define MAX_PERIODS 500
-#define COMMAND_LEN 64
+#define COMMAND_LEN 200
 #define MAX_COMMANDS 10
 #define SECS_IN_A_DAY 86400
 #define SECS_IN_A_WEEK 604800
