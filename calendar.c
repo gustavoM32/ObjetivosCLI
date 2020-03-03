@@ -211,7 +211,7 @@ void printWeekSummary(Task *root) {
     long int curWeek[2];
     long int curTime;
     long int weekProgress;
-    long int charInterval = 1800;
+    long int charInterval = 900;
     long int objStart;
     long int weekTime = 0;
     long int dayTime = 0;
@@ -230,13 +230,18 @@ void printWeekSummary(Task *root) {
         int charStart = objStart + i;
         int charEnd = charStart + charInterval;
         long int prodTime = 0;
+		int h;
         if (i == SECS_IN_A_WEEK) {
             printf("\n");
         }
         if (i % SECS_IN_A_WEEK == 0) {
             weekTime = 0;
             printf("\n                         %ldth objective week\n\n", 1 + (charEnd - objStart) / SECS_IN_A_WEEK);
-            printf("             |00:00      |06:00      |12:00      |18:00\n");
+			printf("    Horas    ");
+			for (h = 0; h < 24; h++) {
+				printf("|%02d ", h);
+			}
+			printf("\n");
         }
         if (i % 86400 == 0) {
             formatDate(charStart, formatText);
