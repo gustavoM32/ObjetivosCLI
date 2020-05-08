@@ -259,6 +259,43 @@ void showTaskTotalTime(Task* task) {
 }
 
 /*
+    getTaskWeekTime()
+    Returns week period time of task pointed by 'task' and its subtasks.
+*/
+long int getTaskWeekTime(Task* task) {
+    long int curTime = getCurrentTime();
+    long int objStart = getTime(25, 8, 2019, 0, 0, 0);
+    long int weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
+    long int inicioSemana = curTime - weekProgress;
+    long int totalTime = 0;
+    int i;
+    for (i = 0; i < task->nPeriods; i++) {
+        long int inicio = inicioSemana;
+        long int timeThisWeek;
+        if (task->periods[i].start > inicio) inicio = task->periods[i].start;
+        timeThisWeek = task->periods[i].end - inicio;
+        if (timeThisWeek > 0) totalTime += timeThisWeek;
+    }
+    for (i = 0; i < task->nSubtasks; i++) {
+        totalTime += getTaskWeekTime(task->subtasks[i]);
+    }
+    return totalTime;
+}
+
+/*
+    showTaskWeekTime();
+    Prints week period time of task pointed by 'task' and all of its subtasks.
+*/
+void showTaskWeekTime(Task* task) {
+    long int totalTime;
+    char formatedTime[10];
+    totalTime = getTaskWeekTime(task);
+    formatDur(totalTime, formatedTime);
+    printf("Time spent in task (%s) %s this week: %s.\n\n", task->code, task->name, formatedTime);
+}
+
+
+/*
     renameTask()
     Renames task pointed by 'task' to name inputed by user.
 */
@@ -608,6 +645,8 @@ Task* taskMenu(Task* task) {
             }
         } else if (strcmp(commandName, "time") == 0) {
             if (validArgs(0)) showTaskTotalTime(task);
+        } else if (strcmp(commandName, "weektime") == 0) {
+            if (validArgs(0)) showTaskWeekTime(task);
         } else if (strcmp(commandName, "noteadd") == 0) {
             if (validArgs(1)) {
                 addNote(task);

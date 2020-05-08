@@ -16,6 +16,7 @@ void printHelp(int page) {
             printf("%s%s set <task code> <status> - set subtask status\n", lineStart, itemStart);
             printf("%s%s active, inactive, completed\n", lineStart, itemStart);
             printf("%s%s time - show total time spent in task\n", lineStart, itemStart);
+            printf("%s%s weektime - show time spent in task this week\n", lineStart, itemStart);
             printf("%s%s noteadd \"note text\" - add note\n", lineStart, itemStart);
             printf("%s%s noterem <note id> - remove note\n", lineStart, itemStart);
             printf("%s%s pds - manage periods\n", lineStart, itemStart);
