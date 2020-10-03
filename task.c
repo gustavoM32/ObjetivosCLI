@@ -156,35 +156,37 @@ void removeSubtask(Task *parent) {
     deleteTask(taskTodelete);
 }
 
+void listStatusTasks(Task* tasks[], int count, char statusName[]) {
+    int i;
+    if (count == 0) {
+        printf("  |   You have no %s subtasks.\n", statusName);
+        printf("  |\n");
+    } else {
+        statusName[0] = statusName[0] - 'a' + 'A';
+        printf("  |   %s:\n", statusName);
+        printf("  |\n");
+        for (i = 0; i < count; i++) {
+            printf("  |    (%s) %s\n", tasks[i]->code, tasks[i]->name);
+        }
+        printf("  |\n");
+    }
+}
+
 /*
     listSubtasks()
     Lists all subtasks of task pointed by 'task'.
 */
 void listSubtasks(Task* task) {
     int i;
-    int completed = 0;
-    int inactive = 0;
-    int active = 0;
-    Task* completedList[MAX_CHILDS];
-    Task* inactiveList[MAX_CHILDS];
-    Task* activeList[MAX_CHILDS];
+    char statusNames[4][NAME_LEN] = {"active", "inactive", "completed", "canceled"};
+    int count[4] = {0, 0, 0, 0};
+    Task* lists[4][MAX_CHILDS];
     for (i = 0; i < task->nSubtasks; i++) {
-        switch (task->subtasks[i]->status) {
-            case TASK_COMPLETED:
-                completedList[completed] = task->subtasks[i];
-                completed++;
-                break;
-            case TASK_INACTIVE:
-                inactiveList[inactive] = task->subtasks[i];
-                inactive++;
-                break;
-            case TASK_ACTIVE:
-                activeList[active] = task->subtasks[i];
-                active++;
-                break;
-        }
+        int status = task->subtasks[i]->status;
+        lists[status][count[status]] = task->subtasks[i];
+        count[status]++;
     }
-    if (completed == 0 && inactive == 0 && active == 0) {
+    if ((count[0] + count[1] + count[2] + count[3]) == 0) {
         printf("  +---------------------------> Subtasks <---------------------------+\n");
         printf("  |\n");
         printf("  |   This task has no subtasks.\n");
@@ -194,38 +196,8 @@ void listSubtasks(Task* task) {
     }
     printf("  +---------------------------> Subtasks <---------------------------+\n");
     printf("  |\n");
-    if (completed == 0) {
-        printf("  |   You have no completed subtasks.\n");
-        printf("  |\n");
-    } else {
-        printf("  |   Completed:\n");
-        printf("  |\n");
-        for (i = 0; i < completed; i++) {
-            printf("  |    (%s) %s\n", completedList[i]->code, completedList[i]->name);
-        }
-        printf("  |\n");
-    }
-    if (inactive == 0) {
-        printf("  |   You have no inactive subtasks.\n");
-        printf("  |\n");
-    } else {
-        printf("  |   Inactive:\n");
-        printf("  |\n");
-        for (i = 0; i < inactive; i++) {
-            printf("  |    (%s) %s\n", inactiveList[i]->code, inactiveList[i]->name);
-        }
-        printf("  |\n");
-    }
-    if (active == 0) {
-        printf("  |   You have no active subtasks.\n");
-        printf("  |\n");
-    } else {
-        printf("  |   Active:\n");
-        printf("  |\n");
-        for (i = 0; i < active; i++) {
-            printf("  |    (%s) %s\n", activeList[i]->code, activeList[i]->name);
-        }
-        printf("  |\n");
+    for (i = 0; i < 4; i++) {
+        listStatusTasks(lists[i], count[i], statusNames[i]);
     }
     printf("  +------------------------------------------------------------------+\n\n");
 }
@@ -418,6 +390,8 @@ void setSubtaskStatus(Task *task) {
         status = TASK_INACTIVE;
     } else if (strcmp(statusName, "completed") == 0) {
         status = TASK_COMPLETED;
+    } else if (strcmp(statusName, "canceled") == 0) {
+        status = TASK_CANCELED;
     } else {
         printf("\"%s\" is not a valid status.\n\n", statusName);
         return;
