@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "io.h"
 #include "util.h"
 #include "task.h"
@@ -93,9 +95,19 @@ char *getToken(int id) {
 */
 char *getCommandName() {
     char *commandName = NULL;
+    char *line;
+    FILE *stream;
     while (commandName == NULL) {
-        printf("> ");
-        getLine(stdin);
+        line = readline("> ");
+        add_history(line);
+        int size = strlen(line);
+        char *newLine = mallocSafe(size + 1);
+        strcpy(newLine, line);
+        free(line);
+        newLine[size] = '\n';
+        size++;
+        stream = fmemopen(newLine, size, "r");
+        getLine(stream);
         printf("\n");
         commandName = getToken(0);
     }
