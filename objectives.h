@@ -2,7 +2,7 @@
 #define OBJECTIVES_H
 /*************************************/
 #define NAME_LEN 100
-#define CODE_LEN 4
+#define CODE_LEN 6
 #define PATH_LEN 100
 #define NOTE_LEN 200
 #define MAX_CHILDS 50

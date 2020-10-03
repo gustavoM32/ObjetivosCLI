@@ -99,8 +99,8 @@ void addSubtask(Task* parent) {
     char *subtaskCode;
     subtaskCode = toUppercase(getToken(1));
     subtaskName = getToken(2);
-    if (strlen(subtaskCode) != 3) {
-        printf("Subtask code must be 3 characters long.\n\n");
+    if (strlen(subtaskCode) == 0 || strlen(subtaskCode) > 5) {
+        printf("Subtask code must be 1-5 characters long.\n\n");
         return;
     } else if (findTaskByCode(parent, subtaskCode) != -1) {
         printf("\"%s\" already has subtask with code \"%s\".\n\n", parent->name, subtaskCode);
@@ -323,8 +323,8 @@ void renameTask(Task* task) {
 void changeCode(Task* task) {
     char *code;
     code = toUppercase(getToken(1));
-    if (strlen(code) != 3) {
-        printf("Subtask code must be 3 characters long.\n\n");
+    if (strlen(code) == 0 || strlen(code) > 5) {
+        printf("Subtask code must be 1-5 characters long.\n\n");
         return;
     } else if (task->parent == NULL) {
         printf("Can't change main task code.\n\n");
