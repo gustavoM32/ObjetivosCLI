@@ -16,29 +16,24 @@
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIOD_MENU, WEEK_MENU};
 
-typedef struct period Period;
-typedef struct todo Todo;
-typedef struct note Note;
 typedef struct task Task;
-typedef struct calendarItem CalendarItem;
-typedef struct calendar Calendar;
 
-struct period {
+typedef struct {
     long int start;
     long int end;
     char name[NAME_LEN];
-};
+} Period;
 
-struct todo {
+typedef struct {
     long int planned;
     char name[NAME_LEN];
     Task *parent;
-};
+} Todo;
 
-struct note {
+typedef struct {
 	long int date;
 	char text[NOTE_LEN];
-};
+} Note;
 
 struct task {
     char name[NAME_LEN];
@@ -56,16 +51,16 @@ struct task {
     Task *parent;
 };
 
-struct calendarItem {
-    char path[NAME_LEN];
+typedef struct {
+     char path[NAME_LEN];
     char name[NAME_LEN];
     int date[3];
-};
+} CalendarItem;
 
-struct calendar {
+typedef struct {
     int nItems;
     Todo *items[MAX_CHILDS*MAX_CHILDS];
-};
+} Calendar;
 
 Task* rootTask;
 Calendar* todoCalendar;
