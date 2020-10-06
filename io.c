@@ -144,7 +144,7 @@ void saveTask(Task* task, FILE* output, int depth) {
     fprintf(output, "%d\n", task->nTodos);
     for (i = 0; i < task->nTodos; i++) {
         fpfInd(output, depth);
-        fprintf(output, "\"%s\" %ld\n", task->todos[i]->name, task->todos[i]->planned);
+        fprintf(output, "\"%s\" %d\n", task->todos[i]->name, task->todos[i]->estimate);
     }
     fpfInd(output, depth);
     fprintf(output, "%d\n", task->nPeriods);
@@ -186,7 +186,7 @@ Task* loadTask(FILE* input) {
     int i;
     char taskName[NAME_LEN];
     char todoName[NAME_LEN];
-    long int date;
+    int estimate;
     char taskCode[CODE_LEN];
     Task* task;
     getLine(input);
@@ -205,10 +205,13 @@ Task* loadTask(FILE* input) {
     getLine(input);
     task->nTodos = atoi(getToken(0));
     for (i = 0; i < task->nTodos; i++) {
+        TodoParent parent;
+        parent.task = task;
         getLine(input);
         strcpy(todoName, getToken(0));
-        date = atol(getToken(1));
-        task->todos[i] = createTodo(task, todoName, date);
+        task->todos[i] = createTodo(parent, todoName, ROOT);
+        estimate = atol(getToken(1));
+        task->todos[i]->estimate = estimate;
     }
     getLine(input);
     task->nPeriods = atoi(getToken(0));

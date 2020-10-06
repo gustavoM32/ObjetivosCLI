@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "todo.h"
 #include "io.h"
 #include "util.h"
@@ -11,8 +12,8 @@
 Todo* createTodo(TodoParent parent, char *name, int type) {
     Todo* newTodo;
     newTodo = (Todo *) mallocSafe(sizeof(Todo));
-    newTodo->planned = planned;
     strcpy(newTodo->name, name);
+    newTodo->estimate = -1;
     newTodo->status = TODO_PENDING;
     newTodo->nSubtodos = 0;
     newTodo->type = type;
@@ -214,27 +215,21 @@ void removeTodo(Task* task) {
 //     }
 // }
 
+/*
+    setEstimate()
+    Sets the estimate of todo of 'task'.
+*/
+void setEstimate(Task* task) {
+    int estimate;
+    Todo* todo = getTodoFromPath(task, getToken(1), NULL);
+    
+    if (todo == NULL) {
+        printf("Invalid to-do ID.\n\n");
         return;
     }
-    if (day == 0 && mon == 0) {
-        newTime = 0;
-        printf("To-do date removed.\n\n");
-    } else {
-        oldTime = getCurrentTime();
-        structTime = localtime(&oldTime);
-        structTime->tm_hour = 12;
-        structTime->tm_mon = mon - 1;
-        structTime->tm_mday = day;
-   	    structTime->tm_min = 0;
-    	structTime->tm_sec = 0;
-	    if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
-        newTime = mktime(structTime);
- 	    printf("To-dos dates changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
 
-    }
-    for (i = ids; i <= ide; i++) {
-        task->todos[i]->planned = newTime;
-    }
+    estimate = atoi(getToken(2));
+    todo->estimate = estimate;
 }
 
 /*
@@ -304,6 +299,24 @@ void removeTodo(Task* task) {
 //     printf("Time spent in period \"%s\" of (%s): %s.\n\n", period->name, task->code, formatedDur);
 // }
 
+/*
+    listSubtodos()
+    Print list of sub-to-dos of todo pointed by 'todo'.
+*/
+void listSubtodos(Todo* todo, int level) {
+    int i, j;
+    for (i = 0; i < todo->nSubtodos; i++) {
+        printf("  |   ");
+        for (j = 0; j < level; j++) {
+            printf("  ");
+        }
+        printf("%2d %s", i + 1, todo->subtodos[i]->name);
+        if (todo->subtodos[i]->estimate != -1) {
+            printf(" (%d)", todo->subtodos[i]->estimate);
+        }
+        printf("\n");
+        listSubtodos(todo->subtodos[i], level + 1);
+    }
 }
 
 /*
@@ -312,20 +325,18 @@ void removeTodo(Task* task) {
 */
 void listTodos(Task* task) {
     int i;
-    struct tm *stm;
     printf("  +--------------------------> To-do list <--------------------------+\n");
     printf("  |\n");
     if (task->nTodos == 0) {
         printf("  |   List is empty\n");
     }
     for (i = 0; i < task->nTodos; i++) {
-
-        if (task->todos[i]->planned != 0) {
-            stm = localtime(&(task->todos[i]->planned));
-            printf("  |   %2d. %s (%02d/%02d)\n", i + 1, task->todos[i]->name, stm->tm_mday, stm->tm_mon + 1);
-        } else {
-            printf("  |   %2d. %s\n", i + 1, task->todos[i]->name);
+        printf("  |   %2d %s", i + 1, task->todos[i]->name);
+        if (task->todos[i]->estimate != -1) {
+            printf(" (%d)\n", task->todos[i]->estimate);
         }
+        printf("\n");
+        listSubtodos(task->todos[i], 1);
     }
     printf("  |\n");
     printf("  +------------------------------------------------------------------+\n\n");
@@ -367,6 +378,7 @@ void todosMenu(Task* task) {
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(2)) {
                 // changeTodoDate(task);
+                setEstimate(task);
                 // listTodos(task);
                 // saveAll();
             }
