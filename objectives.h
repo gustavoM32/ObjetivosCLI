@@ -14,9 +14,11 @@
 #define SECS_IN_A_WEEK 604800
 
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
+enum TodoType {ROOT, NODE};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIOD_MENU, WEEK_MENU};
 
 typedef struct task Task;
+typedef struct todo Todo;
 
 typedef struct {
     long int start;
@@ -24,11 +26,20 @@ typedef struct {
     char name[NAME_LEN];
 } Period;
 
-typedef struct {
-    long int planned;
+typedef union {
+    Task *task;
+    Todo *todo;
+} TodoParent;
+
+struct todo {
     char name[NAME_LEN];
-    Task *parent;
-} Todo;
+    int estimate;
+    int status;
+    int nSubtodos;
+    Todo *subtodos[MAX_CHILDS];
+    int type;
+    TodoParent parent;
+};
 
 typedef struct {
 	long int date;

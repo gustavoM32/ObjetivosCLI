@@ -6,16 +6,48 @@
 
 /*
     createTodo()
-    Creates a to-do named 'name' and planned to be done in 'planned' and returns
-    a pointer to it.
+    Creates a to-do named 'name' with 'type'.
 */
-Todo* createTodo(Task *task, char *name, time_t planned) {
+Todo* createTodo(TodoParent parent, char *name, int type) {
     Todo* newTodo;
     newTodo = (Todo *) mallocSafe(sizeof(Todo));
     newTodo->planned = planned;
     strcpy(newTodo->name, name);
-    newTodo->parent = task;
+    newTodo->status = TODO_PENDING;
+    newTodo->nSubtodos = 0;
+    newTodo->type = type;
+    if (type == ROOT) {
+        newTodo->parent.task = parent.task;
+    } else {
+        newTodo->parent.todo = parent.todo;
+    }
     return newTodo;
+}
+
+/*
+    getTodoFromPath()
+    Get todo from path in text.
+*/
+Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
+    char *token;
+    int id;
+    Todo *todo = NULL;
+
+    token = strtok(text, ".");
+    id = atoi(token) - 1;
+    if (id < 0 || id >= task->nTodos) return NULL;
+    
+    todo = task->todos[id];
+   
+    while ((token = strtok(NULL, ".")) != NULL) {
+        id = atoi(token) - 1;
+        if (id < 0 || id >= todo->nSubtodos) return NULL;
+        todo = todo->subtodos[id];
+    }
+
+    if (lastId != NULL) *lastId = id;
+
+    return todo;
 }
 
 /*
@@ -24,12 +56,31 @@ Todo* createTodo(Task *task, char *name, time_t planned) {
 */
 void addTodo(Task *task) {
     char *name;
-    name = getToken(1);
+    int type = getNComms() == 2 ? ROOT : NODE;
+    TodoParent parent;
+    
+    name = type == ROOT ? getToken(1) : getToken(2);
+
     if (name[0] == '\0') {
         printf("To-do name must not be empty.\n\n");
         return;
     }
-    task->todos[task->nTodos++] = createTodo(task, name, 0);
+
+    if (type == ROOT) {
+        parent.task = task;
+        task->todos[task->nTodos] = createTodo(parent, name, type);
+        task->nTodos++;
+    } else {
+        Todo *todo = getTodoFromPath(task, getToken(1), NULL);
+        if (todo == NULL) {
+            printf("Invalid parent to-do ID.\n\n");
+            return;
+        }
+        parent.todo = todo;
+        todo->subtodos[todo->nSubtodos] = createTodo(parent, name, type);
+        todo->nSubtodos++;
+    }
+
     printf("Added to-do \"%s\"\n\n", name);
 }
 
@@ -63,17 +114,29 @@ void addTodo(Task *task) {
 */
 void removeTodo(Task* task) {
     int id;
-    sscanf(getToken(1), "%d", &id);
-    id--;
-    if (id < 0 || task->nTodos <= id) {
+    Todo *todo = getTodoFromPath(task, getToken(1), &id);
+
+    if (todo == NULL) {
         printf("Invalid to-do ID.\n\n");
         return;
     }
-    task->nTodos--;
-    printf("To-do \"%s\" removed.\n\n", task->todos[id]->name);
-    while (id < task->nTodos) {
-        task->todos[id] = task->todos[id + 1];
-        id++;
+
+    printf("To-do \"%s\" removed.\n\n", todo->name);
+
+    if (todo->type == ROOT) {
+        Task *parent = todo->parent.task;
+        parent->nTodos--;
+        while (id < parent->nTodos) {
+            parent->todos[id] = parent->todos[id + 1];
+            id++;
+        }
+    } else {
+        Todo *parent = todo->parent.todo;
+        parent->nSubtodos--;
+        while (id < parent->nSubtodos) {
+            parent->subtodos[id] = parent->subtodos[id + 1];
+            id++;
+        }
     }
 }
 
@@ -281,16 +344,12 @@ void todosMenu(Task* task) {
         printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
         commandName = getCommandName();
         if (strcmp(commandName, "add") == 0) {
-            if (validArgs(1)) {
+            if (getNComms() == 2 || getNComms() == 3) {
                 addTodo(task);
-				listTodos(task);
+                listTodos(task);
                 saveAll();
-            }
-        } else if (strcmp(commandName, "addesp") == 0) {
-            if (validArgs(2)) {
-                addTodoEsp(task);
-				listTodos(task);
-                saveAll();
+            } else {
+                printf("Invalid number of arguments.\n");
             }
         // } else if (strcmp(commandName, "addesp") == 0) {
         //     if (validArgs(2)) {
