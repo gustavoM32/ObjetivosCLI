@@ -119,7 +119,7 @@ char *getCommandName() {
     Prints indentation of depth 'depth' in file pointed by 'file'.
 */
 void fpfInd(FILE* file, int depth) {
-    int i = 0;
+    int i;
     for (i = 0; i < depth; i++) {
         fprintf(file, "  ");
     }

@@ -37,62 +37,62 @@ void fillCalendar(Calendar *calendar, Task *task) {
     sortCalendar()
     DOCUMENTAR.
 */
-void sortCalendar(Todo **items, int s, int e) {
-    int i, j, k;
-    int m = (s + e) / 2;
-    int size1 = m - s + 1;
-    int size2 = e - m;
-    Todo **v1;
-    Todo **v2;
-    if (e == s) return;
-    sortCalendar(items, s, m);
-    sortCalendar(items, m + 1, e);
-    v1 = (Todo **) mallocSafe(size1 * sizeof(Todo *));
-    v2 = (Todo **) mallocSafe(size2 * sizeof(Todo *));
-    for (i = 0; i < size1; i++) {
-        v1[i] = items[s + i];
-    }
-    for (i = 0; i < size2; i++) {
-        v2[i] = items[m + 1 + i];
-    }
-    i = 0;
-    j = 0;
-    k = s;
-    while (i < size1 && j < size2) {
-        if (v1[i]->planned == 0 || (v2[j]->planned != 0 && v1[i]->planned >= v2[j]->planned)) {
-            items[k++] = v1[i++];
-        } else {
-            items[k++] = v2[j++];
-        }
-    }
-    while (i < size1) {
-        items[k++] = v1[i++];
-    }
-    while (j < size2) {
-        items[k++] = v2[j++];
-    }
-    free(v1);
-    free(v2);
-}
+// void sortCalendar(Todo **items, int s, int e) {
+//     int i, j, k;
+//     int m = (s + e) / 2;
+//     int size1 = m - s + 1;
+//     int size2 = e - m;
+//     Todo **v1;
+//     Todo **v2;
+//     if (e == s) return;
+//     sortCalendar(items, s, m);
+//     sortCalendar(items, m + 1, e);
+//     v1 = (Todo **) mallocSafe(size1 * sizeof(Todo *));
+//     v2 = (Todo **) mallocSafe(size2 * sizeof(Todo *));
+//     for (i = 0; i < size1; i++) {
+//         v1[i] = items[s + i];
+//     }
+//     for (i = 0; i < size2; i++) {
+//         v2[i] = items[m + 1 + i];
+//     }
+//     i = 0;
+//     j = 0;
+//     k = s;
+//     while (i < size1 && j < size2) {
+//         if (v1[i]->planned == 0 || (v2[j]->planned != 0 && v1[i]->planned >= v2[j]->planned)) {
+//             items[k++] = v1[i++];
+//         } else {
+//             items[k++] = v2[j++];
+//         }
+//     }
+//     while (i < size1) {
+//         items[k++] = v1[i++];
+//     }
+//     while (j < size2) {
+//         items[k++] = v2[j++];
+//     }
+//     free(v1);
+//     free(v2);
+// }
 
 /*
     printCalendar()
     DOCUMENTAR.
 */
-void printCalendar(Calendar *calendar, Task *root) {
-    int item;
-    Todo *curTodo;
-    struct tm *stm;
-    long int curDay = getCurrentTime() - 3600*3;
-    long int prevDay;
-    setUPath(root, root);
-    calendar->nItems = 0;
-    fillCalendar(calendar, root);
-    if (calendar->nItems == 0) {
-        printf("Empty calendar.\n\n");
-        return;
-    }
-    sortCalendar(calendar->items, 0, calendar->nItems - 1);
+// void printCalendar(Calendar *calendar, Task *root) {
+//     int item;
+//     Todo *curTodo;
+//     struct tm *stm;
+//     long int curDay = getCurrentTime() - 3600*3;
+//     long int prevDay;
+//     setUPath(root, root);
+//     calendar->nItems = 0;
+//     fillCalendar(calendar, root);
+//     if (calendar->nItems == 0) {
+//         printf("Empty calendar.\n\n");
+//         return;
+//     }
+//     sortCalendar(calendar->items, 0, calendar->nItems - 1);
     /*
     if (item < calendar->nItems && calendar->items[item]->planned == 0)
         printf("  ********************  Sem data  ********************\n\n");
@@ -101,49 +101,49 @@ void printCalendar(Calendar *calendar, Task *root) {
         item++;
     }
     */
-    curTodo = calendar->items[0];
-    for (item = 0; item < calendar->nItems && (curTodo = calendar->items[item])->planned == 0; item++);
-    while (item < calendar->nItems && curTodo->planned / SECS_IN_A_DAY >= curDay / SECS_IN_A_DAY) {
-        stm = localtime(&(curTodo->planned));
-        printf("  ********************  %s (%02d/%02d)  ********************\n\n", wDayName[stm->tm_wday], stm->tm_mday, stm->tm_mon + 1);
-        while (item < calendar->nItems) {
-            prevDay = curTodo->planned;
-            curTodo = calendar->items[item];
-            if (curTodo->planned / SECS_IN_A_DAY != prevDay / SECS_IN_A_DAY) break;
-            printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
-            item++;
-        }
-    }
-    if (item < calendar->nItems) printf("  ********************  Atrasados  ********************\n\n");
-    while (item < calendar->nItems) {
-        curTodo = calendar->items[item];
-        stm = localtime(&(curTodo->planned));
-        printf("      * (%02d/%02d) %s (%s)\n\n", stm->tm_mday, stm->tm_mon + 1, curTodo->name, curTodo->parent->uniquePath);
-        item++;
-    }
-}
+//     curTodo = calendar->items[0];
+//     for (item = 0; item < calendar->nItems && (curTodo = calendar->items[item])->planned == 0; item++);
+//     while (item < calendar->nItems && curTodo->planned / SECS_IN_A_DAY >= curDay / SECS_IN_A_DAY) {
+//         stm = localtime(&(curTodo->planned));
+//         printf("  ********************  %s (%02d/%02d)  ********************\n\n", wDayName[stm->tm_wday], stm->tm_mday, stm->tm_mon + 1);
+//         while (item < calendar->nItems) {
+//             prevDay = curTodo->planned;
+//             curTodo = calendar->items[item];
+//             if (curTodo->planned / SECS_IN_A_DAY != prevDay / SECS_IN_A_DAY) break;
+//             printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
+//             item++;
+//         }
+//     }
+//     if (item < calendar->nItems) printf("  ********************  Atrasados  ********************\n\n");
+//     while (item < calendar->nItems) {
+//         curTodo = calendar->items[item];
+//         stm = localtime(&(curTodo->planned));
+//         printf("      * (%02d/%02d) %s (%s)\n\n", stm->tm_mday, stm->tm_mon + 1, curTodo->name, curTodo->parent->uniquePath);
+//         item++;
+//     }
+// }
 
 /*
     printNoDateTodos()
     Prints all to-dos with no specified dates.
 
 */
-void printNoDateTodos(Calendar *calendar, Task *root) {
-    int item;
-    Todo *curTodo;
-    setUPath(root, root);
-    calendar->nItems = 0;
-    fillCalendar(calendar, root);
-    if (calendar->nItems == 0) {
-        printf("No to-dos without date.\n\n");
-        return;
-    }
-    printf("  ********************  Sem data  ********************\n\n");
-    for (item = 0; item < calendar->nItems; item++) {
-        if ((curTodo = calendar->items[item])->planned != 0) continue;
-        printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
-    }
-}
+// void printNoDateTodos(Calendar *calendar, Task *root) {
+//     int item;
+//     Todo *curTodo;
+//     setUPath(root, root);
+//     calendar->nItems = 0;
+//     fillCalendar(calendar, root);
+//     if (calendar->nItems == 0) {
+//         printf("No to-dos without date.\n\n");
+//         return;
+//     }
+//     printf("  ********************  Sem data  ********************\n\n");
+//     for (item = 0; item < calendar->nItems; item++) {
+//         if ((curTodo = calendar->items[item])->planned != 0) continue;
+//         printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
+//     }
+// }
 
 /*
     sortPeriods()

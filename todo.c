@@ -38,24 +38,24 @@ void addTodo(Task *task) {
     Ask user the interval [a ... b] and name prefix to create to-dos
     [prefix a ... prefix b] in task pointed by 'task'.
 */
-void addTodoEsp(Task *task) {
-    int start;
-    int end;
-    char *name;
-    char copyName[NAME_LEN + 5];
-    int i;
-    sscanf(getToken(1), "%d-%d", &start, &end);
-    name = getToken(2);
-    if (strlen(name) == 0) {
-        printf("To-do name must not be empty.\n\n");
-        return;
-    }
-    for (i = start; i <= end; i++) {
-        sprintf(copyName, "%s %d", name, i);
-        task->todos[task->nTodos++] = createTodo(task, copyName, 0);
-    }
-    printf("Added to-dos '%s #', # = [%d, %d]\n\n", name, start, end);
-}
+// void addTodoEsp(Task *task) {
+//     int start;
+//     int end;
+//     char *name;
+//     char copyName[NAME_LEN + 5];
+//     int i;
+//     sscanf(getToken(1), "%d-%d", &start, &end);
+//     name = getToken(2);
+//     if (strlen(name) == 0) {
+//         printf("To-do name must not be empty.\n\n");
+//         return;
+//     }
+//     for (i = start; i <= end; i++) {
+//         sprintf(copyName, "%s %d", name, i);
+//         task->todos[task->nTodos++] = createTodo(task, copyName, 0); desatualizado
+//     }
+//     printf("Added to-dos '%s #', # = [%d, %d]\n\n", name, start, end);
+// }
 
 /*
     removeTodo()
@@ -81,53 +81,76 @@ void removeTodo(Task* task) {
     changeTodoDate()
     Changes planned day of to-do of task pointed by 'task'.
 */
-void changeTodoDate(Task *task) {
-    int id;
-    int day, mon;
-    time_t oldTime;
-    struct tm *structTime;
-    sscanf(getToken(1), "%d", &id);
-    sscanf(getToken(2), "%d/%d", &day, &mon);
-    id--;
-    if (id < 0 || task->nTodos <= id) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
-    if (day == 0 && mon == 0) {
-        task->todos[id]->planned = 0;
-        printf("To-do date removed.\n\n");
-        return;
-    }
-    oldTime = getCurrentTime();
-    structTime = localtime(&oldTime);
-    structTime->tm_hour = 12;
-    structTime->tm_min = 0;
-    structTime->tm_sec = 0;
-    structTime->tm_mon = mon - 1;
-    structTime->tm_mday = day;
-    if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
-    task->todos[id]->planned = mktime(structTime);
-    printf("To-do date changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
-}
+// void changeTodoDate(Task *task) {
+//     int id;
+//     int day, mon;
+//     time_t oldTime;
+//     struct tm *structTime;
+//     sscanf(getToken(1), "%d", &id);
+//     sscanf(getToken(2), "%d/%d", &day, &mon);
+//     id--;
+//     if (id < 0 || task->nTodos <= id) {
+//         printf("Invalid to-do ID.\n\n");
+//         return;
+//     }
+//     if (day == 0 && mon == 0) {
+//         task->todos[id]->planned = 0;
+//         printf("To-do date removed.\n\n");
+//         return;
+//     }
+//     oldTime = getCurrentTime();
+//     structTime = localtime(&oldTime);
+//     structTime->tm_hour = 12;
+//     structTime->tm_min = 0;
+//     structTime->tm_sec = 0;
+//     structTime->tm_mon = mon - 1;
+//     structTime->tm_mday = day;
+//     if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
+//     task->todos[id]->planned = mktime(structTime);
+//     printf("To-do date changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
+// }
 
 /*
     changeTodoDateEsp()
     Changes planned day of to-dos with ID [a ... b] of task
     pointed by 'task'.
 */
-void changeTodoDateEsp(Task *task) {
-    int ids, ide;
-    int day, mon;
-    time_t oldTime;
-    struct tm *structTime;
-    time_t newTime;
-    int i;
-    sscanf(getToken(1), "%d-%d", &ids, &ide);
-    sscanf(getToken(2), "%d/%d", &day, &mon);
-    ids--;
-    ide--;
-    if (ids < 0 || ide < ids || task->nTodos <= ide) {
-        printf("Invalid to-do ID interval.\n\n");
+// void changeTodoDateEsp(Task *task) {
+//     int ids, ide;
+//     int day, mon;
+//     time_t oldTime;
+//     struct tm *structTime;
+//     time_t newTime;
+//     int i;
+//     sscanf(getToken(1), "%d-%d", &ids, &ide);
+//     sscanf(getToken(2), "%d/%d", &day, &mon);
+//     ids--;
+//     ide--;
+//     if (ids < 0 || ide < ids || task->nTodos <= ide) {
+//         printf("Invalid to-do ID interval.\n\n");
+//         return;
+//     }
+//     if (day == 0 && mon == 0) {
+//         newTime = 0;
+//         printf("To-do date removed.\n\n");
+//     } else {
+//         oldTime = getCurrentTime();
+//         structTime = localtime(&oldTime);
+//         structTime->tm_hour = 12;
+//         structTime->tm_mon = mon - 1;
+//         structTime->tm_mday = day;
+//    	    structTime->tm_min = 0;
+//     	structTime->tm_sec = 0;
+// 	    if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
+//         newTime = mktime(structTime);
+//  	    printf("To-dos dates changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
+
+//     }
+//     for (i = ids; i <= ide; i++) {
+//         task->todos[i]->planned = newTime;
+//     }
+// }
+
         return;
     }
     if (day == 0 && mon == 0) {
@@ -155,67 +178,69 @@ void changeTodoDateEsp(Task *task) {
     startPeriod()
     Starts a period in task pointed by 'task'.
 */
-void startPeriod(Task* task) {
-    Period* period = &(task->periods[task->nPeriods]);
-    int id;
-    sscanf(getToken(1), "%d", &id);
-    id--;
-    period->start = period->end = getCurrentTime();
-    strcpy(period->name, task->todos[id]->name);
-    (task->nPeriods)++;
-    printf("Period \"%s\" of (%s) started. Type 'stop' when done.\n\n", period->name, task->code);
-}
+// void startPeriod(Task* task) {
+//     Period* period = &(task->periods[task->nPeriods]);
+//     int id;
+//     sscanf(getToken(1), "%d", &id);
+//     id--;
+//     period->start = period->end = getCurrentTime();
+//     strcpy(period->name, task->todos[id]->name);
+//     (task->nPeriods)++;
+//     printf("Period \"%s\" of (%s) started. Type 'stop' when done.\n\n", period->name, task->code);
+// }
 
 /*
     savePeriodTime()
     Saves current time as end time of running period of task pointed by
     'task'.
 */
-void savePeriodTime(Task* task) {
-    Period* period = &(task->periods[task->nPeriods - 1]);
-    period->end = getCurrentTime();
-}
+// void savePeriodTime(Task* task) {
+//     Period* period = &(task->periods[task->nPeriods - 1]);
+//     period->end = getCurrentTime();
+// }
 
 /*
     stopPeriod()
     Stops running period of task pointed by 'task' and saves it.
-*/
-void stopPeriod(Task* task) {
-    Period* period = &(task->periods[task->nPeriods - 1]);
-    long int taskDur = 0;
-    char formatedDur[10];
-    savePeriodTime(task);
-    taskDur = period->end - period->start;
-    formatDur(taskDur, formatedDur);
-    printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
-}
+// */
+// void stopPeriod(Task* task) {
+//     Period* period = &(task->periods[task->nPeriods - 1]);
+//     long int taskDur = 0;
+//     char formatedDur[10];
+//     savePeriodTime(task);
+//     taskDur = period->end - period->start;
+//     formatDur(taskDur, formatedDur);
+//     printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
+// }
 
 /*
     cancelPeriod()
     Cancels running period of task pointed by 'task', not saving it.
 */
-void cancelPeriod(Task* task) {
-    Period* period = &(task->periods[task->nPeriods - 1]);
-    long int taskDur = 0;
-    char formatedDur[10];
-    taskDur = getCurrentTime() - period->start;
-    (task->nPeriods)--;
-    formatDur(taskDur, formatedDur);
-    printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
+// void cancelPeriod(Task* task) {
+//     Period* period = &(task->periods[task->nPeriods - 1]);
+//     long int taskDur = 0;
+//     char formatedDur[10];
+//     taskDur = getCurrentTime() - period->start;
+//     (task->nPeriods)--;
+//     formatDur(taskDur, formatedDur);
+//     printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
 
-}
+// }
 
 /*
     showTaskPeriodTime()
     Prints total time in running period of task pointed by 'task'.
 */
-void showTaskPeriodTime(Task* task) {
-    Period* period = &(task->periods[task->nPeriods - 1]);
-    long int taskDur = 0;
-    char formatedDur[10];
-    taskDur = getCurrentTime() - period->start;
-    formatDur(taskDur, formatedDur);
-    printf("Time spent in period \"%s\" of (%s): %s.\n\n", period->name, task->code, formatedDur);
+// void showTaskPeriodTime(Task* task) {
+//     Period* period = &(task->periods[task->nPeriods - 1]);
+//     long int taskDur = 0;
+//     char formatedDur[10];
+//     taskDur = getCurrentTime() - period->start;
+//     formatDur(taskDur, formatedDur);
+//     printf("Time spent in period \"%s\" of (%s): %s.\n\n", period->name, task->code, formatedDur);
+// }
+
 }
 
 /*
@@ -267,6 +292,12 @@ void todosMenu(Task* task) {
 				listTodos(task);
                 saveAll();
             }
+        // } else if (strcmp(commandName, "addesp") == 0) {
+        //     if (validArgs(2)) {
+        //         addTodoEsp(task);
+        //      listTodos(task);
+        //         saveAll();
+        //     }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeTodo(task);
@@ -276,48 +307,48 @@ void todosMenu(Task* task) {
             if (validArgs(0)) listTodos(task);
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(2)) {
-                changeTodoDate(task);
-				listTodos(task);
-                saveAll();
+                // changeTodoDate(task);
+                // listTodos(task);
+                // saveAll();
             }
-        } else if (strcmp(commandName, "setesp") == 0) {
-            if (validArgs(2)) {
-                changeTodoDateEsp(task);
-				listTodos(task);
-                saveAll();
-            }
-        } else if (strcmp(commandName, "start") == 0) {
-            if (running) {
-                printf("There is already a period running.\n\n");
-            } else if (validArgs(1)) {
-                running = true;
-                startPeriod(task);
-                saveAll();
-            }
-        } else if (strcmp(commandName, "stop") == 0) {
-            if (!running) {
-                printf("There is no period running to stop.\n\n");
-            } else if (validArgs(0)) {
-                running = false;
-                stopPeriod(task);
-                saveAll();
-            }
-        } else if (strcmp(commandName, "cancel") == 0) {
-            if (!running) {
-                printf("There is no period running to cancel.\n\n");
-            } else if (validArgs(0)) {
-                running = false;
-                cancelPeriod(task);
-                saveAll();
-            }
-        } else if (strcmp(commandName, "time") == 0) {
-            if (!running) {
-                printf("There is no period running.\n\n");
-            } else if (validArgs(0)) {
-                showTaskPeriodTime(task);
-                savePeriodTime(task);
-                saveAll();
-            }
+        // } else if (strcmp(commandName, "setesp") == 0) {
+        //     if (validArgs(2)) {
+        //         changeTodoDateEsp(task);
+        //         listTodos(task);
+        //         saveAll();
+        //     }
+        // } else if (strcmp(commandName, "start") == 0) {
+        //     if (running) {
+        //         printf("There is already a period running.\n\n");
+        //     } else if (validArgs(1)) {
+        //         running = true;
+        //         startPeriod(task);
+        //         saveAll();
+        //     }
+        // } else if (strcmp(commandName, "stop") == 0) {
+        //     if (!running) {
+        //         printf("There is no period running to stop.\n\n");
+        //     } else if (validArgs(0)) {
+        //         running = false;
+        //         stopPeriod(task);
+        //         saveAll();
+        //     }
+        // } else if (strcmp(commandName, "cancel") == 0) {
+        //     if (!running) {
+        //         printf("There is no period running to cancel.\n\n");
+        //     } else if (validArgs(0)) {
+        //         running = false;
+        //         cancelPeriod(task);
+        //         saveAll();
+        //     }
+        // } else if (strcmp(commandName, "time") == 0) {
+        //     if (!running) {
+        //         printf("There is no period running.\n\n");
+        //     } else if (validArgs(0)) {
+        //         showTaskPeriodTime(task);
+        //         savePeriodTime(task);
+        //         saveAll();
+        //     }
         } else if (strcmp(commandName, "help") == 0) {
             if (validArgs(0)) printHelp(TODOS_MENU);
         } else if (strcmp(commandName, "cd") == 0) {
