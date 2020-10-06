@@ -14,6 +14,7 @@
 #define SECS_IN_A_WEEK 604800
 
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
+enum TodoStatus {TODO_PENDING, TODO_PRIORITY};
 enum TodoType {ROOT, NODE};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIOD_MENU, WEEK_MENU};
 
@@ -33,7 +34,8 @@ typedef union {
 
 struct todo {
     char name[NAME_LEN];
-    int estimate;
+    int timeSpent;
+    int timeEstimate;
     int status;
     int nSubtodos;
     Todo *subtodos[MAX_CHILDS];

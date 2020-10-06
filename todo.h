@@ -4,6 +4,7 @@
 #include <time.h>
 #include "objectives.h"
 
+Todo* createTodo(char *name, int type);
 
 void freeTodo(Todo *todo);
 

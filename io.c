@@ -126,6 +126,22 @@ void fpfInd(FILE* file, int depth) {
 }
 
 /*
+    saveTodo()
+    Save all data from todo pointed by 'todo' in file pointed by 'output' with
+    depth 'depth' in task tree.
+*/
+void saveTodo(Todo* todo, FILE* output, int depth) {
+    int i;
+    fpfInd(output, depth);
+    fprintf(output, "\"%s\" %d %d %d\n", todo->name, todo->timeSpent, todo->timeEstimate, todo->status);
+    fpfInd(output, depth);
+    fprintf(output, "%d\n", todo->nSubtodos);
+    for (i = 0; i < todo->nSubtodos; i++) {
+        saveTodo(todo->subtodos[i], output, depth + 1);
+    }
+}
+
+/*
     saveTask()
     Save all data from task pointed by 'task' in file pointed by 'output' with
     depth 'depth' in task tree.
@@ -143,8 +159,7 @@ void saveTask(Task* task, FILE* output, int depth) {
 	fpfInd(output, depth);
     fprintf(output, "%d\n", task->nTodos);
     for (i = 0; i < task->nTodos; i++) {
-        fpfInd(output, depth);
-        fprintf(output, "\"%s\" %d\n", task->todos[i]->name, task->todos[i]->estimate);
+        saveTodo(task->todos[i], output, depth);
     }
     fpfInd(output, depth);
     fprintf(output, "%d\n", task->nPeriods);
@@ -155,7 +170,7 @@ void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
     fprintf(output, "%d\n", task->nSubtasks);
     for (i = 0; i < task->nSubtasks; i++) {
-        saveTask(task->subtasks[i], output, depth+1);
+        saveTask(task->subtasks[i], output, depth + 1);
     }
 }
 
@@ -179,14 +194,35 @@ void saveAll() {
 }
 
 /*
+    loadTodo()
+    Gets todo data from file pointed by 'input'.
+*/
+Todo* loadTodo(FILE* input, int type) {
+    int i;
+    char todoName[NAME_LEN];
+    Todo* todo;
+    getLine(input);
+    strcpy(todoName, getToken(0));
+    todo = createTodo(todoName, type);
+    todo->timeSpent = atoi(getToken(1));
+    todo->timeEstimate = atoi(getToken(2));
+    todo->status = atoi(getToken(3));
+	getLine(input);
+    todo->nSubtodos = atoi(getToken(0));
+    for (i = 0; i < todo->nSubtodos; i++) {
+        todo->subtodos[i] = loadTodo(input, NODE);
+        todo->subtodos[i]->parent.todo = todo;
+    }
+    return todo;
+}
+
+/*
     loadTask()
     Gets task data from file pointed by 'input'.
 */
 Task* loadTask(FILE* input) {
     int i;
     char taskName[NAME_LEN];
-    char todoName[NAME_LEN];
-    int estimate;
     char taskCode[CODE_LEN];
     Task* task;
     getLine(input);
@@ -205,13 +241,8 @@ Task* loadTask(FILE* input) {
     getLine(input);
     task->nTodos = atoi(getToken(0));
     for (i = 0; i < task->nTodos; i++) {
-        TodoParent parent;
-        parent.task = task;
-        getLine(input);
-        strcpy(todoName, getToken(0));
-        task->todos[i] = createTodo(parent, todoName, ROOT);
-        estimate = atol(getToken(1));
-        task->todos[i]->estimate = estimate;
+        task->todos[i] = loadTodo(input, ROOT);
+        task->todos[i]->parent.task = task;
     }
     getLine(input);
     task->nPeriods = atoi(getToken(0));

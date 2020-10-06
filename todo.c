@@ -9,19 +9,15 @@
     createTodo()
     Creates a to-do named 'name' with 'type'.
 */
-Todo* createTodo(TodoParent parent, char *name, int type) {
+Todo* createTodo(char *name, int type) {
     Todo* newTodo;
     newTodo = (Todo *) mallocSafe(sizeof(Todo));
     strcpy(newTodo->name, name);
-    newTodo->estimate = -1;
+    newTodo->timeSpent = 0;
+    newTodo->timeEstimate = 0;
     newTodo->status = TODO_PENDING;
-    newTodo->nSubtodos = 0;
     newTodo->type = type;
-    if (type == ROOT) {
-        newTodo->parent.task = parent.task;
-    } else {
-        newTodo->parent.todo = parent.todo;
-    }
+    newTodo->nSubtodos = 0;
     return newTodo;
 }
 
@@ -70,7 +66,6 @@ Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
 void addTodo(Task *task) {
     char *name;
     int type = getNComms() == 2 ? ROOT : NODE;
-    TodoParent parent;
     
     name = type == ROOT ? getToken(1) : getToken(2);
 
@@ -80,8 +75,8 @@ void addTodo(Task *task) {
     }
 
     if (type == ROOT) {
-        parent.task = task;
-        task->todos[task->nTodos] = createTodo(parent, name, type);
+        task->todos[task->nTodos] = createTodo(name, type);
+        task->todos[task->nTodos]->parent.task = task;
         task->nTodos++;
     } else {
         Todo *todo = getTodoFromPath(task, getToken(1), NULL);
@@ -89,8 +84,8 @@ void addTodo(Task *task) {
             printf("Invalid parent to-do ID.\n\n");
             return;
         }
-        parent.todo = todo;
-        todo->subtodos[todo->nSubtodos] = createTodo(parent, name, type);
+        todo->subtodos[todo->nSubtodos] = createTodo(name, type);
+        todo->subtodos[todo->nSubtodos]->parent.todo = todo;
         todo->nSubtodos++;
     }
 
@@ -233,7 +228,6 @@ void removeTodo(Task* task) {
     Sets the estimate of todo of 'task'.
 */
 void setEstimate(Task* task) {
-    int estimate;
     Todo* todo = getTodoFromPath(task, getToken(1), NULL);
     
     if (todo == NULL) {
@@ -241,8 +235,7 @@ void setEstimate(Task* task) {
         return;
     }
 
-    estimate = atoi(getToken(2));
-    todo->estimate = estimate;
+    todo->timeEstimate = 60 * atof(getToken(2));
 }
 
 /*
@@ -313,22 +306,22 @@ void setEstimate(Task* task) {
 // }
 
 /*
-    listSubtodos()
-    Print list of sub-to-dos of todo pointed by 'todo'.
+    printTodoTree()
+    Print to-do tree of to-do pointed by 'todo'.
 */
-void listSubtodos(Todo* todo, int level) {
-    int i, j;
+void printTodoTree(Todo* todo, int level, int id) {
+    int i;
+    printf("  |   ");
+    for (i = 0; i < level; i++) {
+        printf("  ");
+    }
+    printf("%2d %s", id, todo->name);
+    if (todo->timeEstimate != 0) {
+        printf("  (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
+    }
+    printf("\n");
     for (i = 0; i < todo->nSubtodos; i++) {
-        printf("  |   ");
-        for (j = 0; j < level; j++) {
-            printf("  ");
-        }
-        printf("%2d %s", i + 1, todo->subtodos[i]->name);
-        if (todo->subtodos[i]->estimate != -1) {
-            printf(" (%d)", todo->subtodos[i]->estimate);
-        }
-        printf("\n");
-        listSubtodos(todo->subtodos[i], level + 1);
+        printTodoTree(todo->subtodos[i], level + 1, i + 1);
     }
 }
 
@@ -344,12 +337,7 @@ void listTodos(Task* task) {
         printf("  |   List is empty\n");
     }
     for (i = 0; i < task->nTodos; i++) {
-        printf("  |   %2d %s", i + 1, task->todos[i]->name);
-        if (task->todos[i]->estimate != -1) {
-            printf(" (%d)\n", task->todos[i]->estimate);
-        }
-        printf("\n");
-        listSubtodos(task->todos[i], 1);
+        printTodoTree(task->todos[i], 0, i + 1);
     }
     printf("  |\n");
     printf("  +------------------------------------------------------------------+\n\n");
