@@ -26,6 +26,18 @@ Todo* createTodo(TodoParent parent, char *name, int type) {
 }
 
 /*
+	freeTodo()
+	Frees the memory allocated to 'todo' and its subtodos.
+*/
+void freeTodo(Todo *todo) {
+	int i;
+	for (i = 0; i < todo->nSubtodos; i++) {
+		freeTodo(todo->subtodos[i]);
+	}
+	free(todo);
+}
+
+/*
     getTodoFromPath()
     Get todo from path in text.
 */
@@ -139,6 +151,7 @@ void removeTodo(Task* task) {
             id++;
         }
     }
+    freeTodo(todo);
 }
 
 /*

@@ -81,7 +81,7 @@ Task* createTask(char *name, char *code) {
 void freeTask(Task *task) {
 	int i;
 	for (i = 0; i < task->nTodos; i++) {
-		free(task->todos[i]);
+		freeTodo(task->todos[i]);
 	}
 	for (i = 0; i < task->nSubtasks; i++) {
 		freeTask(task->subtasks[i]);
@@ -120,18 +120,6 @@ void addSubtask(Task* parent) {
 }
 
 /*
-    deleteTask();
-    Deletes task pointed by 'task' and all of its subtasks.
-*/
-void deleteTask(Task* task) {
-    int i;
-    for (i = 0; i < task->nSubtasks; i++) {
-        deleteTask(task->subtasks[i]);
-    }
-    free(task);
-}
-
-/*
     removeSubtask()
     Gets subtask code from user and deletes it from subtask list of task pointed
     by 'parent'
@@ -146,14 +134,15 @@ void removeSubtask(Task *parent) {
         printf("There's no task with code \"%s\".\n\n", subtaskCode);
         return;
     }
-    taskTodelete = parent->subtasks[id];
+
+    printf("Removed task (%s) %s.\n\n", parent->subtasks[id]->code, parent->subtasks[id]->name);
+
     parent->nSubtasks--;
     while (id < parent->nSubtasks) {
         parent->subtasks[id] = parent->subtasks[id + 1];
         id++;
     }
-    printf("Removed task (%s) %s.\n\n", taskTodelete->code, taskTodelete->name);
-    deleteTask(taskTodelete);
+    freeTask(taskTodelete);
 }
 
 void listStatusTasks(Task* tasks[], int count, char statusName[]) {
