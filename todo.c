@@ -44,13 +44,19 @@ Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
 
     token = strtok(text, ".");
     id = atoi(token) - 1;
-    if (id < 0 || id >= task->nTodos) return NULL;
+    if (id < 0 || id >= task->nTodos) {
+        printf("Invalid to-do ID.\n\n");
+        return NULL;
+    }
     
     todo = task->todos[id];
    
     while ((token = strtok(NULL, ".")) != NULL) {
         id = atoi(token) - 1;
-        if (id < 0 || id >= todo->nSubtodos) return NULL;
+        if (id < 0 || id >= todo->nSubtodos) {
+            printf("Invalid to-do ID.\n\n");
+            return NULL;
+        }
         todo = todo->subtodos[id];
     }
 
@@ -80,10 +86,7 @@ void addTodo(Task *task) {
         task->nTodos++;
     } else {
         Todo *todo = getTodoFromPath(task, getToken(1), NULL);
-        if (todo == NULL) {
-            printf("Invalid parent to-do ID.\n\n");
-            return;
-        }
+        if (todo == NULL) return;
         todo->subtodos[todo->nSubtodos] = createTodo(name, type);
         todo->subtodos[todo->nSubtodos]->parent.todo = todo;
         todo->nSubtodos++;
@@ -124,10 +127,7 @@ void removeTodo(Task* task) {
     int id;
     Todo *todo = getTodoFromPath(task, getToken(1), &id);
 
-    if (todo == NULL) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
+    if (todo == NULL) return;
 
     printf("To-do \"%s\" removed.\n\n", todo->name);
 
@@ -230,12 +230,35 @@ void removeTodo(Task* task) {
 void setEstimate(Task* task) {
     Todo* todo = getTodoFromPath(task, getToken(1), NULL);
     
-    if (todo == NULL) {
-        printf("Invalid to-do ID.\n\n");
+    if (todo == NULL) return;
+
+    todo->timeEstimate = 60 * atof(getToken(2));
+}
+
+/*
+    setTodoStatus()
+    Changes status of to-do.
+*/
+void setTodoStatus(Task *task) {
+    char *statusName;
+    Todo *todo = getTodoFromPath(task, getToken(1), NULL);   
+
+    if (todo == NULL) return;
+
+    int status;
+    statusName = toLowercase(getToken(2));
+    
+    if (strcmp(statusName, "pending") == 0) {
+        status = TODO_PENDING;
+    } else if (strcmp(statusName, "priority") == 0) {
+        status = TODO_PRIORITY;
+    } else {
+        printf("\"%s\" is not a valid status.\n\n", statusName);
         return;
     }
 
-    todo->timeEstimate = 60 * atof(getToken(2));
+    todo->status = status;
+    printf("\"%s\" is set to \"%s\"\n\n", todo->name, statusName);
 }
 
 /*
@@ -317,7 +340,10 @@ void printTodoTree(Todo* todo, int level, int id) {
     }
     printf("%2d %s", id, todo->name);
     if (todo->timeEstimate != 0) {
-        printf("  (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
+        printf(" (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
+    }
+    if (todo->status == TODO_PRIORITY) {
+        printf(" *");
     }
     printf("\n");
     for (i = 0; i < todo->nSubtodos; i++) {
@@ -378,10 +404,15 @@ void todosMenu(Task* task) {
             if (validArgs(0)) listTodos(task);
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(2)) {
-                // changeTodoDate(task);
+                setTodoStatus(task);
+                listTodos(task);
+                saveAll();
+            }
+        } else if (strcmp(commandName, "estimate") == 0) {
+            if (validArgs(2)) {
                 setEstimate(task);
-                // listTodos(task);
-                // saveAll();
+                listTodos(task);
+                saveAll();
             }
         // } else if (strcmp(commandName, "setesp") == 0) {
         //     if (validArgs(2)) {
