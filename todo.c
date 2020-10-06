@@ -433,8 +433,6 @@ void todosMenu(Task* task) {
         //         savePeriodTime(task);
         //         saveAll();
         //     }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(TODOS_MENU);
         } else if (strcmp(commandName, "cd") == 0) {
             if (running) {
                 printf("There a period running, can't go back.\n\n");
@@ -444,6 +442,16 @@ void todosMenu(Task* task) {
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
+            }
+        } else if (strcmp(commandName, "help") == 0) {
+            if (validArgs(0)) printHelp(TODOS_MENU);
+        } else if (strcmp(commandName, "save") == 0) {
+            if (validArgs(0)) saveAll();
+        } else if (strcmp(commandName, "exit") == 0) {
+            if (validArgs(0)) {
+				freeAll();
+                printf("Exiting...\n\n");
+                exit(EXIT_SUCCESS);
             }
         } else {
             notAvailable(commandName);

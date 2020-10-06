@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "period.h"
 #include "util.h"
 #include "io.h"
@@ -141,8 +142,6 @@ void periodsMenu(Task *task) {
                 removePeriod(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(PERIOD_MENU);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
@@ -150,6 +149,16 @@ void periodsMenu(Task *task) {
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
+            }
+        } else if (strcmp(commandName, "help") == 0) {
+            if (validArgs(0)) printHelp(PERIOD_MENU);
+        } else if (strcmp(commandName, "save") == 0) {
+            if (validArgs(0)) saveAll();
+        } else if (strcmp(commandName, "exit") == 0) {
+            if (validArgs(0)) {
+				freeAll();
+                printf("Exiting...\n\n");
+                exit(EXIT_SUCCESS);
             }
         } else {
             notAvailable(commandName);
