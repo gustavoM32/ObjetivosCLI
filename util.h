@@ -25,6 +25,8 @@ void formatDate(long int time, char dateString[]);
 
 long int getTime(int day, int month, int year, int hour, int min, int sec);
 
+time_t getDayStart(time_t time);
+
 long int changeTime(long int oldTime, int hour, int min, int sec);
 
 long int changeDate(long int oldTime, int day, int month, int year);

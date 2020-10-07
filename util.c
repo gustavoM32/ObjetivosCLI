@@ -44,6 +44,18 @@ long int getCurrentTime() {
 }
 
 /**
+    getDayStart()
+    Returns the start of the day of supplied date in local time.
+*/
+time_t getDayStart(time_t time) {
+    struct tm *stm = localtime(&time);
+    stm->tm_sec = 0;
+    stm->tm_min = 0;
+    stm->tm_hour = 0;
+    return mktime(stm);
+}
+
+/**
     formatDur()
     This function returns in 'timeString' the 'totalTime' formated as 'h:mm:ss'.
 */
