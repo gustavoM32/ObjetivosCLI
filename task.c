@@ -125,7 +125,6 @@ void addSubtask(Task* parent) {
     by 'parent'
 */
 void removeSubtask(Task *parent) {
-    Task *taskTodelete;
     char *subtaskCode;
     int id;
     subtaskCode = toUppercase(getToken(1));
@@ -137,12 +136,13 @@ void removeSubtask(Task *parent) {
 
     printf("Removed task (%s) %s.\n\n", parent->subtasks[id]->code, parent->subtasks[id]->name);
 
+    freeTask(parent->subtasks[id]);
+
     parent->nSubtasks--;
     while (id < parent->nSubtasks) {
         parent->subtasks[id] = parent->subtasks[id + 1];
         id++;
     }
-    freeTask(taskTodelete);
 }
 
 void listStatusTasks(Task* tasks[], int count, char statusName[]) {

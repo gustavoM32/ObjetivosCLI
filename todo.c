@@ -18,6 +18,7 @@ Todo* createTodo(char *name, int type) {
     newTodo->status = TODO_PENDING;
     newTodo->type = type;
     newTodo->nSubtodos = 0;
+    newTodo->nSchedules = 0;
     return newTodo;
 }
 
@@ -27,6 +28,9 @@ Todo* createTodo(char *name, int type) {
 */
 void freeTodo(Todo *todo) {
 	int i;
+    for (i = 0; i < todo->nSchedules; i++) {
+        free(todo->schedules[i]);
+    }
 	for (i = 0; i < todo->nSubtodos; i++) {
 		freeTodo(todo->subtodos[i]);
 	}
@@ -148,80 +152,6 @@ void removeTodo(Task* task) {
     }
     freeTodo(todo);
 }
-
-/*
-    changeTodoDate()
-    Changes planned day of to-do of task pointed by 'task'.
-*/
-// void changeTodoDate(Task *task) {
-//     int id;
-//     int day, mon;
-//     time_t oldTime;
-//     struct tm *structTime;
-//     sscanf(getToken(1), "%d", &id);
-//     sscanf(getToken(2), "%d/%d", &day, &mon);
-//     id--;
-//     if (id < 0 || task->nTodos <= id) {
-//         printf("Invalid to-do ID.\n\n");
-//         return;
-//     }
-//     if (day == 0 && mon == 0) {
-//         task->todos[id]->planned = 0;
-//         printf("To-do date removed.\n\n");
-//         return;
-//     }
-//     oldTime = getCurrentTime();
-//     structTime = localtime(&oldTime);
-//     structTime->tm_hour = 12;
-//     structTime->tm_min = 0;
-//     structTime->tm_sec = 0;
-//     structTime->tm_mon = mon - 1;
-//     structTime->tm_mday = day;
-//     if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
-//     task->todos[id]->planned = mktime(structTime);
-//     printf("To-do date changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
-// }
-
-/*
-    changeTodoDateEsp()
-    Changes planned day of to-dos with ID [a ... b] of task
-    pointed by 'task'.
-*/
-// void changeTodoDateEsp(Task *task) {
-//     int ids, ide;
-//     int day, mon;
-//     time_t oldTime;
-//     struct tm *structTime;
-//     time_t newTime;
-//     int i;
-//     sscanf(getToken(1), "%d-%d", &ids, &ide);
-//     sscanf(getToken(2), "%d/%d", &day, &mon);
-//     ids--;
-//     ide--;
-//     if (ids < 0 || ide < ids || task->nTodos <= ide) {
-//         printf("Invalid to-do ID interval.\n\n");
-//         return;
-//     }
-//     if (day == 0 && mon == 0) {
-//         newTime = 0;
-//         printf("To-do date removed.\n\n");
-//     } else {
-//         oldTime = getCurrentTime();
-//         structTime = localtime(&oldTime);
-//         structTime->tm_hour = 12;
-//         structTime->tm_mon = mon - 1;
-//         structTime->tm_mday = day;
-//    	    structTime->tm_min = 0;
-//     	structTime->tm_sec = 0;
-// 	    if (mktime(structTime) < oldTime - oldTime % 86400) structTime->tm_year++;
-//         newTime = mktime(structTime);
-//  	    printf("To-dos dates changed to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
-
-//     }
-//     for (i = ids; i <= ide; i++) {
-//         task->todos[i]->planned = newTime;
-//     }
-// }
 
 /*
     setEstimate()

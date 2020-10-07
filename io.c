@@ -135,6 +135,13 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
     fpfInd(output, depth);
     fprintf(output, "\"%s\" %d %d %d\n", todo->name, todo->timeSpent, todo->timeEstimate, todo->status);
     fpfInd(output, depth);
+    fprintf(output, "%d\n", todo->nSchedules);
+    for (i = 0; i < todo->nSchedules; i++) {
+        Schedule *sched = todo->schedules[i];
+        fpfInd(output, depth);
+        fprintf(output, "%d %d %d %ld\n", sched->timeSpent, sched->timeEstimate, sched->timeSet, sched->date);
+    }
+    fpfInd(output, depth);
     fprintf(output, "%d\n", todo->nSubtodos);
     for (i = 0; i < todo->nSubtodos; i++) {
         saveTodo(todo->subtodos[i], output, depth + 1);
@@ -207,6 +214,18 @@ Todo* loadTodo(FILE* input, int type) {
     todo->timeSpent = atoi(getToken(1));
     todo->timeEstimate = atoi(getToken(2));
     todo->status = atoi(getToken(3));
+	getLine(input);
+    todo->nSchedules = atoi(getToken(0));
+    for (i = 0; i < todo->nSchedules; i++) {
+        Schedule *sched = (Schedule *) mallocSafe(sizeof(Schedule));
+        sched->todo = todo;
+        getLine(input);
+        sched->timeSpent = atoi(getToken(0));
+        sched->timeEstimate = atoi(getToken(1));
+        sched->timeSet = atoi(getToken(2));
+        sched->date = atol(getToken(3));
+        todo->schedules[i] = sched;
+    }
 	getLine(input);
     todo->nSubtodos = atoi(getToken(0));
     for (i = 0; i < todo->nSubtodos; i++) {
