@@ -1,127 +1,175 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "calendar.h"
 #include "objectives.h"
+#include "io.h"
 #include "util.h"
+#include "help.h"
 
 char *wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
 char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
 
 /*
-    createCalendar()
-    DOCUMENTAR.
+    fillCalendarSchedules()
+    Fills calendar with to-do schedules.
 */
-Calendar *createCalendar() {
-    Calendar* newCalendar;
-    newCalendar = (Calendar *) mallocSafe(sizeof(Calendar));
-    newCalendar->nItems = 0;
-    return newCalendar;
+void fillCalendarSchedules(Calendar *calendar, Todo *todo) {
+    int i;
+    for (i = 0; i < todo->nSchedules; i++) {
+        calendar->schedules[calendar->nSchedules] = todo->schedules[i];
+        calendar->nSchedules++;
+    }
 }
 
 /*
-    fillCalendar()
-    DOCUMENTAR.
+    fillCalendarTodo()
+    Fills calendar with sub-to-dos of todo.
 */
-void fillCalendar(Calendar *calendar, Task *task) {
+void fillCalendarTodo(Calendar *calendar, Todo *todo) {
+    int i;
+    for (i = 0; i < todo->nSubtodos; i++) {
+        if (todo->subtodos[i]->status == TODO_PRIORITY) {
+            calendar->todos[calendar->nTodos] = todo->subtodos[i];
+            calendar->nTodos++;
+        }
+        fillCalendarSchedules(calendar, todo->subtodos[i]);
+        fillCalendarTodo(calendar, todo->subtodos[i]);
+    }
+}
+
+/*
+    fillCalendarTask()
+    Fills calendar with to-dos of task.
+*/
+void fillCalendarTask(Calendar *calendar, Task *task) {
     int i;
     for (i = 0; i < task->nTodos; i++) {
-        calendar->items[calendar->nItems++] = task->todos[i];
+        if (task->todos[i]->status == TODO_PRIORITY) {
+            calendar->todos[calendar->nTodos] = task->todos[i];
+            calendar->nTodos++;
+        }
+        fillCalendarSchedules(calendar, task->todos[i]);
+        fillCalendarTodo(calendar, task->todos[i]);
     }
     for (i = 0; i < task->nSubtasks; i++) {
-        fillCalendar(calendar, task->subtasks[i]);
+        fillCalendarTask(calendar, task->subtasks[i]);
     }
+}
+
+/*
+    schedComp
+    Schedule compare function.
+*/
+int schedComp(const void *elem1, const void *elem2) {
+    Schedule *sched1 = *(Schedule **) elem1;
+    Schedule *sched2 = *(Schedule **) elem2;
+    if (sched1->date < sched2->date) return -1;
+    if (sched1->date > sched2->date) return 1;
+    if (sched1->timeSet) return 1;
+    if (sched2->timeSet) return -1;
+    return 0;
 }
 
 /*
     sortCalendar()
-    DOCUMENTAR.
+    Order schedules by date.
 */
-// void sortCalendar(Todo **items, int s, int e) {
-//     int i, j, k;
-//     int m = (s + e) / 2;
-//     int size1 = m - s + 1;
-//     int size2 = e - m;
-//     Todo **v1;
-//     Todo **v2;
-//     if (e == s) return;
-//     sortCalendar(items, s, m);
-//     sortCalendar(items, m + 1, e);
-//     v1 = (Todo **) mallocSafe(size1 * sizeof(Todo *));
-//     v2 = (Todo **) mallocSafe(size2 * sizeof(Todo *));
-//     for (i = 0; i < size1; i++) {
-//         v1[i] = items[s + i];
-//     }
-//     for (i = 0; i < size2; i++) {
-//         v2[i] = items[m + 1 + i];
-//     }
-//     i = 0;
-//     j = 0;
-//     k = s;
-//     while (i < size1 && j < size2) {
-//         if (v1[i]->planned == 0 || (v2[j]->planned != 0 && v1[i]->planned >= v2[j]->planned)) {
-//             items[k++] = v1[i++];
-//         } else {
-//             items[k++] = v2[j++];
-//         }
-//     }
-//     while (i < size1) {
-//         items[k++] = v1[i++];
-//     }
-//     while (j < size2) {
-//         items[k++] = v2[j++];
-//     }
-//     free(v1);
-//     free(v2);
-// }
+void sortCalendar(Calendar *calendar) {
+    qsort(calendar->schedules, calendar->nSchedules, sizeof(Schedule *), schedComp);
+}
+
+void getTodoFullName(Todo *todo, char name[]) {
+    char nameSufix[NAME_LEN + CODE_LEN];
+
+    if (todo->type == ROOT) {
+        sprintf(name, "%s", todo->parent.task->uniquePath);
+    } else {
+        getTodoFullName(todo->parent.todo, name);
+    }
+
+    sprintf(nameSufix, " > %s", todo->name);
+    strcat(name, nameSufix);
+}
+
 
 /*
-    printCalendar()
-    DOCUMENTAR.
+    printScheduled()
+    Prints scheduled to-dos.
 */
-// void printCalendar(Calendar *calendar, Task *root) {
-//     int item;
-//     Todo *curTodo;
-//     struct tm *stm;
-//     long int curDay = getCurrentTime() - 3600*3;
-//     long int prevDay;
-//     setUPath(root, root);
-//     calendar->nItems = 0;
-//     fillCalendar(calendar, root);
-//     if (calendar->nItems == 0) {
-//         printf("Empty calendar.\n\n");
-//         return;
-//     }
-//     sortCalendar(calendar->items, 0, calendar->nItems - 1);
-    /*
-    if (item < calendar->nItems && calendar->items[item]->planned == 0)
-        printf("  ********************  Sem data  ********************\n\n");
-    for (item = 0; item < calendar->nItems && (curTodo = calendar->items[item])->planned == 0; item++) {
-        printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
-        item++;
+void printScheduled(Calendar *calendar) {
+    int i;    
+    time_t curDayStart = getDayStart(getCurrentTime());
+
+    sortCalendar(calendar);
+
+    printf(" ___________________  Scheduled  ___________________\n");
+
+    if (calendar->nSchedules == 0) {
+        printf("\n    No scheduled to-dos.\n");
+    } else {
+        Schedule *sched = calendar->schedules[calendar->nSchedules - 1];
+        struct tm date, schedDate;
+        localtime_r(&(sched->date), &date);
+        time_t dayStart = getDayStart(sched->date) + SECS_IN_A_DAY;
+
+        i = calendar->nSchedules - 1;
+        do {
+            sched = calendar->schedules[i];
+            localtime_r(&(sched->date), &schedDate);
+            if (sched->date < curDayStart) {
+                printf("\n ________________  Late  _________________\n\n");
+            } else {
+                while (sched->date < dayStart) {
+                    dayStart -= SECS_IN_A_DAY;
+                    localtime_r(&dayStart, &date);
+                    printf("\n _____________  %s (%02d/%02d)  _____________\n\n", wDayShort[date.tm_wday], date.tm_mday, date.tm_mon + 1);
+                }
+            }
+
+            printf("    %2d: ", calendar->nSchedules - i);
+
+            if (sched->timeSet) {
+                printf("%02d:%02d ", schedDate.tm_hour, schedDate.tm_min);
+            } else {
+                printf("  :   ");
+            }
+
+            char todoName[NAME_LEN];
+            getTodoFullName(sched->todo, todoName);
+            printf("(%.1f/%.1f) %s\n", sched->timeSpent / 60.0, sched->timeEstimate / 60.0, todoName);
+
+            i--;
+        } while (i >= 0);
     }
-    */
-//     curTodo = calendar->items[0];
-//     for (item = 0; item < calendar->nItems && (curTodo = calendar->items[item])->planned == 0; item++);
-//     while (item < calendar->nItems && curTodo->planned / SECS_IN_A_DAY >= curDay / SECS_IN_A_DAY) {
-//         stm = localtime(&(curTodo->planned));
-//         printf("  ********************  %s (%02d/%02d)  ********************\n\n", wDayName[stm->tm_wday], stm->tm_mday, stm->tm_mon + 1);
-//         while (item < calendar->nItems) {
-//             prevDay = curTodo->planned;
-//             curTodo = calendar->items[item];
-//             if (curTodo->planned / SECS_IN_A_DAY != prevDay / SECS_IN_A_DAY) break;
-//             printf("      * %s (%s)\n\n", curTodo->name, curTodo->parent->uniquePath);
-//             item++;
-//         }
-//     }
-//     if (item < calendar->nItems) printf("  ********************  Atrasados  ********************\n\n");
-//     while (item < calendar->nItems) {
-//         curTodo = calendar->items[item];
-//         stm = localtime(&(curTodo->planned));
-//         printf("      * (%02d/%02d) %s (%s)\n\n", stm->tm_mday, stm->tm_mon + 1, curTodo->name, curTodo->parent->uniquePath);
-//         item++;
-//     }
-// }
+
+    printf(" ___________________________________________________\n\n");
+}
+
+/*
+    printPrioritized()
+    Prints prioritized to-dos.
+*/
+void printPrioritized(Calendar *calendar) {
+    int i;    
+
+    printf(" __________________  Prioritized  __________________\n\n");
+
+    for (i = 0; i < calendar->nTodos; i++) {
+        Todo *todo = calendar->todos[i];
+        char todoName[NAME_LEN];
+        getTodoFullName(todo, todoName);
+        printf("    %2d: (%.1f/%.1f) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todoName);
+    }
+
+    printf(" ___________________________________________________\n\n");
+}
+
+void printCalendar(Calendar *calendar) {
+    printScheduled(calendar);
+    printPrioritized(calendar);
+}
 
 /*
     printNoDateTodos()
@@ -146,45 +194,23 @@ void fillCalendar(Calendar *calendar, Task *task) {
 // }
 
 /*
-    sortPeriods()
-    DOCUMENTAR.
+    periodComp
+    Period compare function.
 */
-void sortPeriods(Period **items, int s, int e) {
-    int i, j, k;
-    int m = (s + e) / 2;
-    int size1 = m - s + 1;
-    int size2 = e - m;
-    Period **v1;
-    Period **v2;
-    if (e == s) return;
-    sortPeriods(items, s, m);
-    sortPeriods(items, m + 1, e);
-    v1 = (Period **) mallocSafe(size1 * sizeof(Period *));
-    v2 = (Period **) mallocSafe(size2 * sizeof(Period *));
-    for (i = 0; i < size1; i++) {
-        v1[i] = items[s + i];
-    }
-    for (i = 0; i < size2; i++) {
-        v2[i] = items[m + 1 + i];
-    }
-    i = 0;
-    j = 0;
-    k = s;
-    while (i < size1 && j < size2) {
-        if (v1[i]->start < v2[j]->start) {
-            items[k++] = v1[i++];
-        } else {
-            items[k++] = v2[j++];
-        }
-    }
-    while (i < size1) {
-        items[k++] = v1[i++];
-    }
-    while (j < size2) {
-        items[k++] = v2[j++];
-    }
-    free(v1);
-    free(v2);
+int periodComp(const void *elem1, const void *elem2) {
+    Period *p1 = *(Period **) elem1;
+    Period *p2 = *(Period **) elem2;
+    if (p1->start < p2->start) return -1;
+    if (p1->start > p2->start) return 1;
+    return 0;
+}
+
+/*
+    sortPeriods()
+    Order periods by time.
+*/
+void sortPeriods(Period *periods[], int n) {
+    qsort(periods, n, sizeof(Period *), periodComp);
 }
 
 /*
@@ -218,7 +244,7 @@ void printWeekSummary(Task *root) {
     char formatText[NAME_LEN];
     Period *periodList[MAX_PERIODS*MAX_PERIODS];
     getPeriods(periodList, &n, root);
-    sortPeriods(periodList, 0, n-1);
+    sortPeriods(periodList, n);
     curTime = getCurrentTime();
     objStart = getTime(25, 8, 2019, 0, 0, 0);
     weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
@@ -276,4 +302,204 @@ void printWeekSummary(Task *root) {
         }
     }
     printf("\n");
+}
+
+/*
+    scheduleTodo()
+    Creates a schedule for a todo.
+*/
+void scheduleTodo(Calendar *calendar) {
+    int id, day, mon, hour, min;
+    Todo *todo;
+    Schedule *sched;
+    time_t date;
+    struct tm *structTime;
+    
+    sscanf(getToken(1), "%d", &id);
+    id--;
+    if (id < 0 || id >= calendar->nTodos) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+
+    sched = (Schedule *) mallocSafe(sizeof(Schedule));
+    todo = calendar->todos[id];
+    sched->timeSet = (getNComms() == 5);
+
+
+    sscanf(getToken(2), "%d/%d", &day, &mon);
+
+    date = getCurrentTime();
+    structTime = localtime(&date);
+
+    if (structTime->tm_mon > mon) structTime->tm_year++;
+    structTime->tm_sec = 0;
+
+    structTime->tm_mon = mon - 1;
+    structTime->tm_mday = day;
+
+    if (sched->timeSet) {
+        sscanf(getToken(3), "%d:%d", &hour, &min);
+
+        structTime->tm_hour = hour;
+        structTime->tm_min = min;
+        sched->timeEstimate = 60 * atof(getToken(4));
+    } else {
+        structTime->tm_hour = 0;
+        structTime->tm_min = 0;
+        sched->timeEstimate = 60 * atof(getToken(3));
+    }
+
+    sched->date = mktime(structTime);
+
+    sched->todo = todo;
+    todo->schedules[todo->nSchedules] = sched;
+    todo->nSchedules++;
+    calendar->schedules[calendar->nSchedules] = sched;
+    calendar->nSchedules++;
+
+    printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
+}
+
+/*
+    removeSchedule()
+    Delete schedule.
+*/
+void removeSchedule(Calendar *calendar) {
+    int id, i;
+
+    id = calendar->nSchedules - atoi(getToken(1));
+
+    if (id < 0 || id >= calendar->nSchedules) {
+        printf("Invalid schedule ID.\n\n");
+        return;
+    }
+
+    Schedule *sched = calendar->schedules[id];
+    Todo *todo = sched->todo;
+
+    printf("Schedule '%s' removed.\n\n", todo->name);
+
+    todo->nSchedules--;
+    calendar->nSchedules--;
+
+    while (todo->schedules[i] != sched) i++;
+
+    while (i < todo->nSchedules) {
+        todo->schedules[i] = todo->schedules[i + 1];
+        i++;
+    }
+
+    while (id < calendar->nSchedules) {
+        calendar->schedules[id] = calendar->schedules[id + 1];
+        id++;
+    }
+
+    free(sched);
+}
+
+/*
+    editSchedule()
+    Edits schedule attributes.
+*/
+void editSchedule(Calendar *calendar) {
+    int id, hour, min;
+    Schedule *sched;
+    
+    id = calendar->nSchedules - atoi(getToken(2));
+
+    if (id < 0 || id >= calendar->nSchedules) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+
+    sched = calendar->schedules[id];
+
+    if (strcmp(getToken(1), "time") == 0) {
+        sscanf(getToken(3), "%d:%d", &hour, &min);
+        sched->timeSet = 1;
+        sched->date = changeTime(sched->date, hour, min, 0);
+        printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
+
+    } else if (strcmp(getToken(1), "estimate") == 0) {
+        sched->timeEstimate = 60 * atof(getToken(3));
+        printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));
+
+    } else {
+        printf("Invalid edit option.\n\n");
+    }
+}
+
+/*
+    createCalendar()
+    Creates a updated calendar.
+*/
+Calendar *createCalendar() {
+    Calendar* calendar;
+    calendar = (Calendar *) mallocSafe(sizeof(Calendar));
+    calendar->nTodos = 0;
+    calendar->nSchedules = 0;
+    fillCalendarTask(calendar, rootTask);
+    setUPath(rootTask, rootTask);
+    return calendar;
+}
+
+/*
+    calendarMenu()
+    Enters calendar menu.
+*/
+void calendarMenu() {
+    Calendar *calendar = createCalendar();
+    char *commandName;
+    printCalendar(calendar);
+    while (true) {
+        printf(" _________________________  Calendar  _________________________\n\n");
+        commandName = getCommandName();
+        if (strcmp(commandName, "sched") == 0) {
+            if (getNComms() == 4 || getNComms() == 5) {
+                scheduleTodo(calendar);
+                printCalendar(calendar);
+            } else {
+                printf("Invalid number of arguments.\n\n");
+            }
+        } else if (strcmp(commandName, "edit") == 0) {
+            if (validArgs(3)) {
+                editSchedule(calendar);
+                printCalendar(calendar);
+            } else {
+                printf("Invalid number of arguments.\n\n");
+            }
+        } else if (strcmp(commandName, "rem") == 0) {
+            if (validArgs(1)) {
+                removeSchedule(calendar);
+                printCalendar(calendar);
+            }
+        } else if (strcmp(commandName, "cal") == 0) {
+            if (validArgs(0)) {
+                printCalendar(calendar);
+            }
+        } else if (strcmp(commandName, "cd") == 0) {
+            if (validArgs(1)) {
+                if (strcmp("..", getToken(1)) == 0) {
+                    free(calendar);
+                    return;
+                } else {
+                    printf("Type 'cd ..' to go back\n\n");
+                }
+            }
+        } else if (strcmp(commandName, "help") == 0) {
+            if (validArgs(0)) printHelp(TODOS_MENU);
+        } else if (strcmp(commandName, "save") == 0) {
+            if (validArgs(0)) saveAll();
+        } else if (strcmp(commandName, "exit") == 0) {
+            if (validArgs(0)) {
+                free(calendar);
+				freeAll();
+                printf("Exiting...\n\n");
+                exit(EXIT_SUCCESS);
+            }
+        } else {
+            notAvailable(commandName);
+        }
+    }
 }

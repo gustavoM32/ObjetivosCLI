@@ -77,18 +77,13 @@ struct task {
 };
 
 typedef struct {
-     char path[NAME_LEN];
-    char name[NAME_LEN];
-    int date[3];
-} CalendarItem;
-
-typedef struct {
-    int nItems;
-    Todo *items[MAX_CHILDS*MAX_CHILDS];
+    int nTodos;
+    Todo *todos[MAX_CHILDS*MAX_CHILDS];
+    int nSchedules;
+    Schedule *schedules[MAX_CHILDS*MAX_CHILDS];
 } Calendar;
 
 Task* rootTask;
-Calendar* todoCalendar;
 
 void freeAll();
 /*************************************/

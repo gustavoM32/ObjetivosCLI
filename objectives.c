@@ -8,7 +8,6 @@
 #include "calendar.h"
 
 void freeAll() {
-	free(todoCalendar);
 	freeTask(rootTask);
 }
 
@@ -16,8 +15,8 @@ int main() {
     Task* curTask;
     printf("*** Welcome to Control! ***\n\n");
     printf("Type 'help' for a list of commands.\n\n");
+    
     rootTask = createTask("Objetivos", "OBJ");
-    todoCalendar = createCalendar();
     loadAll();
     curTask = rootTask;
     while (curTask != NULL) {

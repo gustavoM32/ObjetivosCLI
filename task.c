@@ -641,8 +641,8 @@ Task* taskMenu(Task* task) {
             if (validArgs(0)) {
                 listNotes(task);
             }
-        // } else if (strcmp(commandName, "cal") == 0) {
-            // if (validArgs(0)) printCalendar(todoCalendar, rootTask);
+        } else if (strcmp(commandName, "cal") == 0) {
+            if (validArgs(0)) calendarMenu();
         } else if (strcmp(commandName, "week") == 0) {
             if (validArgs(0)) printWeekSummary(rootTask);
         // } else if (strcmp(commandName, "alltds") == 0) {
