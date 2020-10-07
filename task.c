@@ -642,7 +642,10 @@ Task* taskMenu(Task* task) {
                 listNotes(task);
             }
         } else if (strcmp(commandName, "cal") == 0) {
-            if (validArgs(0)) calendarMenu();
+            if (validArgs(0)) {
+                calendarMenu();
+                listSubtasks(task);
+            }
         } else if (strcmp(commandName, "week") == 0) {
             if (validArgs(0)) printWeekSummary(rootTask);
         // } else if (strcmp(commandName, "alltds") == 0) {

@@ -4,6 +4,7 @@
 #include "io.h"
 #include "util.h"
 #include "help.h"
+#include "calendar.h"
 
 /*
     createTodo()
@@ -192,73 +193,6 @@ void setTodoStatus(Task *task) {
 }
 
 /*
-    startPeriod()
-    Starts a period in task pointed by 'task'.
-*/
-// void startPeriod(Task* task) {
-//     Period* period = &(task->periods[task->nPeriods]);
-//     int id;
-//     sscanf(getToken(1), "%d", &id);
-//     id--;
-//     period->start = period->end = getCurrentTime();
-//     strcpy(period->name, task->todos[id]->name);
-//     (task->nPeriods)++;
-//     printf("Period \"%s\" of (%s) started. Type 'stop' when done.\n\n", period->name, task->code);
-// }
-
-/*
-    savePeriodTime()
-    Saves current time as end time of running period of task pointed by
-    'task'.
-*/
-// void savePeriodTime(Task* task) {
-//     Period* period = &(task->periods[task->nPeriods - 1]);
-//     period->end = getCurrentTime();
-// }
-
-/*
-    stopPeriod()
-    Stops running period of task pointed by 'task' and saves it.
-// */
-// void stopPeriod(Task* task) {
-//     Period* period = &(task->periods[task->nPeriods - 1]);
-//     long int taskDur = 0;
-//     char formatedDur[10];
-//     savePeriodTime(task);
-//     taskDur = period->end - period->start;
-//     formatDur(taskDur, formatedDur);
-//     printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
-// }
-
-/*
-    cancelPeriod()
-    Cancels running period of task pointed by 'task', not saving it.
-*/
-// void cancelPeriod(Task* task) {
-//     Period* period = &(task->periods[task->nPeriods - 1]);
-//     long int taskDur = 0;
-//     char formatedDur[10];
-//     taskDur = getCurrentTime() - period->start;
-//     (task->nPeriods)--;
-//     formatDur(taskDur, formatedDur);
-//     printf("Period \"%s\" of (%s) stopped. Duration: %s.\n\n", period->name, task->code, formatedDur);
-
-// }
-
-/*
-    showTaskPeriodTime()
-    Prints total time in running period of task pointed by 'task'.
-*/
-// void showTaskPeriodTime(Task* task) {
-//     Period* period = &(task->periods[task->nPeriods - 1]);
-//     long int taskDur = 0;
-//     char formatedDur[10];
-//     taskDur = getCurrentTime() - period->start;
-//     formatDur(taskDur, formatedDur);
-//     printf("Time spent in period \"%s\" of (%s): %s.\n\n", period->name, task->code, formatedDur);
-// }
-
-/*
     printTodoTree()
     Print to-do tree of to-do pointed by 'todo'.
 */
@@ -350,38 +284,13 @@ void todosMenu(Task* task) {
         //         listTodos(task);
         //         saveAll();
         //     }
-        // } else if (strcmp(commandName, "start") == 0) {
-        //     if (running) {
-        //         printf("There is already a period running.\n\n");
-        //     } else if (validArgs(1)) {
-        //         running = true;
-        //         startPeriod(task);
-        //         saveAll();
-        //     }
-        // } else if (strcmp(commandName, "stop") == 0) {
-        //     if (!running) {
-        //         printf("There is no period running to stop.\n\n");
-        //     } else if (validArgs(0)) {
-        //         running = false;
-        //         stopPeriod(task);
-        //         saveAll();
-        //     }
-        // } else if (strcmp(commandName, "cancel") == 0) {
-        //     if (!running) {
-        //         printf("There is no period running to cancel.\n\n");
-        //     } else if (validArgs(0)) {
-        //         running = false;
-        //         cancelPeriod(task);
-        //         saveAll();
-        //     }
-        // } else if (strcmp(commandName, "time") == 0) {
-        //     if (!running) {
-        //         printf("There is no period running.\n\n");
-        //     } else if (validArgs(0)) {
-        //         showTaskPeriodTime(task);
-        //         savePeriodTime(task);
-        //         saveAll();
-        //     }
+        } else if (strcmp(commandName, "cal") == 0) {
+            if (validArgs(0)) {
+                calendarMenu();
+                listTodos(task);
+            }
+        } else if (strcmp(commandName, "week") == 0) {
+            if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (running) {
                 printf("There a period running, can't go back.\n\n");

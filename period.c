@@ -5,6 +5,7 @@
 #include "util.h"
 #include "io.h"
 #include "help.h"
+#include "calendar.h"
 
 /*
     editPeriod()
@@ -130,18 +131,28 @@ void periodsMenu(Task *task) {
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(4)) {
                 editPeriod(task);
+                listPeriods(task);
                 saveAll();
             }
         } else if (strcmp(commandName, "add") == 0) {
            if (validArgs(4)) {
                 addPeriod(task);
+                listPeriods(task);
                 saveAll();
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removePeriod(task);
+                listPeriods(task);
                 saveAll();
             }
+        } else if (strcmp(commandName, "cal") == 0) {
+            if (validArgs(0)) {
+                calendarMenu();
+                listPeriods(task);
+            }
+        } else if (strcmp(commandName, "week") == 0) {
+            if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {

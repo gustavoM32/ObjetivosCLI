@@ -101,6 +101,7 @@ void getTodoFullName(Todo *todo, char name[]) {
 void printScheduled(Calendar *calendar) {
     int i;    
     time_t curDayStart = getDayStart(getCurrentTime());
+    int totalSpent = 0, totalEstimated = 0;
 
     sortCalendar(calendar);
 
@@ -119,11 +120,19 @@ void printScheduled(Calendar *calendar) {
             sched = calendar->schedules[i];
             localtime_r(&(sched->date), &schedDate);
             if (sched->date < curDayStart) {
+                if (totalEstimated != 0) {
+                    printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+                    totalSpent = totalEstimated = 0;
+                }
                 printf("\n ________________  Late  _________________\n\n");
             } else {
                 while (sched->date < dayStart) {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
+                    if (totalEstimated != 0) {
+                        printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+                        totalSpent = totalEstimated = 0;
+                    }
                     printf("\n _____________  %s (%02d/%02d)  _____________\n\n", wDayShort[date.tm_wday], date.tm_mday, date.tm_mon + 1);
                 }
             }
@@ -133,17 +142,21 @@ void printScheduled(Calendar *calendar) {
             if (sched->timeSet) {
                 printf("%02d:%02d ", schedDate.tm_hour, schedDate.tm_min);
             } else {
-                printf("  :   ");
+                printf("--:-- ");
             }
 
             char todoName[NAME_LEN];
             getTodoFullName(sched->todo, todoName);
-            printf("(%.1f/%.1f) %s\n", sched->timeSpent / 60.0, sched->timeEstimate / 60.0, todoName);
+            printf("(%04.1f/%04.1f) %s\n", sched->timeSpent / 60.0, sched->timeEstimate / 60.0, todoName);
+            totalSpent += sched->timeSpent;
+            totalEstimated += sched->timeEstimate;
 
             i--;
         } while (i >= 0);
     }
-
+    if (totalEstimated != 0) {
+        printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+    }
     printf(" ___________________________________________________\n\n");
 }
 
@@ -160,7 +173,7 @@ void printPrioritized(Calendar *calendar) {
         Todo *todo = calendar->todos[i];
         char todoName[NAME_LEN];
         getTodoFullName(todo, todoName);
-        printf("    %2d: (%.1f/%.1f) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todoName);
+        printf("    %2d: (%04.1f/%04.1f) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todoName);
     }
 
     printf(" ___________________________________________________\n\n");
@@ -305,6 +318,131 @@ void printWeekSummary(Task *root) {
 }
 
 /*
+    startPeriod()
+    Starts a period of todo.
+*/
+void startPeriod(Calendar *calendar) {
+    Period *period;
+    int id;
+    Task *task;
+    Todo *todo;
+    char todoName[NAME_LEN];
+
+    if (calendar->periodSched != NULL) {
+        printf("There is already a period running.\n\n");
+        return;
+    }
+
+    id = calendar->nSchedules - atoi(getToken(1));
+    if (id < 0 || id >= calendar->nSchedules) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+    
+    calendar->periodSched = calendar->schedules[id];
+    todo = calendar->periodSched->todo;
+    getTodoFullName(todo, todoName);
+
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    task = todo->parent.task;
+    period = &(task->periods[task->nPeriods]);
+
+    period->start = period->end = getCurrentTime();
+    strcpy(period->name, todoName);
+    (task->nPeriods)++;
+    printf("Period \"%s\" started. Type 'stop' when done.\n\n", period->name);
+    calendar->periodTask = task;
+}
+
+/*
+    stopPeriod()
+    Stops running period.
+// */
+void stopPeriod(Calendar* calendar) {
+    Period* period;
+    Task *task;
+    Todo *todo;
+    Schedule *sched;
+    long int taskDur = 0;
+    char formatedDur[10];
+
+    if (calendar->periodSched == NULL) {
+        printf("There is no period running.\n\n");
+        return;
+    }
+
+    sched = calendar->periodSched;
+    todo = sched->todo;
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    task = todo->parent.task;
+    period = &(task->periods[task->nPeriods - 1]);
+
+    period->end = getCurrentTime();
+    taskDur = period->end - period->start;
+    sched->timeSpent += taskDur / 60;
+    sched->todo->timeSpent += taskDur / 60;
+    formatDur(taskDur, formatedDur);
+    printf("Period \"%s\" stopped. Duration: %s.\n\n", period->name, formatedDur);
+    calendar->periodSched = NULL;
+}
+
+/*
+    cancelPeriod()
+    Cancels running period.
+*/
+void cancelPeriod(Calendar* calendar) {
+    Period* period;
+    Task *task;
+    Todo *todo;
+    long int taskDur = 0;
+    char formatedDur[10];
+
+    if (calendar->periodSched == NULL) {
+        printf("There is no period running.\n\n");
+        return;
+    }
+
+    todo = calendar->periodSched->todo;
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    task = calendar->periodTask;
+    period = &(task->periods[task->nPeriods - 1]);
+
+    taskDur = getCurrentTime() - period->start;
+    (task->nPeriods)--;
+    formatDur(taskDur, formatedDur);
+    printf("Period \"%s\" canceled. Duration: %s.\n\n", period->name, formatedDur);
+    calendar->periodTask = NULL;
+    calendar->periodSched = NULL;
+}
+
+/*
+    showTaskPeriodTime()
+    Prints and saves total time in running period.
+*/
+void showTaskPeriodTime(Calendar* calendar) {
+    Period* period;
+    Task *task;
+    Todo *todo;
+    long int taskDur = 0;
+    char formatedDur[10];
+
+    todo = calendar->periodSched->todo;
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    if (calendar->periodSched == NULL) {
+        printf("There is no period running.\n\n");
+        return;
+    }
+
+    task = calendar->periodTask;
+    period = &(task->periods[task->nPeriods - 1]);
+
+    period->end = getCurrentTime();
+    taskDur = period->end - period->start;
+    formatDur(taskDur, formatedDur);
+    printf("Time spent in period \"%s\". Duration: %s.\n\n", period->name, formatedDur);
+}
+
+/*
     scheduleTodo()
     Creates a schedule for a todo.
 */
@@ -315,8 +453,7 @@ void scheduleTodo(Calendar *calendar) {
     time_t date;
     struct tm *structTime;
     
-    sscanf(getToken(1), "%d", &id);
-    id--;
+    id = atoi(getToken(1)) - 1;
     if (id < 0 || id >= calendar->nTodos) {
         printf("Invalid to-do ID.\n\n");
         return;
@@ -474,15 +611,42 @@ void calendarMenu() {
                 removeSchedule(calendar);
                 printCalendar(calendar);
             }
+        } else if (strcmp(commandName, "start") == 0) {
+            if (validArgs(1)) {
+                startPeriod(calendar);
+                saveAll();
+            }
+        } else if (strcmp(commandName, "stop") == 0) {
+            if (validArgs(0)) {
+                stopPeriod(calendar);
+                saveAll();
+            }
+        } else if (strcmp(commandName, "cancel") == 0) {
+            if (validArgs(0)) {
+                cancelPeriod(calendar);
+                saveAll();
+            }
+        } else if (strcmp(commandName, "time") == 0) {
+            if (validArgs(0)) {
+                showTaskPeriodTime(calendar);
+                saveAll();
+            }
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {
                 printCalendar(calendar);
             }
+        } else if (strcmp(commandName, "week") == 0) {
+            if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
-                    free(calendar);
-                    return;
+                    if (calendar->periodSched != NULL) {
+                        printf("Can't leave, there is a period running.\n\n");
+                    } else {
+                        free(calendar);
+                        return;
+                    }
+
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }

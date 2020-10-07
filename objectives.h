@@ -81,6 +81,7 @@ typedef struct {
     Todo *todos[MAX_CHILDS*MAX_CHILDS];
     int nSchedules;
     Schedule *schedules[MAX_CHILDS*MAX_CHILDS];
+    Schedule *periodSched;
 } Calendar;
 
 Task* rootTask;
