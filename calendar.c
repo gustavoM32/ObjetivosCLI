@@ -351,7 +351,6 @@ void startPeriod(Calendar *calendar) {
     strcpy(period->name, todoName);
     (task->nPeriods)++;
     printf("Period \"%s\" started. Type 'stop' when done.\n\n", period->name);
-    calendar->periodTask = task;
 }
 
 /*
@@ -404,14 +403,13 @@ void cancelPeriod(Calendar* calendar) {
 
     todo = calendar->periodSched->todo;
     while (todo->type != ROOT) todo = todo->parent.todo;
-    task = calendar->periodTask;
+    task = todo->parent.task;
     period = &(task->periods[task->nPeriods - 1]);
 
     taskDur = getCurrentTime() - period->start;
     (task->nPeriods)--;
     formatDur(taskDur, formatedDur);
     printf("Period \"%s\" canceled. Duration: %s.\n\n", period->name, formatedDur);
-    calendar->periodTask = NULL;
     calendar->periodSched = NULL;
 }
 
@@ -433,7 +431,9 @@ void showTaskPeriodTime(Calendar* calendar) {
         return;
     }
 
-    task = calendar->periodTask;
+    todo = calendar->periodSched->todo;
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    task = todo->parent.task;
     period = &(task->periods[task->nPeriods - 1]);
 
     period->end = getCurrentTime();
