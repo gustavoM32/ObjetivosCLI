@@ -155,7 +155,7 @@ void listStatusTasks(Task* tasks[], int count, char statusName[]) {
         printf("  |   %s:\n", statusName);
         printf("  |\n");
         for (i = 0; i < count; i++) {
-            printf("  |    (%s) %s\n", tasks[i]->code, tasks[i]->name);
+            printf("  |    (%s) %s (%d)\n", tasks[i]->code, tasks[i]->name, countTodosTask(tasks[i]));
         }
         printf("  |\n");
     }

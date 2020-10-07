@@ -46,5 +46,7 @@ void notAvailable(char* userCommand);
 int countTasks(Task *task, char *code);
 
 void setUPath(Task *root, Task *task);
+
+int countTodosTask(Task *task);
 /*************************************/
 #endif

@@ -263,3 +263,29 @@ void setUPath(Task *root, Task *task) {
         setUPath(root, task->subtasks[i]);
     }
 }
+
+/*
+    countTodosTodo()
+    Count the number of to-dos in a todo.
+*/
+int countTodosTodo(Todo *todo) {
+    int res = 0;
+    int i;
+    for (i = 0; i < todo->nSubtodos; i++) {
+        res += 1 + countTodosTodo(todo->subtodos[i]);
+    }
+    return res;
+}
+
+/*
+    countTodosTask()
+    Count the number of to-dos in a task.
+*/
+int countTodosTask(Task *task) {
+    int res = 0;
+    int i;
+    for (i = 0; i < task->nTodos; i++) {
+        res += 1 + countTodosTodo(task->todos[i]);
+    }
+    return res;
+}
