@@ -1,6 +1,8 @@
 #ifndef OBJECTIVES_H
 #define OBJECTIVES_H
 /*************************************/
+#include <time.h>
+
 #define NAME_LEN 100
 #define CODE_LEN 6
 #define PATH_LEN 100
@@ -32,6 +34,14 @@ typedef union {
     Todo *todo;
 } TodoParent;
 
+typedef struct {
+    Todo *todo;
+    int timeSpent;
+    int timeEstimate;
+    int timeSet;
+    time_t date;
+} Schedule;
+
 struct todo {
     char name[NAME_LEN];
     int timeSpent;
@@ -39,6 +49,8 @@ struct todo {
     int status;
     int nSubtodos;
     Todo *subtodos[MAX_CHILDS];
+    int nSchedules;
+    Schedule *schedules[MAX_CHILDS];
     int type;
     TodoParent parent;
 };
