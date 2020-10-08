@@ -231,22 +231,28 @@ void setTodoStatus(Task *task) {
     printTodoTree()
     Print to-do tree of to-do pointed by 'todo'.
 */
-void printTodoTree(Todo* todo, int level, int id) {
+void printTodoTree(Todo* todo, int level, int id, int showCompleted) {
     int i;
+    char status;
+
+    if (todo->status == TODO_PENDING) status = ' ';
+    else if (todo->status == TODO_PRIORITY) status = '*';
+    else status = 'x';
+
     printf("  |   ");
     for (i = 0; i < level; i++) {
         printf("  ");
     }
-    printf("%2d %s", id, todo->name);
+    printf("%2d [%c] %s", id, status, todo->name);
     if (todo->timeEstimate != 0) {
         printf(" (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
     }
-    if (todo->status == TODO_PRIORITY) {
-        printf(" *");
-    }
     printf("\n");
+
+    if (!showCompleted && todo->status == TODO_COMPLETED) return;
+
     for (i = 0; i < todo->nSubtodos; i++) {
-        printTodoTree(todo->subtodos[i], level + 1, i + 1);
+        printTodoTree(todo->subtodos[i], level + 1, i + 1, showCompleted);
     }
 }
 
@@ -254,7 +260,7 @@ void printTodoTree(Todo* todo, int level, int id) {
     listTodos()
     Print list of to-dos of task pointed by 'task'.
 */
-void listTodos(Task* task) {
+void listTodos(Task* task, int showCompleted) {
     int i;
     printf("  +--------------------------> To-do list <--------------------------+\n");
     printf("  |\n");
@@ -262,7 +268,7 @@ void listTodos(Task* task) {
         printf("  |   List is empty\n");
     }
     for (i = 0; i < task->nTodos; i++) {
-        printTodoTree(task->todos[i], 0, i + 1);
+        printTodoTree(task->todos[i], 0, i + 1, showCompleted);
     }
     printf("  |\n");
     printf("  +------------------------------------------------------------------+\n\n");
@@ -277,9 +283,8 @@ void todosMenu(Task* task) {
     int nStatusCommands = 3;
     char todoStatusCommands[][COMMAND_LEN] = {"set", "unset", "complete"};
 
-    bool running = false;
     printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
-    listTodos(task);
+    listTodos(task, 0);
     while (true) {
         printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
         commandName = getCommandName();
@@ -287,7 +292,7 @@ void todosMenu(Task* task) {
         if (strcmp(commandName, "add") == 0) {
             if (getNComms() == 2 || getNComms() == 3) {
                 addTodo(task);
-                listTodos(task);
+                listTodos(task, 0);
                 saveAll();
             } else {
                 printf("Invalid number of arguments.\n");
@@ -295,27 +300,37 @@ void todosMenu(Task* task) {
         // } else if (strcmp(commandName, "addesp") == 0) {
         //     if (validArgs(2)) {
         //         addTodoEsp(task);
-        //      listTodos(task);
+        //      listTodos(task, 0);
         //         saveAll();
         //     }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeTodo(task);
-                listTodos(task);
+                listTodos(task, 0);
                 saveAll();
             }
         } else if (strcmp(commandName, "edit") == 0) {
             if (validArgs(3)) {
                 editTodo(task);
-                listTodos(task);
+                listTodos(task, 0);
                 saveAll();
             }
         } else if (strcmp(commandName, "tds") == 0) {
-            if (validArgs(0)) listTodos(task);
+            if (getNComms() == 1) {
+                listTodos(task, 0);
+            } else if (getNComms() == 2) {
+                if (strcmp(getToken(1), "all") == 0) {
+                    listTodos(task, 1);
+                } else {
+                    printf("Invalid argument.\n\n");
+                }
+            } else {
+                printf("Invalid number of arguments.\n");
+            }
         } else if (isInList(commandName, nStatusCommands, todoStatusCommands)) {
             if (getNComms() == 2 || getNComms() == 3) {
                 setTodoStatus(task);
-                listTodos(task);
+                listTodos(task, 0);
                 saveAll();
             } else {
                 printf("Invalid number of arguments.\n");
@@ -323,14 +338,12 @@ void todosMenu(Task* task) {
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {
                 calendarMenu();
-                listTodos(task);
+                listTodos(task, 0);
             }
         } else if (strcmp(commandName, "week") == 0) {
             if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
-            if (running) {
-                printf("There a period running, can't go back.\n\n");
-            } else if (validArgs(1)) {
+            if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
                     return;
                 } else {

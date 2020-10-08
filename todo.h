@@ -26,7 +26,7 @@ void cancelPeriod(Task* task);
 
 void showTaskPeriodTime(Task* task);
 
-void listTodos(Task* task);
+void listTodos(Task* task, int showCompleted);
 
 void todosMenu(Task* task);
 /*************************************/

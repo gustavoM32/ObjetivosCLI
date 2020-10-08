@@ -654,7 +654,7 @@ Task* taskMenu(Task* task) {
         } else if (strcmp(commandName, "ls") == 0) {
             if (validArgs(0)) {
                 listSubtasks(task);
-                listTodos(task);
+                listTodos(task, 0);
             }
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
