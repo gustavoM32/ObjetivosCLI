@@ -242,20 +242,17 @@ void createSchedule(Todo *todo, int timeSet, time_t date, int estimate) {
 }
 
 void scheduleTodo(Task *task) {
-    int id, day, mon, hour, min;
+    int day, mon, hour, min;
     Todo *todo;
     time_t date;
     struct tm *structTime;
     int timeSet;
     int estimate;
     
-    id = atoi(getToken(1)) - 1;
-    if (id < 0 || id >= task->nTodos) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
+    todo = getTodoFromPath(task, getToken(1), NULL);
 
-    todo = task->todos[id];
+    if (todo == NULL) return;
+
     timeSet = (getNComms() == 5);
 
     sscanf(getToken(2), "%d/%d", &day, &mon);
