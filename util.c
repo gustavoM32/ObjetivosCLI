@@ -273,7 +273,8 @@ int countTodosTodo(Todo *todo) {
     int res = 0;
     int i;
     for (i = 0; i < todo->nSubtodos; i++) {
-        res += 1 + countTodosTodo(todo->subtodos[i]);
+        if (todo->subtodos[i]->status != TODO_COMPLETED)
+            res += 1 + countTodosTodo(todo->subtodos[i]);
     }
     return res;
 }
@@ -286,7 +287,8 @@ int countTodosTask(Task *task) {
     int res = 0;
     int i;
     for (i = 0; i < task->nTodos; i++) {
-        res += 1 + countTodosTodo(task->todos[i]);
+        if (task->todos[i]->status != TODO_COMPLETED)
+            res += 1 + countTodosTodo(task->todos[i]);
     }
     for (i = 0; i < task->nSubtasks; i++) {
         res += countTodosTask(task->subtasks[i]);
