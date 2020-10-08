@@ -235,6 +235,8 @@ void createSchedule(Todo *todo, int timeSet, time_t date, int estimate) {
     sched->timeSet = timeSet;
     sched->date = date;
     sched->todo = todo;
+    sched->timeSpent = 0;
+    sched->timeEstimate = estimate;
     todo->schedules[todo->nSchedules] = sched;
     todo->nSchedules++;
 }
