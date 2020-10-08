@@ -48,5 +48,7 @@ int countTasks(Task *task, char *code);
 void setUPath(Task *root, Task *task);
 
 int countTodosTask(Task *task);
+
+int isInList(char word[], int size, char array[][COMMAND_LEN]);
 /*************************************/
 #endif

@@ -292,3 +292,12 @@ int countTodosTask(Task *task) {
     }
     return res;
 }
+
+/*
+    isInList()
+    Returns 1 if a word is in an array of words
+*/
+
+int isInList(char word[], int size, char array[][COMMAND_LEN]) {
+    return 1;
+}

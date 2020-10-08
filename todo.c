@@ -172,24 +172,41 @@ void setEstimate(Task* task) {
 */
 void setTodoStatus(Task *task) {
     char *statusName;
-    Todo *todo = getTodoFromPath(task, getToken(1), NULL);   
-
-    if (todo == NULL) return;
-
     int status;
-    statusName = toLowercase(getToken(2));
-    
-    if (strcmp(statusName, "pending") == 0) {
+    Todo *todo;
+    int i = 0;
+    int start, end;
+    int mult = (getNComms() == 3);
+
+    todo = getTodoFromPath(task, getToken(1), NULL);
+
+    if (strcmp(getToken(0), "unset") == 0) {
         status = TODO_PENDING;
-    } else if (strcmp(statusName, "priority") == 0) {
+        statusName = "pending";
+    } else if (strcmp(getToken(0), "set") == 0) {
         status = TODO_PRIORITY;
+        statusName = "prioritized";
     } else {
-        printf("\"%s\" is not a valid status.\n\n", statusName);
-        return;
+        status = TODO_COMPLETED;
+        statusName = "completed";
     }
 
-    todo->status = status;
-    printf("\"%s\" is set to \"%s\"\n\n", todo->name, statusName);
+    if (mult) {
+        sscanf(getToken(2), "%d-%d", &start, &end);
+        start--;
+        end--;
+        if (start > end || start < 0 || end >= todo->nSubtodos) {
+            printf("Invalid interval.\n\n");
+            return;
+        }
+        for (i = start; i <= end; i++) {
+            todo->subtodos[i]->status = status;
+        }
+        printf("To-dos %d-%d, status changed to \"%s\".\n\n", start + 1, end + 1, statusName);
+    } else {
+        todo->status = status;
+        printf("\"%s\" is set to \"%s\".\n\n", todo->name, statusName);
+    }
 }
 
 /*
@@ -239,6 +256,9 @@ void listTodos(Task* task) {
 */
 void todosMenu(Task* task) {
     char *commandName;
+    int nStatusCommands = 3;
+    char todoStatusCommands[][COMMAND_LEN] = {"set", "unset", "complete"};
+
     bool running = false;
     printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
     listTodos(task);
@@ -268,24 +288,14 @@ void todosMenu(Task* task) {
             }
         } else if (strcmp(commandName, "tds") == 0) {
             if (validArgs(0)) listTodos(task);
-        } else if (strcmp(commandName, "set") == 0) {
-            if (validArgs(2)) {
+        } else if (isInList(commandName, nStatusCommands, todoStatusCommands)) {
+            if (getNComms() == 2 || getNComms() == 3) {
                 setTodoStatus(task);
                 listTodos(task);
                 saveAll();
+            } else {
+                printf("Invalid number of arguments.\n");
             }
-        } else if (strcmp(commandName, "estimate") == 0) {
-            if (validArgs(2)) {
-                setEstimate(task);
-                listTodos(task);
-                saveAll();
-            }
-        // } else if (strcmp(commandName, "setesp") == 0) {
-        //     if (validArgs(2)) {
-        //         changeTodoDateEsp(task);
-        //         listTodos(task);
-        //         saveAll();
-        //     }
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {
                 calendarMenu();
