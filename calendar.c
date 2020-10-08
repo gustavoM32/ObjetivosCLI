@@ -7,6 +7,7 @@
 #include "io.h"
 #include "util.h"
 #include "help.h"
+#include "todo.h"
 
 char *wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
 char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
@@ -318,6 +319,30 @@ void printWeekSummary(Task *root) {
 }
 
 /*
+    updateCalendar()
+    Updates the calendar.
+*/
+void updateCalendar() {
+    calendar->nTodos = 0;
+    calendar->nSchedules = 0;
+    updateCalendarTask(calendar, rootTask);
+    setUPath(rootTask, rootTask);
+}
+
+/*
+    createCalendar()
+    Creates the calendar.
+*/
+Calendar *createCalendar() {
+    Calendar* calendar;
+    calendar = (Calendar *) mallocSafe(sizeof(Calendar));
+    calendar->nTodos = 0;
+    calendar->nSchedules = 0;
+    calendar->periodSched = NULL;
+    return calendar;
+}
+
+/*
     startPeriod()
     Starts a period of todo.
 */
@@ -467,15 +492,16 @@ void periodWarning() {
 }
 
 /*
-    scheduleTodo()
+    scheduleTodoCalendar()
     Creates a schedule for a todo.
 */
-void scheduleTodo() {
+void scheduleTodoCalendar() {
     int id, day, mon, hour, min;
     Todo *todo;
-    Schedule *sched;
     time_t date;
     struct tm *structTime;
+    int timeSet;
+    int estimate;
     
     id = atoi(getToken(1)) - 1;
     if (id < 0 || id >= calendar->nTodos) {
@@ -483,9 +509,8 @@ void scheduleTodo() {
         return;
     }
 
-    sched = (Schedule *) mallocSafe(sizeof(Schedule));
     todo = calendar->todos[id];
-    sched->timeSet = (getNComms() == 5);
+    timeSet = (getNComms() == 5);
 
 
     sscanf(getToken(2), "%d/%d", &day, &mon);
@@ -499,25 +524,23 @@ void scheduleTodo() {
     structTime->tm_mon = mon - 1;
     structTime->tm_mday = day;
 
-    if (sched->timeSet) {
+    if (timeSet) {
         sscanf(getToken(3), "%d:%d", &hour, &min);
 
         structTime->tm_hour = hour;
         structTime->tm_min = min;
-        sched->timeEstimate = 60 * atof(getToken(4));
+        estimate = 60 * atof(getToken(4));
     } else {
         structTime->tm_hour = 0;
         structTime->tm_min = 0;
-        sched->timeEstimate = 60 * atof(getToken(3));
+        estimate = 60 * atof(getToken(3));
     }
 
-    sched->date = mktime(structTime);
+    date = mktime(structTime);
 
-    sched->todo = todo;
-    todo->schedules[todo->nSchedules] = sched;
-    todo->nSchedules++;
-    calendar->schedules[calendar->nSchedules] = sched;
-    calendar->nSchedules++;
+    createSchedule(todo, timeSet, date, estimate);
+
+    updateCalendar();
 
     printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
 }
@@ -542,7 +565,8 @@ void removeSchedule() {
     printf("Schedule '%s' removed.\n\n", todo->name);
 
     todo->nSchedules--;
-    calendar->nSchedules--;
+
+    i = 0;
 
     while (todo->schedules[i] != sched) i++;
 
@@ -551,10 +575,7 @@ void removeSchedule() {
         i++;
     }
 
-    while (id < calendar->nSchedules) {
-        calendar->schedules[id] = calendar->schedules[id + 1];
-        id++;
-    }
+    updateCalendar();
 
     free(sched);
 }
@@ -599,27 +620,41 @@ void editSchedule() {
 }
 
 /*
-    updateCalendar()
-    Updates the calendar.
+    changePrioritizeStatus()
+    Changes status of prioritized to-do.
 */
-void updateCalendar() {
-    calendar->nTodos = 0;
-    calendar->nSchedules = 0;
-    updateCalendarTask(calendar, rootTask);
-    setUPath(rootTask, rootTask);
-}
+void changePrioritizeStatus() {
+    int id;
+    Todo *todo;
+    char *statusName;
+    int status;
+    
+    id = atoi(getToken(1));
 
-/*
-    createCalendar()
-    Creates the calendar.
-*/
-Calendar *createCalendar() {
-    Calendar* calendar;
-    calendar = (Calendar *) mallocSafe(sizeof(Calendar));
-    calendar->nTodos = 0;
-    calendar->nSchedules = 0;
-    calendar->periodSched = NULL;
-    return calendar;
+    id--;
+
+    if (id < 0 || id >= calendar->nTodos) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+
+    todo = calendar->todos[id];
+
+    if (strcmp(getToken(2), "remove") == 0) {
+        status = TODO_PENDING;
+        statusName = "pending";
+    } else if (strcmp(getToken(2), "complete") == 0) {
+        status = TODO_COMPLETED;
+        statusName = "completed";
+    } else {
+        printf("Invalid argument.\n\n");
+    }
+
+    todo->status = status;
+
+    updateCalendar();
+
+    printf("\"%s\" status is set to \"%s\".\n\n", todo->name, statusName);
 }
 
 /*
@@ -636,7 +671,7 @@ void calendarMenu() {
         commandName = getCommandName();
         if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 4 || getNComms() == 5) {
-                scheduleTodo();
+                scheduleTodoCalendar();
                 printCalendar();
             } else {
                 printf("Invalid number of arguments.\n\n");
@@ -671,6 +706,12 @@ void calendarMenu() {
         } else if (strcmp(commandName, "time") == 0) {
             if (validArgs(0)) {
                 showTaskPeriodTime();
+                saveAll();
+            }
+        } else if (strcmp(commandName, "todo") == 0) {
+            if (validArgs(2)) {
+                changePrioritizeStatus();
+                printCalendar();
                 saveAll();
             }
         } else if (strcmp(commandName, "cal") == 0) {

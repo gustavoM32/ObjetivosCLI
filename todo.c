@@ -228,6 +228,67 @@ void setTodoStatus(Task *task) {
 }
 
 /*
+    Create a schedule for todo.
+*/
+void createSchedule(Todo *todo, int timeSet, time_t date, int estimate) {
+    Schedule *sched = (Schedule *) mallocSafe(sizeof(Schedule));
+    sched->timeSet = timeSet;
+    sched->date = date;
+    sched->todo = todo;
+    todo->schedules[todo->nSchedules] = sched;
+    todo->nSchedules++;
+}
+
+void scheduleTodo(Task *task) {
+    int id, day, mon, hour, min;
+    Todo *todo;
+    time_t date;
+    struct tm *structTime;
+    int timeSet;
+    int estimate;
+    
+    id = atoi(getToken(1)) - 1;
+    if (id < 0 || id >= task->nTodos) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+
+    todo = task->todos[id];
+    timeSet = (getNComms() == 5);
+
+    sscanf(getToken(2), "%d/%d", &day, &mon);
+
+    date = getCurrentTime();
+    structTime = localtime(&date);
+
+    if (structTime->tm_mon > mon) structTime->tm_year++;
+    structTime->tm_sec = 0;
+
+    structTime->tm_mon = mon - 1;
+    structTime->tm_mday = day;
+
+    if (timeSet) {
+        sscanf(getToken(3), "%d:%d", &hour, &min);
+
+        structTime->tm_hour = hour;
+        structTime->tm_min = min;
+        estimate = 60 * atof(getToken(4));
+    } else {
+        structTime->tm_hour = 0;
+        structTime->tm_min = 0;
+        estimate = 60 * atof(getToken(3));
+    }
+
+    date = mktime(structTime);
+
+    createSchedule(todo, timeSet, date, estimate);
+
+    printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
+
+}
+
+
+/*
     printTodoTree()
     Print to-do tree of to-do pointed by 'todo'.
 */
@@ -314,6 +375,12 @@ void todosMenu(Task* task) {
                 editTodo(task);
                 listTodos(task, 0);
                 saveAll();
+            }
+        } else if (strcmp(commandName, "sched") == 0) {
+            if (getNComms() == 4 || getNComms() == 5) {
+                scheduleTodo(task);
+            } else {
+                printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "tds") == 0) {
             if (getNComms() == 1) {
