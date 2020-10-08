@@ -85,6 +85,7 @@ typedef struct {
 } Calendar;
 
 Task* rootTask;
+Calendar *calendar;
 
 void freeAll();
 /*************************************/

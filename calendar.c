@@ -12,10 +12,10 @@ char *wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta",
 char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
 
 /*
-    fillCalendarSchedules()
+    updateCalendarSchedules()
     Fills calendar with to-do schedules.
 */
-void fillCalendarSchedules(Calendar *calendar, Todo *todo) {
+void updateCalendarSchedules(Calendar *calendar, Todo *todo) {
     int i;
     for (i = 0; i < todo->nSchedules; i++) {
         calendar->schedules[calendar->nSchedules] = todo->schedules[i];
@@ -24,37 +24,37 @@ void fillCalendarSchedules(Calendar *calendar, Todo *todo) {
 }
 
 /*
-    fillCalendarTodo()
+    updateCalendarTodo()
     Fills calendar with sub-to-dos of todo.
 */
-void fillCalendarTodo(Calendar *calendar, Todo *todo) {
+void updateCalendarTodo(Calendar *calendar, Todo *todo) {
     int i;
     for (i = 0; i < todo->nSubtodos; i++) {
         if (todo->subtodos[i]->status == TODO_PRIORITY) {
             calendar->todos[calendar->nTodos] = todo->subtodos[i];
             calendar->nTodos++;
         }
-        fillCalendarSchedules(calendar, todo->subtodos[i]);
-        fillCalendarTodo(calendar, todo->subtodos[i]);
+        updateCalendarSchedules(calendar, todo->subtodos[i]);
+        updateCalendarTodo(calendar, todo->subtodos[i]);
     }
 }
 
 /*
-    fillCalendarTask()
+    updateCalendarTask()
     Fills calendar with to-dos of task.
 */
-void fillCalendarTask(Calendar *calendar, Task *task) {
+void updateCalendarTask(Calendar *calendar, Task *task) {
     int i;
     for (i = 0; i < task->nTodos; i++) {
         if (task->todos[i]->status == TODO_PRIORITY) {
             calendar->todos[calendar->nTodos] = task->todos[i];
             calendar->nTodos++;
         }
-        fillCalendarSchedules(calendar, task->todos[i]);
-        fillCalendarTodo(calendar, task->todos[i]);
+        updateCalendarSchedules(calendar, task->todos[i]);
+        updateCalendarTodo(calendar, task->todos[i]);
     }
     for (i = 0; i < task->nSubtasks; i++) {
-        fillCalendarTask(calendar, task->subtasks[i]);
+        updateCalendarTask(calendar, task->subtasks[i]);
     }
 }
 
@@ -76,7 +76,7 @@ int schedComp(const void *elem1, const void *elem2) {
     sortCalendar()
     Order schedules by date.
 */
-void sortCalendar(Calendar *calendar) {
+void sortCalendar() {
     qsort(calendar->schedules, calendar->nSchedules, sizeof(Schedule *), schedComp);
 }
 
@@ -98,12 +98,12 @@ void getTodoFullName(Todo *todo, char name[]) {
     printScheduled()
     Prints scheduled to-dos.
 */
-void printScheduled(Calendar *calendar) {
+void printScheduled() {
     int i;    
     time_t curDayStart = getDayStart(getCurrentTime());
     int totalSpent = 0, totalEstimated = 0;
 
-    sortCalendar(calendar);
+    sortCalendar();
 
     printf(" ___________________  Scheduled  ___________________\n");
 
@@ -164,7 +164,7 @@ void printScheduled(Calendar *calendar) {
     printPrioritized()
     Prints prioritized to-dos.
 */
-void printPrioritized(Calendar *calendar) {
+void printPrioritized() {
     int i;    
 
     printf(" __________________  Prioritized  __________________\n\n");
@@ -179,9 +179,9 @@ void printPrioritized(Calendar *calendar) {
     printf(" ___________________________________________________\n\n");
 }
 
-void printCalendar(Calendar *calendar) {
-    printScheduled(calendar);
-    printPrioritized(calendar);
+void printCalendar() {
+    printScheduled();
+    printPrioritized();
 }
 
 /*
@@ -194,7 +194,7 @@ void printCalendar(Calendar *calendar) {
 //     Todo *curTodo;
 //     setUPath(root, root);
 //     calendar->nItems = 0;
-//     fillCalendar(calendar, root);
+//     updateCalendar(calendar, root);
 //     if (calendar->nItems == 0) {
 //         printf("No to-dos without date.\n\n");
 //         return;
@@ -321,7 +321,7 @@ void printWeekSummary(Task *root) {
     startPeriod()
     Starts a period of todo.
 */
-void startPeriod(Calendar *calendar) {
+void startPeriod() {
     Period *period;
     int id;
     Task *task;
@@ -357,7 +357,7 @@ void startPeriod(Calendar *calendar) {
     stopPeriod()
     Stops running period.
 // */
-void stopPeriod(Calendar* calendar) {
+void stopPeriod() {
     Period* period;
     Task *task;
     Todo *todo;
@@ -389,7 +389,7 @@ void stopPeriod(Calendar* calendar) {
     cancelPeriod()
     Cancels running period.
 */
-void cancelPeriod(Calendar* calendar) {
+void cancelPeriod() {
     Period* period;
     Task *task;
     Todo *todo;
@@ -417,15 +417,13 @@ void cancelPeriod(Calendar* calendar) {
     showTaskPeriodTime()
     Prints and saves total time in running period.
 */
-void showTaskPeriodTime(Calendar* calendar) {
+void showTaskPeriodTime() {
     Period* period;
     Task *task;
     Todo *todo;
     long int taskDur = 0;
     char formatedDur[10];
 
-    todo = calendar->periodSched->todo;
-    while (todo->type != ROOT) todo = todo->parent.todo;
     if (calendar->periodSched == NULL) {
         printf("There is no period running.\n\n");
         return;
@@ -443,10 +441,36 @@ void showTaskPeriodTime(Calendar* calendar) {
 }
 
 /*
+    periodWarning()
+    Prints warning of running period.
+*/
+void periodWarning() {
+    Period* period;
+    Task *task;
+    Todo *todo;
+    long int taskDur = 0;
+    char formatedDur[10];
+
+    if (calendar->periodSched == NULL) {
+        return;
+    }
+
+    todo = calendar->periodSched->todo;
+    while (todo->type != ROOT) todo = todo->parent.todo;
+    task = todo->parent.task;
+    period = &(task->periods[task->nPeriods - 1]);
+
+    period->end = getCurrentTime();
+    taskDur = period->end - period->start;
+    formatDur(taskDur, formatedDur);
+    printf("Period \"%s\" running! Duration: %s.\n\n", period->name, formatedDur);
+}
+
+/*
     scheduleTodo()
     Creates a schedule for a todo.
 */
-void scheduleTodo(Calendar *calendar) {
+void scheduleTodo() {
     int id, day, mon, hour, min;
     Todo *todo;
     Schedule *sched;
@@ -502,7 +526,7 @@ void scheduleTodo(Calendar *calendar) {
     removeSchedule()
     Delete schedule.
 */
-void removeSchedule(Calendar *calendar) {
+void removeSchedule() {
     int id, i;
 
     id = calendar->nSchedules - atoi(getToken(1));
@@ -539,7 +563,7 @@ void removeSchedule(Calendar *calendar) {
     editSchedule()
     Edits schedule attributes.
 */
-void editSchedule(Calendar *calendar) {
+void editSchedule() {
     int id, hour, min;
     Schedule *sched;
     
@@ -568,16 +592,26 @@ void editSchedule(Calendar *calendar) {
 }
 
 /*
+    updateCalendar()
+    Updates the calendar.
+*/
+void updateCalendar() {
+    calendar->nTodos = 0;
+    calendar->nSchedules = 0;
+    updateCalendarTask(calendar, rootTask);
+    setUPath(rootTask, rootTask);
+}
+
+/*
     createCalendar()
-    Creates a updated calendar.
+    Creates the calendar.
 */
 Calendar *createCalendar() {
     Calendar* calendar;
     calendar = (Calendar *) mallocSafe(sizeof(Calendar));
     calendar->nTodos = 0;
     calendar->nSchedules = 0;
-    fillCalendarTask(calendar, rootTask);
-    setUPath(rootTask, rootTask);
+    calendar->periodSched = NULL;
     return calendar;
 }
 
@@ -586,67 +620,62 @@ Calendar *createCalendar() {
     Enters calendar menu.
 */
 void calendarMenu() {
-    Calendar *calendar = createCalendar();
     char *commandName;
-    printCalendar(calendar);
+    updateCalendar();
+    printCalendar();
     while (true) {
         printf(" _________________________  Calendar  _________________________\n\n");
+        periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 4 || getNComms() == 5) {
-                scheduleTodo(calendar);
-                printCalendar(calendar);
+                scheduleTodo();
+                printCalendar();
             } else {
                 printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "edit") == 0) {
             if (validArgs(3)) {
-                editSchedule(calendar);
-                printCalendar(calendar);
+                editSchedule();
+                printCalendar();
             } else {
                 printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
-                removeSchedule(calendar);
-                printCalendar(calendar);
+                removeSchedule();
+                printCalendar();
             }
         } else if (strcmp(commandName, "start") == 0) {
             if (validArgs(1)) {
-                startPeriod(calendar);
+                startPeriod();
                 saveAll();
             }
         } else if (strcmp(commandName, "stop") == 0) {
             if (validArgs(0)) {
-                stopPeriod(calendar);
+                stopPeriod();
                 saveAll();
             }
         } else if (strcmp(commandName, "cancel") == 0) {
             if (validArgs(0)) {
-                cancelPeriod(calendar);
+                cancelPeriod();
                 saveAll();
             }
         } else if (strcmp(commandName, "time") == 0) {
             if (validArgs(0)) {
-                showTaskPeriodTime(calendar);
+                showTaskPeriodTime();
                 saveAll();
             }
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {
-                printCalendar(calendar);
+                printCalendar();
             }
         } else if (strcmp(commandName, "week") == 0) {
             if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
-                    if (calendar->periodSched != NULL) {
-                        printf("Can't leave, there is a period running.\n\n");
-                    } else {
-                        free(calendar);
-                        return;
-                    }
-
+                    return;
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
@@ -657,7 +686,6 @@ void calendarMenu() {
             if (validArgs(0)) saveAll();
         } else if (strcmp(commandName, "exit") == 0) {
             if (validArgs(0)) {
-                free(calendar);
 				freeAll();
                 printf("Exiting...\n\n");
                 exit(EXIT_SUCCESS);

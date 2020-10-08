@@ -590,6 +590,7 @@ Task* taskMenu(Task* task) {
         }
         printf("***************************  Task Menu (%s)  ***************************\n\n", task->code);
         printf(" - %s\n\n", task->name);
+        periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "rename") == 0) {
             if (validArgs(1)) {

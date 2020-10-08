@@ -125,6 +125,7 @@ void periodsMenu(Task *task) {
     listPeriods(task);
     while (true) {
         printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code);
+        periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "pds") == 0) {
             if (validArgs(0)) listPeriods(task);

@@ -249,7 +249,7 @@ Task* loadTask(FILE* input) {
     strcpy(taskCode, getToken(1));
     task = createTask(taskName, taskCode);
     task->status = atoi(getToken(2));
-	getLine(input);
+    getLine(input);
     task->nNotes = atoi(getToken(0));
     for (i = 0; i < task->nNotes; i++) {
         getLine(input);

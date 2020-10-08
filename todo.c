@@ -245,6 +245,7 @@ void todosMenu(Task* task) {
     while (true) {
         printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
         commandName = getCommandName();
+        periodWarning();
         if (strcmp(commandName, "add") == 0) {
             if (getNComms() == 2 || getNComms() == 3) {
                 addTodo(task);
