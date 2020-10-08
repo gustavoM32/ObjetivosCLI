@@ -300,5 +300,9 @@ int countTodosTask(Task *task) {
 */
 
 int isInList(char word[], int size, char array[][COMMAND_LEN]) {
-    return 1;
+    int i;
+    for (i = 0; i < size; i++) {
+        if (strcmp(word, array[i]) == 0) return true;
+    }
+    return false;
 }
