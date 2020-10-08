@@ -155,15 +155,33 @@ void removeTodo(Task* task) {
 }
 
 /*
-    setEstimate()
+    editTodo()
     Sets the estimate of todo of 'task'.
 */
-void setEstimate(Task* task) {
-    Todo* todo = getTodoFromPath(task, getToken(1), NULL);
+void editTodo(Task* task) {
+    Todo* todo = getTodoFromPath(task, getToken(2), NULL);
+    char *name;
     
     if (todo == NULL) return;
 
-    todo->timeEstimate = 60 * atof(getToken(2));
+    if (strcmp(getToken(1), "estimate") == 0) {
+        int estimate = atof(getToken(3));
+        if (estimate < 0) {
+            printf("Estimate can't be negative.\n\n");
+            return;
+        }  
+        todo->timeEstimate = 60 * estimate;
+        printf("Changed to-do '%s' time estimate to %d.\n\n", todo->name, estimate);
+    } else if (strcmp(getToken(1), "name") == 0) {
+        name = getToken(3);
+        if (name[0] == '\0') {
+            printf("To-do name must not be empty.\n\n");
+            return;
+        }
+        printf("Changed to-do name from %s to %s.\n\n", todo->name, name);
+        strcpy(todo->name, name);
+
+    }
 }
 
 /*
@@ -283,6 +301,12 @@ void todosMenu(Task* task) {
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeTodo(task);
+                listTodos(task);
+                saveAll();
+            }
+        } else if (strcmp(commandName, "edit") == 0) {
+            if (validArgs(3)) {
+                editTodo(task);
                 listTodos(task);
                 saveAll();
             }
