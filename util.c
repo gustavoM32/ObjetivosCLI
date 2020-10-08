@@ -287,5 +287,8 @@ int countTodosTask(Task *task) {
     for (i = 0; i < task->nTodos; i++) {
         res += 1 + countTodosTodo(task->todos[i]);
     }
+    for (i = 0; i < task->nSubtasks; i++) {
+        res += countTodosTask(task->subtasks[i]);
+    }
     return res;
 }
