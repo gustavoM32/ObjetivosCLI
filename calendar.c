@@ -564,7 +564,7 @@ void removeSchedule() {
     Edits schedule attributes.
 */
 void editSchedule() {
-    int id, hour, min;
+    int id, hour, min, day, mon, year;
     Schedule *sched;
     
     id = calendar->nSchedules - atoi(getToken(2));
@@ -581,7 +581,14 @@ void editSchedule() {
         sched->timeSet = 1;
         sched->date = changeTime(sched->date, hour, min, 0);
         printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
-
+    } else if (strcmp(getToken(1), "date") == 0) {
+        if (sscanf(getToken(3), "%d/%d/%d", &day, &mon, &year) == 2) {
+            sched->date = changeDate(sched->date, day, mon, 0);
+            printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
+        } else {
+            sched->date = changeDate(sched->date, day, mon, year);
+            printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
+        }
     } else if (strcmp(getToken(1), "estimate") == 0) {
         sched->timeEstimate = 60 * atof(getToken(3));
         printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));

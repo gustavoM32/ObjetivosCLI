@@ -132,7 +132,8 @@ long int changeTime(long int oldTime, int hour, int min, int sec) {
 long int changeDate(long int oldTime, int day, int month, int year) {
     struct tm *structTime;
     structTime = localtime(&oldTime);
-    structTime->tm_year = year - 1900;
+    if (year >= 1900) structTime->tm_year = year - 1900;
+    else structTime->tm_year += year;
     structTime->tm_mon = month - 1;
     structTime->tm_mday = day;
     return mktime(structTime);
