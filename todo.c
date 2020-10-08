@@ -263,6 +263,7 @@ void todosMenu(Task* task) {
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeTodo(task);
+                listTodos(task);
                 saveAll();
             }
         } else if (strcmp(commandName, "tds") == 0) {
