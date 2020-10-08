@@ -308,6 +308,7 @@ void printTodoTree(Todo* todo, int level, int id, int showCompleted) {
     if (todo->timeEstimate != 0) {
         printf(" (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
     }
+    if (todo->nSchedules != 0) printf(" (%d)", todo->nSchedules);
     printf("\n");
 
     if (!showCompleted && todo->status == TODO_COMPLETED) return;
@@ -379,6 +380,7 @@ void todosMenu(Task* task) {
         } else if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 4 || getNComms() == 5) {
                 scheduleTodo(task);
+                listTodos(task, 0);
             } else {
                 printf("Invalid number of arguments.\n\n");
             }
