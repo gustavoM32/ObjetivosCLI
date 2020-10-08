@@ -180,11 +180,6 @@ void printPrioritized() {
     printf(" ___________________________________________________\n\n");
 }
 
-void printCalendar() {
-    printScheduled();
-    printPrioritized();
-}
-
 /*
     printNoDateTodos()
     Prints all to-dos with no specified dates.
@@ -664,7 +659,7 @@ void changePrioritizeStatus() {
 void calendarMenu() {
     char *commandName;
     updateCalendar();
-    printCalendar();
+    printScheduled();
     while (true) {
         printf(" _________________________  Calendar  _________________________\n\n");
         periodWarning();
@@ -672,21 +667,21 @@ void calendarMenu() {
         if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 4 || getNComms() == 5) {
                 scheduleTodoCalendar();
-                printCalendar();
+                printScheduled();
             } else {
                 printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "edit") == 0) {
             if (validArgs(3)) {
                 editSchedule();
-                printCalendar();
+                printScheduled();
             } else {
                 printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeSchedule();
-                printCalendar();
+                printScheduled();
             }
         } else if (strcmp(commandName, "start") == 0) {
             if (validArgs(1)) {
@@ -711,12 +706,16 @@ void calendarMenu() {
         } else if (strcmp(commandName, "todo") == 0) {
             if (validArgs(2)) {
                 changePrioritizeStatus();
-                printCalendar();
+                printPrioritized();
                 saveAll();
+            }
+        } else if (strcmp(commandName, "pri") == 0) {
+            if (validArgs(0)) {
+                printPrioritized();
             }
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {
-                printCalendar();
+                printScheduled();
             }
         } else if (strcmp(commandName, "week") == 0) {
             if (validArgs(0)) printWeekSummary(rootTask);
