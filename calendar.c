@@ -174,7 +174,7 @@ void printPrioritized() {
         Todo *todo = calendar->todos[i];
         char todoName[NAME_LEN];
         getTodoFullName(todo, todoName);
-        printf("    %2d: (%04.1f/%04.1f) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todoName);
+        printf("    %2d: (%04.1f/%04.1f) (%d) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todo->nSchedules, todoName);
     }
 
     printf(" ___________________________________________________\n\n");
@@ -576,6 +576,36 @@ void removeSchedule() {
 }
 
 /*
+    completeTodo()
+    Delete schedule and set its to-do to complete.
+*/
+void completeTodo() {
+    int id, i;
+
+    id = calendar->nSchedules - atoi(getToken(1));
+
+    if (id < 0 || id >= calendar->nSchedules) {
+        printf("Invalid schedule ID.\n\n");
+        return;
+    }
+
+    Schedule *sched = calendar->schedules[id];
+    Todo *todo = sched->todo;
+
+    printf("Todo '%s' completed.\n\n", todo->name);
+
+    for (i = 0; i < todo->nSchedules; i++) {
+        free(todo->schedules[i]);
+    }
+
+    todo->nSchedules = 0;
+
+    todo->status = TODO_COMPLETED;
+
+    updateCalendar();
+}
+
+/*
     editSchedule()
     Edits schedule attributes.
 */
@@ -681,6 +711,11 @@ void calendarMenu() {
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeSchedule();
+                printScheduled();
+            }
+        } else if (strcmp(commandName, "complete") == 0) {
+            if (validArgs(1)) {
+                completeTodo();
                 printScheduled();
             }
         } else if (strcmp(commandName, "start") == 0) {
