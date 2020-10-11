@@ -639,6 +639,8 @@ void editSchedule() {
                 sched->date = changeDate(sched->date, day, mon, year);
                 printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
             }
+            sched->timeSet = 0;
+            sched->date = changeTime(sched->date, 0, 0, 0);
         } else if (strcmp(getToken(1), "estimate") == 0) {
             sched->timeEstimate = 60 * atof(getToken(3));
             printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));
