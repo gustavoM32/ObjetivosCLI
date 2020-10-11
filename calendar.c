@@ -122,7 +122,7 @@ void printScheduled() {
             localtime_r(&(sched->date), &schedDate);
             if (sched->date < curDayStart) {
                 if (totalEstimated != 0) {
-                    printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+                    printf("        Total %2.0f\n", totalEstimated / 60.0);
                     totalSpent = totalEstimated = 0;
                 }
                 printf("\n ________________  Late  _________________\n\n");
@@ -131,7 +131,7 @@ void printScheduled() {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
                     if (totalEstimated != 0) {
-                        printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+                        printf("        Total %2.0f\n", totalEstimated / 60.0);
                         totalSpent = totalEstimated = 0;
                     }
                     printf("\n _____________  %s (%02d/%02d)  _____________\n\n", wDayShort[date.tm_wday], date.tm_mday, date.tm_mon + 1);
@@ -148,7 +148,10 @@ void printScheduled() {
 
             char todoName[NAME_LEN];
             getTodoFullName(sched->todo, todoName);
-            printf("(%04.1f/%04.1f) %s\n", sched->timeSpent / 60.0, sched->timeEstimate / 60.0, todoName);
+            if (sched->timeEstimate == 0) printf(" 0");
+            else if (sched->timeEstimate / 60.0 < 1.0) printf("<1");
+            else printf("%2.0f", sched->timeEstimate / 60.0);
+            printf(" %s\n", todoName);
             totalSpent += sched->timeSpent;
             totalEstimated += sched->timeEstimate;
 
@@ -156,7 +159,7 @@ void printScheduled() {
         } while (i >= 0);
     }
     if (totalEstimated != 0) {
-        printf("        Total (%04.1f/%04.1f)\n", totalSpent / 60.0, totalEstimated / 60.0);
+        printf("        Total %2.0f\n", totalEstimated / 60.0);
     }
     printf(" ___________________________________________________\n\n");
 }
@@ -622,25 +625,34 @@ void editSchedule() {
 
     sched = calendar->schedules[id];
 
-    if (strcmp(getToken(1), "time") == 0) {
-        sscanf(getToken(3), "%d:%d", &hour, &min);
-        sched->timeSet = 1;
-        sched->date = changeTime(sched->date, hour, min, 0);
-        printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
-    } else if (strcmp(getToken(1), "date") == 0) {
-        if (sscanf(getToken(3), "%d/%d/%d", &day, &mon, &year) == 2) {
-            sched->date = changeDate(sched->date, day, mon, 0);
-            printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
+    if (getNComms() == 4) {
+        if (strcmp(getToken(1), "time") == 0) {
+            sscanf(getToken(3), "%d:%d", &hour, &min);
+            sched->timeSet = 1;
+            sched->date = changeTime(sched->date, hour, min, 0);
+            printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
+        } else if (strcmp(getToken(1), "date") == 0) {
+            if (sscanf(getToken(3), "%d/%d/%d", &day, &mon, &year) == 2) {
+                sched->date = changeDate(sched->date, day, mon, 0);
+                printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
+            } else {
+                sched->date = changeDate(sched->date, day, mon, year);
+                printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
+            }
+        } else if (strcmp(getToken(1), "estimate") == 0) {
+            sched->timeEstimate = 60 * atof(getToken(3));
+            printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));
         } else {
-            sched->date = changeDate(sched->date, day, mon, year);
-            printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
+            printf("Invalid edit option.\n\n");
         }
-    } else if (strcmp(getToken(1), "estimate") == 0) {
-        sched->timeEstimate = 60 * atof(getToken(3));
-        printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));
-
     } else {
-        printf("Invalid edit option.\n\n");
+        if (strcmp(getToken(1), "notime") == 0) {
+            sched->timeSet = 0;
+            sched->date = changeTime(sched->date, 0, 0, 0);
+            printf("Removed time estimate.\n\n");
+        } else {
+            printf("Invalid edit option.\n\n");
+        }
     }
 }
 
@@ -702,7 +714,7 @@ void calendarMenu() {
                 printf("Invalid number of arguments.\n\n");
             }
         } else if (strcmp(commandName, "edit") == 0) {
-            if (validArgs(3)) {
+            if (getNComms() == 3 || getNComms() == 4) {
                 editSchedule();
                 printScheduled();
             } else {
