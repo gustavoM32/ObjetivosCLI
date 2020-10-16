@@ -1,7 +1,7 @@
-#ifndef PERIOD_H
-#define PERIOD_H
+#ifndef PERIOD_HPP
+#define PERIOD_HPP
 /*************************************/
-#include "objectives.h"
+#include "objectives.hpp"
 
 void editPeriod(Task* task);
 

@@ -1,11 +1,11 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "period.h"
-#include "util.h"
-#include "io.h"
-#include "help.h"
-#include "calendar.h"
+#include "period.hpp"
+#include "util.hpp"
+#include "io.hpp"
+#include "help.hpp"
+#include "calendar.hpp"
 
 /*
     editPeriod()

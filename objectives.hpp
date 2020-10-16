@@ -1,5 +1,5 @@
-#ifndef OBJECTIVES_H
-#define OBJECTIVES_H
+#ifndef OBJECTIVES_HPP
+#define OBJECTIVES_HPP
 /*************************************/
 #include <time.h>
 
@@ -84,8 +84,8 @@ typedef struct {
     Schedule *periodSched;
 } Calendar;
 
-Task* rootTask;
-Calendar *calendar;
+extern Task* rootTask;
+extern Calendar *calendar;
 
 void freeAll();
 /*************************************/

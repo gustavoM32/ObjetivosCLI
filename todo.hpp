@@ -1,8 +1,8 @@
-#ifndef TODO_H
-#define TODO_H
+#ifndef TODO_HPP
+#define TODO_HPP
 /*************************************/
 #include <time.h>
-#include "objectives.h"
+#include "objectives.hpp"
 
 Todo* createTodo(char *name, int type);
 

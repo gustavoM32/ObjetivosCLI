@@ -1,10 +1,10 @@
-#ifndef TASK_H
-#define TASK_H
+#ifndef TASK_HPP
+#define TASK_HPP
 /*************************************/
-#include "objectives.h"
-#include "period.h"
-#include "todo.h"
-#include "util.h"
+#include "objectives.hpp"
+#include "period.hpp"
+#include "todo.hpp"
+#include "util.hpp"
 
 int findTaskByName(Task *, char *);
 

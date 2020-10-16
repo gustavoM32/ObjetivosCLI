@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include "util.h"
-#include "objectives.h"
+#include "util.hpp"
+#include "objectives.hpp"
 
 /**
     mallocSafe()

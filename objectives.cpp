@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "objectives.h"
-#include "util.h"
-#include "task.h"
-#include "io.h"
-#include "calendar.h"
+#include "objectives.hpp"
+#include "util.hpp"
+#include "task.hpp"
+#include "io.hpp"
+#include "calendar.hpp"
+
+Task* rootTask;
+Calendar *calendar;
 
 void freeAll() {
 	freeTask(rootTask);

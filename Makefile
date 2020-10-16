@@ -1,32 +1,32 @@
-CC = gcc
-CFLAGS = -Wall -g
+CC = g++
+CFLAGS = -Wall -g -Wno-write-strings
 LIBS = -lreadline
 
 #----
 
-objetivos: objectives.c objectives.h calendar.o help.o io.o period.o task.o todo.o util.o
-	$(CC) $(CFLAGS) objectives.c calendar.o help.o io.o period.o task.o todo.o util.o -o objetivos $(LIBS)
+objetivos: objectives.cpp objectives.hpp calendar.o help.o io.o period.o task.o todo.o util.o
+	$(CC) $(CFLAGS) objectives.cpp calendar.o help.o io.o period.o task.o todo.o util.o -o objetivos $(LIBS)
 
-calendar.o: calendar.c calendar.h
-	$(CC) $(CFLAGS) -c calendar.c
+calendar.o: calendar.cpp calendar.hpp
+	$(CC) $(CFLAGS) -c calendar.cpp
 
-help.o: help.c help.h
-	$(CC) $(CFLAGS) -c help.c
+help.o: help.cpp help.hpp
+	$(CC) $(CFLAGS) -c help.cpp
 
-io.o: io.c io.h
-	$(CC) $(CFLAGS) -c io.c
+io.o: io.cpp io.hpp
+	$(CC) $(CFLAGS) -c io.cpp
 
-period.o: period.c period.h
-	$(CC) $(CFLAGS) -c period.c
+period.o: period.cpp period.hpp
+	$(CC) $(CFLAGS) -c period.cpp
 
-task.o: task.c task.h
-	$(CC) $(CFLAGS) -c task.c
+task.o: task.cpp task.hpp
+	$(CC) $(CFLAGS) -c task.cpp
 
-todo.o: todo.c todo.h
-	$(CC) $(CFLAGS) -c todo.c
+todo.o: todo.cpp todo.hpp
+	$(CC) $(CFLAGS) -c todo.cpp
 
-util.o: util.c util.h
-	$(CC) $(CFLAGS) -c util.c
+util.o: util.cpp util.hpp
+	$(CC) $(CFLAGS) -c util.cpp
 
 
 clear:

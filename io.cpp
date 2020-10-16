@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "io.h"
-#include "util.h"
-#include "task.h"
+#include "io.hpp"
+#include "util.hpp"
+#include "task.hpp"
 
 #define SENTENCE_LIMIT '\"'
 
@@ -101,7 +101,7 @@ char *getCommandName() {
         line = readline("> ");
         add_history(line);
         int size = strlen(line);
-        char *newLine = mallocSafe(size + 1);
+        char *newLine = (char *) mallocSafe(size + 1);
         strcpy(newLine, line);
         free(line);
         newLine[size] = '\n';

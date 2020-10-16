@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "help.h"
-#include "objectives.h"
+#include "help.hpp"
+#include "objectives.hpp"
 
 void printHelp(int page) {
     const char* lineStart = "  |";

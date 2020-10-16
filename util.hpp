@@ -1,15 +1,11 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef UTIL_HPP
+#define UTIL_HPP
 /*************************************/
 #include <stdio.h>
-#include "objectives.h"
+#include "objectives.hpp"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
-
-typedef int bool;
-
-enum Bool {false, true};
 
 void* mallocSafe(int nBytes);
 

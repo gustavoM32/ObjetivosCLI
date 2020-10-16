@@ -1,10 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include "task.h"
-#include "calendar.h"
-#include "util.h"
-#include "io.h"
-#include "help.h"
+#include "task.hpp"
+#include "calendar.hpp"
+#include "util.hpp"
+#include "io.hpp"
+#include "help.hpp"
 
 static Task *selectedTask;
 
@@ -468,7 +468,7 @@ void getTasks(Task *tasks[], int *n, Task *task) {
 */
 Task *searchTask(Task *root) {
     int nResults = 1;
-    int old, new, i, j, id;
+    int old, newI, i, j, id;
     Task *results[MAX_CHILDS * MAX_CHILDS];
     int nInputs = getNComms() - 1;
     char *inputCodes[MAX_CHILDS];
@@ -479,7 +479,7 @@ Task *searchTask(Task *root) {
 
     getTasks(results, &nResults, root);
     setUPath(root, root);
-    for (old = 0, new = 0; old < nResults; old++) {
+    for (old = 0, newI = 0; old < nResults; old++) {
         int pathLen = 0;
         char codes[MAX_CHILDS][CODE_LEN];
         bool match = true;
@@ -500,18 +500,18 @@ Task *searchTask(Task *root) {
         if (!match) {
             continue;
         }
-        if (new == old) {
-            new++;
+        if (newI == old) {
+            newI++;
             continue;
         }
-        results[new++] = results[old];
+        results[newI++] = results[old];
     }
-    nResults = new;
-    if (new == 0) {
+    nResults = newI;
+    if (newI == 0) {
         printf("No task found.\n\n");
         return NULL;
     }
-    if (new == 1) return results[0];
+    if (newI == 1) return results[0];
     printf("Multiple tasks match the path given:\n\n");
     for (i = 0; i < nResults; i++) {
         printf("   %d. %s (%s)\n\n", i + 1, results[i]->name, results[i]->uniquePath);

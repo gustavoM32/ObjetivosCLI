@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "calendar.h"
-#include "objectives.h"
-#include "io.h"
-#include "util.h"
-#include "help.h"
-#include "todo.h"
+#include "calendar.hpp"
+#include "objectives.hpp"
+#include "io.hpp"
+#include "util.hpp"
+#include "help.hpp"
+#include "todo.hpp"
 
 char *wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
 char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};

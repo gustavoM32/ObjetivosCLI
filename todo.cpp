@@ -1,10 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include "todo.h"
-#include "io.h"
-#include "util.h"
-#include "help.h"
-#include "calendar.h"
+#include "todo.hpp"
+#include "io.hpp"
+#include "util.hpp"
+#include "help.hpp"
+#include "calendar.hpp"
 
 /*
     createTodo()
