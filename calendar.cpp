@@ -659,6 +659,30 @@ void editSchedule() {
 }
 
 /*
+    delaySchedule()
+    Edits schedule attributes.
+*/
+void delaySchedule() {
+    int id;
+    Schedule *sched;
+    
+    id = calendar->nSchedules - atoi(getToken(1));
+
+    if (id < 0 || id >= calendar->nSchedules) {
+        printf("Invalid to-do ID.\n\n");
+        return;
+    }
+
+    sched = calendar->schedules[id];
+
+    int delay = atoi(getToken(2));
+    sched->date += SECS_IN_A_DAY * delay;
+    printf("Delayed scheduled for %d day(s).\n\n", delay);
+    sched->timeSet = 0;
+    sched->date = changeTime(sched->date, 0, 0, 0);
+}
+
+/*
     changePrioritizeStatus()
     Changes status of prioritized to-do.
 */
@@ -721,6 +745,11 @@ void calendarMenu() {
                 printScheduled();
             } else {
                 printf("Invalid number of arguments.\n\n");
+            }
+        } else if (strcmp(commandName, "delay") == 0) {
+            if (validArgs(2)) {
+                delaySchedule();
+                printScheduled();
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
