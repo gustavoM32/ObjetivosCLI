@@ -766,28 +766,15 @@ void calendarMenu() {
             if (validArgs(0)) {
                 printScheduled();
             }
-        } else if (strcmp(commandName, "week") == 0) {
-            if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
+                    curMenu = lastMenu;
                     return;
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
             }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(TODOS_MENU);
-        } else if (strcmp(commandName, "save") == 0) {
-            if (validArgs(0)) saveAll();
-        } else if (strcmp(commandName, "exit") == 0) {
-            if (validArgs(0)) {
-				freeAll();
-                printf("Exiting...\n\n");
-                exit(EXIT_SUCCESS);
-            }
-        } else {
-            notAvailable(commandName);
-        }
+        } else if (generalCommands(commandName)) return;
     }
 }

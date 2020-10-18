@@ -147,33 +147,15 @@ void periodsMenu(Task *task) {
                 listPeriods(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "cal") == 0) {
-            if (validArgs(0)) {
-                calendarMenu();
-                listPeriods(task);
-            }
-        } else if (strcmp(commandName, "week") == 0) {
-            if (validArgs(0)) printWeekSummary(rootTask);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
+                    curMenu = TASK_MENU;
                     return;
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
             }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(PERIOD_MENU);
-        } else if (strcmp(commandName, "save") == 0) {
-            if (validArgs(0)) saveAll();
-        } else if (strcmp(commandName, "exit") == 0) {
-            if (validArgs(0)) {
-				freeAll();
-                printf("Exiting...\n\n");
-                exit(EXIT_SUCCESS);
-            }
-        } else {
-            notAvailable(commandName);
-        }
+        } else if (generalCommands(commandName)) return;
     }
 }

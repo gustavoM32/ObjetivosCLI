@@ -18,7 +18,7 @@
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
 enum TodoStatus {TODO_PENDING, TODO_PRIORITY, TODO_COMPLETED};
 enum TodoType {ROOT, NODE};
-enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIOD_MENU, WEEK_MENU};
+enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIODS_MENU, CALENDAR_MENU};
 
 typedef struct task Task;
 typedef struct todo Todo;
@@ -84,9 +84,14 @@ typedef struct {
     Schedule *periodSched;
 } Calendar;
 
-extern Task* rootTask;
+extern Task *rootTask;
 extern Calendar *calendar;
+extern int lastMenu;
+extern int curMenu;
+extern Task *curTask;
 
 void freeAll();
+
+bool generalCommands(char *commandName);
 /*************************************/
 #endif

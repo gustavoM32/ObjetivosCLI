@@ -556,21 +556,18 @@ void subtasksMenu(Task* task) {
                 moveTask(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(SUBTASKS_MENU);
         } else if (strcmp(commandName, "sts") == 0) {
             if (validArgs(0)) listSubtasks(task);
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
+                    curMenu = TASK_MENU;
                     return;
                 } else {
                     printf("Type 'cd ..' to go back\n\n");
                 }
             }
-        } else {
-            notAvailable(commandName);
-        }
+        } else if (generalCommands(commandName)) return;
     }
 }
 
@@ -578,8 +575,7 @@ void subtasksMenu(Task* task) {
     taskMenu()
     Enters in task menu of task pointed by 'task'.
 */
-Task* taskMenu(Task* task) {
-    Task* nextTask = NULL;
+void taskMenu(Task* task) {
     char *commandName;
     bool showHead = true;
     while (true) {
@@ -624,31 +620,24 @@ Task* taskMenu(Task* task) {
                 printf("Main task doesn't have periods.\n\n");
             } else {
                 if (validArgs(0)) {
-                    periodsMenu(task);
-                    showHead = true;
+                    curMenu = PERIODS_MENU;
+                    return;
                 }
             }
         } else if (strcmp(commandName, "sts") == 0) {
             if (validArgs(0)) {
-                subtasksMenu(task);
-                showHead = true;
+                curMenu = SUBTASKS_MENU;
+                return;
             }
         } else if (strcmp(commandName, "tds") == 0) {
             if (validArgs(0)) {
-                todosMenu(task);
-                showHead = true;
+                curMenu = TODOS_MENU;
+                return;
             }
         } else if (strcmp(commandName, "nts") == 0) {
             if (validArgs(0)) {
                 listNotes(task);
             }
-        } else if (strcmp(commandName, "cal") == 0) {
-            if (validArgs(0)) {
-                calendarMenu();
-                listSubtasks(task);
-            }
-        } else if (strcmp(commandName, "week") == 0) {
-            if (validArgs(0)) printWeekSummary(rootTask);
         // } else if (strcmp(commandName, "alltds") == 0) {
             // if (validArgs(0)) printNoDateTodos(todoCalendar, rootTask);
         } else if (strcmp(commandName, "ls") == 0) {
@@ -662,34 +651,25 @@ Task* taskMenu(Task* task) {
                     if (task == rootTask) {
                         printf("Can't go to main task parent.\n\n");
                     } else {
-                        nextTask = task->parent;
-                        break;
+                        curTask = task->parent;
+                        return;
                     }
                 } else {
-                    nextTask = getSubtask(task, getToken(1));
-                    if (nextTask != NULL) break;
+                    Task *nextTask = getSubtask(task, getToken(1));
+                    if (nextTask != NULL) {
+                        curTask = nextTask;
+                        return;
+                    }
                 }
             }
         } else if (strcmp(commandName, "goto") == 0) {
             if (getNComms() > 1) {
-                nextTask = searchTask(rootTask);
-                if (nextTask != NULL) break;
+                curTask = searchTask(rootTask);
+                if (curTask != NULL) break;
+                    curTask = task;
             } else {
                 printf("Usage: goto [...] [<parent code>] <task code>\n\n");
             }
-        } else if (strcmp(commandName, "help") == 0) {
-            if (validArgs(0)) printHelp(TASK_MENU);
-        } else if (strcmp(commandName, "save") == 0) {
-            if (validArgs(0)) saveAll();
-        } else if (strcmp(commandName, "exit") == 0) {
-            if (validArgs(0)) {
-				freeAll();
-                printf("Exiting...\n\n");
-                exit(EXIT_SUCCESS);
-            }
-        } else {
-            notAvailable(commandName);
-        }
+        } else if (generalCommands(commandName)) return;
     }
-    return nextTask;
 }

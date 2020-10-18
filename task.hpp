@@ -38,6 +38,6 @@ void setSubtaskStatus(Task *);
 
 void subtasksMenu(Task *);
 
-Task *taskMenu(Task *);
+void taskMenu(Task *);
 /*************************************/
 #endif
