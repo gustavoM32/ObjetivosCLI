@@ -662,14 +662,6 @@ void taskMenu(Task* task) {
                     }
                 }
             }
-        } else if (strcmp(commandName, "goto") == 0) {
-            if (getNComms() > 1) {
-                curTask = searchTask(rootTask);
-                if (curTask != NULL) break;
-                    curTask = task;
-            } else {
-                printf("Usage: goto [...] [<parent code>] <task code>\n\n");
-            }
         } else if (generalCommands(commandName)) return;
     }
 }

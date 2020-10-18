@@ -21,7 +21,18 @@ void freeAll() {
 }
 
 bool generalCommands(char *commandName) {
-    if (strcmp(commandName, "cal") == 0) {
+    if (strcmp(commandName, "goto") == 0) {
+        if (getNComms() > 1) {
+            Task *nextTask = searchTask(rootTask);
+            if (nextTask != NULL) {
+                curTask = nextTask;
+                curMenu = TASK_MENU;
+                return true;
+            }
+        } else {
+            printf("Usage: goto [...] [<parent code>] <task code>\n\n");
+        }
+    } else if (strcmp(commandName, "cal") == 0) {
         if (validArgs(0)) {
             lastMenu = curMenu;
             curMenu = CALENDAR_MENU;

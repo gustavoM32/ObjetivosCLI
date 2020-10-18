@@ -16,6 +16,8 @@ Task *createTask(char *, char *);
 
 void freeTask(Task *task);
 
+Task *searchTask(Task *root);
+
 void addSubtask(Task *);
 
 void deleteTask(Task *);
