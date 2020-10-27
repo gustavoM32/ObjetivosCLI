@@ -145,6 +145,7 @@ void removeTodo(Task* task) {
         }
     } else {
         Todo *parent = todo->parent.todo;
+        parent->timeSpent += todo->timeSpent;
         parent->nSubtodos--;
         while (id < parent->nSubtodos) {
             parent->subtodos[id] = parent->subtodos[id + 1];
@@ -304,10 +305,8 @@ void printTodoTree(Todo* todo, int level, int id, int showCompleted) {
         printf("  ");
     }
     printf("%2d [%c] %s", id, status, todo->name);
-    if (todo->timeEstimate != 0) {
-        printf(" (%.1f/%.1f)", todo->timeSpent / 60.0, todo->timeEstimate / 60.0);
-    }
-    if (todo->nSchedules != 0) printf(" (%d)", todo->nSchedules);
+    if (todo->timeSpent != 0) printf(" (%.1fh)", todo->timeSpent / 60.0);
+    if (todo->nSchedules != 0) printf(" (%d schedules)", todo->nSchedules);
     printf("\n");
 
     if (!showCompleted && todo->status == TODO_COMPLETED) return;

@@ -122,7 +122,7 @@ void printScheduled() {
             localtime_r(&(sched->date), &schedDate);
             if (sched->date < curDayStart) {
                 if (totalEstimated != 0) {
-                    printf("        Total %2.0f\n", totalEstimated / 60.0);
+                    printf("        Total %2.0fh\n", totalEstimated / 60.0);
                     totalSpent = totalEstimated = 0;
                 }
                 printf("\n ________________  Late  _________________\n\n");
@@ -131,7 +131,7 @@ void printScheduled() {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
                     if (totalEstimated != 0) {
-                        printf("        Total %2.0f\n", totalEstimated / 60.0);
+                        printf("        Total %2.0fh\n", totalEstimated / 60.0);
                         totalSpent = totalEstimated = 0;
                     }
                     printf("\n _____________  %s (%02d/%02d)  _____________\n\n", wDayShort[date.tm_wday], date.tm_mday, date.tm_mon + 1);
@@ -148,9 +148,9 @@ void printScheduled() {
 
             char todoName[NAME_LEN];
             getTodoFullName(sched->todo, todoName);
-            if (sched->timeEstimate == 0) printf(" 0");
-            else if (sched->timeEstimate / 60.0 < 1.0) printf("<1");
-            else printf("%2.0f", sched->timeEstimate / 60.0);
+            if (sched->timeEstimate == 0) printf(" 0h");
+            else if (sched->timeEstimate / 60.0 < 1.0) printf("<1h");
+            else printf("%2.0fh", sched->timeEstimate / 60.0);
             printf(" %s\n", todoName);
             totalSpent += sched->timeSpent;
             totalEstimated += sched->timeEstimate;
@@ -159,7 +159,7 @@ void printScheduled() {
         } while (i >= 0);
     }
     if (totalEstimated != 0) {
-        printf("        Total %2.0f\n", totalEstimated / 60.0);
+        printf("        Total %2.0fh\n", totalEstimated / 60.0);
     }
     printf(" ___________________________________________________\n\n");
 }
@@ -173,11 +173,12 @@ void printPrioritized() {
 
     printf(" __________________  Prioritized  __________________\n\n");
 
+    printf("         Spent   Sched   Todo name\n");
     for (i = 0; i < calendar->nTodos; i++) {
         Todo *todo = calendar->todos[i];
         char todoName[NAME_LEN];
         getTodoFullName(todo, todoName);
-        printf("    %2d: (%04.1f/%04.1f) (%d) %s\n", i + 1, todo->timeSpent / 60.0, todo->timeEstimate / 60.0, todo->nSchedules, todoName);
+        printf("    %2d: %5.1fh  %5d     %s\n", i + 1, todo->timeSpent / 60.0, todo->nSchedules, todoName);
     }
 
     printf(" ___________________________________________________\n\n");
