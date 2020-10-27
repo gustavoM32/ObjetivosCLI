@@ -185,6 +185,40 @@ void editTodo(Task* task) {
     }
 }
 
+bool descendentsCompleted(Todo *todo) {
+    for (int i = 0; i < todo->nSubtodos; i++) {
+        if (todo->subtodos[i]->status != TODO_COMPLETED || !descendentsCompleted(todo->subtodos[i])) return false;
+    }
+    return true;
+}
+
+bool changeTodoStatus(Todo *todo, int status) {
+
+    if (status == TODO_COMPLETED) {
+        if (!descendentsCompleted(todo)) {
+            printf("All sub to-dos must be completed before to-do can be set as completed.\n\n");
+            return false;
+        }
+    } else if (status == TODO_PENDING) {
+        Todo *parent = todo;
+        while (parent->type != ROOT) {
+            if (parent->status == TODO_COMPLETED) parent->status = TODO_PENDING;
+            parent = todo->parent.todo;
+        }
+        if (parent->status == TODO_COMPLETED) parent->status = TODO_PENDING;
+        for (int i = 0; i < todo->nSubtodos; i++) {
+            if (todo->subtodos[i]->status == TODO_PRIORITY) todo->subtodos[i]->status = TODO_PENDING;
+        }
+    } else if (status == TODO_PRIORITY) {
+        for (int i = 0; i < todo->nSubtodos; i++) {
+            if (todo->subtodos[i]->status == TODO_PENDING) todo->subtodos[i]->status = TODO_PRIORITY;
+        }
+    }
+
+    todo->status = status;
+    return true;
+}
+
 /*
     setTodoStatus()
     Changes status of to-do.
@@ -198,6 +232,8 @@ void setTodoStatus(Task *task) {
     int mult = (getNComms() == 3);
 
     todo = getTodoFromPath(task, getToken(1), NULL);
+    
+    if (todo == NULL) return;
 
     if (strcmp(getToken(0), "unset") == 0) {
         status = TODO_PENDING;
@@ -219,11 +255,11 @@ void setTodoStatus(Task *task) {
             return;
         }
         for (i = start; i <= end; i++) {
-            todo->subtodos[i]->status = status;
+            if (!changeTodoStatus(todo->subtodos[i], status)) return;
         }
         printf("To-dos %d-%d, status changed to \"%s\".\n\n", start + 1, end + 1, statusName);
     } else {
-        todo->status = status;
+        if (!changeTodoStatus(todo, status)) return;
         printf("\"%s\" is set to \"%s\".\n\n", todo->name, statusName);
     }
 }
