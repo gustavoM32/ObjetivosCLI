@@ -61,7 +61,7 @@ void printHelp(int page) {
             printf("%s%s help - show this menu\n", lineStart, itemStart);
             printf("%s%s cd .. - go back to task menu\n", lineStart, itemStart);
             break;
-        case PERIOD_MENU:
+        case PERIODS_MENU:
             printf("%s%s Period Menu commands\n", lineStart, nameStart);
             printf("%s\n", lineStart);
             printf("%s%s pds - list periods\n", lineStart, itemStart);
@@ -72,14 +72,14 @@ void printHelp(int page) {
             printf("%s%s help - show this menu\n", lineStart, itemStart);
             printf("%s%s cd .. - go back to task menu\n", lineStart, itemStart);
             break;
-        case WEEK_MENU:
-            printf("%s%s Week Menu commands\n", lineStart, nameStart);
-            printf("%s\n", lineStart);
-            printf("%s%s add \"day\" \"month\" \"task name\" - add week task\n", lineStart, itemStart);
-            printf("%s%s rem \"day\" \"month\" \"id\" - remove week task\n", lineStart, itemStart);
-            printf("%s%s help - show this menu\n", lineStart, itemStart);
-            printf("%s%s cd .. - go back to previous menu\n", lineStart, itemStart);
-            break;
+        // case WEEK_MENU:
+        //     printf("%s%s Week Menu commands\n", lineStart, nameStart);
+        //     printf("%s\n", lineStart);
+        //     printf("%s%s add \"day\" \"month\" \"task name\" - add week task\n", lineStart, itemStart);
+        //     printf("%s%s rem \"day\" \"month\" \"id\" - remove week task\n", lineStart, itemStart);
+        //     printf("%s%s help - show this menu\n", lineStart, itemStart);
+        //     printf("%s%s cd .. - go back to previous menu\n", lineStart, itemStart);
+        //     break;
     }
     printf("%s\n", lineStart);
     printf("  +--------------------------------------------------------------------+\n\n");
