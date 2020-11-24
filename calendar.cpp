@@ -103,6 +103,9 @@ void printScheduled() {
     int i;    
     time_t curDayStart = getDayStart(getCurrentTime());
     int totalSpent = 0, totalEstimated = 0;
+    bool printLate = true;
+    bool printCommon = true;
+    bool printTotalLast = true;
 
     sortCalendar();
 
@@ -120,12 +123,17 @@ void printScheduled() {
         do {
             sched = calendar->schedules[i];
             localtime_r(&(sched->date), &schedDate);
-            if (sched->date < curDayStart) {
-                if (totalEstimated != 0) {
-                    printf("        Total %2.0fh\n", totalEstimated / 60.0);
-                    totalSpent = totalEstimated = 0;
+
+            if (sched->date == 0) {
+                if (printCommon) {
+                    printCommon = false;
+                    printf("\n ________________  Common  _________________\n\n");
                 }
-                printf("\n ________________  Late  _________________\n\n");
+            } else if (sched->date < curDayStart) {
+                if (printLate) {
+                    printLate = false;
+                    printf("\n ________________  Late  _________________\n\n");
+                }
             } else {
                 while (sched->date < dayStart) {
                     dayStart -= SECS_IN_A_DAY;
@@ -142,24 +150,29 @@ void printScheduled() {
 
             if (sched->timeSet) {
                 printf("%02d:%02d ", schedDate.tm_hour, schedDate.tm_min);
-            } else {
+            } else if (sched->date != 0) {
                 printf("--:-- ");
             }
 
             char todoName[NAME_LEN];
             getTodoFullName(sched->todo, todoName);
-            if (sched->timeEstimate == 0) printf(" 0h");
-            else if (sched->timeEstimate / 60.0 < 1.0) printf("<1h");
-            else printf("%2.0fh", sched->timeEstimate / 60.0);
-            printf(" %s\n", todoName);
+
+            if (sched->date != 0) {
+                if (sched->timeEstimate == 0) printf(" 0h ");
+                else if (sched->timeEstimate / 60.0 < 1.0) printf("<1h ");
+                else printf("%2.0fh ", sched->timeEstimate / 60.0);
+            }
+
+            printf("%s\n", todoName);
+
             totalSpent += sched->timeSpent;
             totalEstimated += sched->timeEstimate;
-
             i--;
+            if (printTotalLast && (i < 0 || calendar->schedules[i]->date < curDayStart)) {
+                printTotalLast = false;
+                printf("        Total %2.0fh\n", totalEstimated / 60.0);
+            }
         } while (i >= 0);
-    }
-    if (totalEstimated != 0) {
-        printf("        Total %2.0fh\n", totalEstimated / 60.0);
     }
     printf(" ___________________________________________________\n\n");
 }
@@ -499,7 +512,7 @@ void scheduleTodoCalendar() {
     Todo *todo;
     time_t date;
     struct tm *structTime;
-    int timeSet;
+    int args;
     int estimate;
     
     id = atoi(getToken(1)) - 1;
@@ -509,39 +522,37 @@ void scheduleTodoCalendar() {
     }
 
     todo = calendar->todos[id];
-    timeSet = (getNComms() == 5);
+    args = getNComms();
 
+    if (args != 2) {
+        sscanf(getToken(2), "%d/%d", &day, &mon);
 
-    sscanf(getToken(2), "%d/%d", &day, &mon);
+        date = getCurrentTime();
+        structTime = localtime(&date);
 
-    date = getCurrentTime();
-    structTime = localtime(&date);
-
-    if (structTime->tm_mon > mon) structTime->tm_year++;
-    structTime->tm_sec = 0;
-
-    structTime->tm_mon = mon - 1;
-    structTime->tm_mday = day;
-
-    if (timeSet) {
-        sscanf(getToken(3), "%d:%d", &hour, &min);
-
+        if (structTime->tm_mon > mon) structTime->tm_year++;
+        structTime->tm_sec = 0;
+        structTime->tm_mon = mon - 1;
+        structTime->tm_mday = day;
+        if (args == 5) {
+            sscanf(getToken(3), "%d:%d", &hour, &min);
+        } else if (args == 4) {
+            hour = min = 0;
+        }
         structTime->tm_hour = hour;
         structTime->tm_min = min;
-        estimate = 60 * atof(getToken(4));
+        estimate = 60 * atof(getToken(args - 1));
+        date = mktime(structTime);
+        printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
     } else {
-        structTime->tm_hour = 0;
-        structTime->tm_min = 0;
-        estimate = 60 * atof(getToken(3));
+        estimate = 0;
+        date = 0;
+        printf("Todo added to calendar.\n\n");
     }
 
-    date = mktime(structTime);
-
-    createSchedule(todo, timeSet, date, estimate);
+    createSchedule(todo, args == 5, date, estimate);
 
     updateCalendar();
-
-    printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
 }
 
 /*
@@ -734,7 +745,7 @@ void calendarMenu() {
         periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "sched") == 0) {
-            if (getNComms() == 4 || getNComms() == 5) {
+            if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodoCalendar();
                 printScheduled();
             } else {

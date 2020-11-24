@@ -283,43 +283,43 @@ void scheduleTodo(Task *task) {
     Todo *todo;
     time_t date;
     struct tm *structTime;
-    int timeSet;
+    int args;
     int estimate;
     
     todo = getTodoFromPath(task, getToken(1), NULL);
 
     if (todo == NULL) return;
 
-    timeSet = (getNComms() == 5);
+    args = getNComms();
 
-    sscanf(getToken(2), "%d/%d", &day, &mon);
+    if (args != 2) {
+        sscanf(getToken(2), "%d/%d", &day, &mon);
 
-    date = getCurrentTime();
-    structTime = localtime(&date);
+        date = getCurrentTime();
+        structTime = localtime(&date);
 
-    if (structTime->tm_mon > mon) structTime->tm_year++;
-    structTime->tm_sec = 0;
-
-    structTime->tm_mon = mon - 1;
-    structTime->tm_mday = day;
-
-    if (timeSet) {
-        sscanf(getToken(3), "%d:%d", &hour, &min);
-
+        if (structTime->tm_mon > mon) structTime->tm_year++;
+        structTime->tm_sec = 0;
+        structTime->tm_mon = mon - 1;
+        structTime->tm_mday = day;
+        if (args == 5) {
+            sscanf(getToken(3), "%d:%d", &hour, &min);
+        } else if (args == 4) {
+            hour = min = 0;
+        }
         structTime->tm_hour = hour;
         structTime->tm_min = min;
-        estimate = 60 * atof(getToken(4));
+        estimate = 60 * atof(getToken(args - 1));
+        date = mktime(structTime);
+        printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
     } else {
-        structTime->tm_hour = 0;
-        structTime->tm_min = 0;
-        estimate = 60 * atof(getToken(3));
+        estimate = 0;
+        date = 0;
+        printf("Todo added to calendar.\n\n");
     }
 
-    date = mktime(structTime);
+    createSchedule(todo, args == 5, date, estimate);
 
-    createSchedule(todo, timeSet, date, estimate);
-
-    printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
 
 }
 
@@ -412,7 +412,7 @@ void todosMenu(Task* task) {
                 saveAll();
             }
         } else if (strcmp(commandName, "sched") == 0) {
-            if (getNComms() == 4 || getNComms() == 5) {
+            if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodo(task);
                 listTodos(task, 0);
             } else {
