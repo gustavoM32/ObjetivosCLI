@@ -39,7 +39,7 @@ bool generalCommands(char *commandName) {
             return true;
         }
     } else if (strcmp(commandName, "week") == 0) {
-        if (validArgs(0)) printWeekSummary(rootTask);
+        if (validArgs(0)) printWeekSummary();
     } else if (strcmp(commandName, "help") == 0) {
         if (validArgs(0)) printHelp(curMenu);
     } else if (strcmp(commandName, "save") == 0) {

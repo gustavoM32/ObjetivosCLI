@@ -3,9 +3,9 @@
 
 #include "objectives.hpp"
 
-void printNoDateTodos(Calendar *calendar, Task *root);
+// void printNoDateTodos(Calendar *calendar, Task *root);
 
-void printWeekSummary(Task *root);
+void printWeekSummary();
 
 void periodWarning();
 

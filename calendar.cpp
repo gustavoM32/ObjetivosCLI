@@ -257,7 +257,7 @@ void getPeriods(Period *periods[], int *n, Task *task) {
     printWeekSummary()
     Prints all to-dos with no specified dates.
 */
-void printWeekSummary(Task *root) {
+void printWeekSummary() {
     int n = 0;
     int i, p;
     long int curWeek[2];
@@ -269,7 +269,7 @@ void printWeekSummary(Task *root) {
     long int dayTime = 0;
     char formatText[NAME_LEN];
     Period *periodList[MAX_PERIODS*MAX_PERIODS];
-    getPeriods(periodList, &n, root);
+    getPeriods(periodList, &n, rootTask);
     sortPeriods(periodList, n);
     curTime = getCurrentTime();
     objStart = getTime(25, 8, 2019, 0, 0, 0);
@@ -487,20 +487,33 @@ void periodWarning() {
     Todo *todo;
     long int taskDur = 0;
     char formatedDur[10];
+    int n = 0;
+    int last = -1;
+    Period *periodList[MAX_PERIODS*MAX_PERIODS];
+
+    getPeriods(periodList, &n, rootTask);
 
     if (calendar->periodSched == NULL) {
-        return;
+        for (int i = 0; i < n; i++) {
+            if (last == -1 || periodList[last]->end < periodList[i]->end) last = i;
+        }
+        if (last != -1) {
+            period = periodList[last];
+            taskDur = getCurrentTime() - period->end;
+            formatDur(taskDur, formatedDur);
+            printf("Time since last period: %s\n\n", formatedDur);
+        }
+    } else {
+        todo = calendar->periodSched->todo;
+        while (todo->type != ROOT) todo = todo->parent.todo;
+        task = todo->parent.task;
+        period = &(task->periods[task->nPeriods - 1]);
+
+        period->end = getCurrentTime();
+        taskDur = period->end - period->start;
+        formatDur(taskDur, formatedDur);
+        printf("Period \"%s\" running! Duration: %s.\n\n", period->name, formatedDur);
     }
-
-    todo = calendar->periodSched->todo;
-    while (todo->type != ROOT) todo = todo->parent.todo;
-    task = todo->parent.task;
-    period = &(task->periods[task->nPeriods - 1]);
-
-    period->end = getCurrentTime();
-    taskDur = period->end - period->start;
-    formatDur(taskDur, formatedDur);
-    printf("Period \"%s\" running! Duration: %s.\n\n", period->name, formatedDur);
 }
 
 /*
