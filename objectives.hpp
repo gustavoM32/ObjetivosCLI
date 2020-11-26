@@ -1,11 +1,10 @@
 #ifndef OBJECTIVES_HPP
 #define OBJECTIVES_HPP
 /*************************************/
+#include <string>
 #include <time.h>
 
-#define NAME_LEN 100
 #define CODE_LEN 6
-#define PATH_LEN 100
 #define NOTE_LEN 200
 #define MAX_CHILDS 50
 #define MAX_NOTES 50
@@ -26,7 +25,7 @@ typedef struct todo Todo;
 typedef struct {
     long int start;
     long int end;
-    char name[NAME_LEN];
+    std::string name; // remove
 } Period;
 
 typedef union {
@@ -43,7 +42,7 @@ typedef struct {
 } Schedule;
 
 struct todo {
-    char name[NAME_LEN];
+    std::string name;
     int timeSpent;
     int timeEstimate;
     int status;
@@ -61,9 +60,9 @@ typedef struct {
 } Note;
 
 struct task {
-    char name[NAME_LEN];
-    char uniquePath[PATH_LEN];
-    char code[CODE_LEN];
+    std::string name;
+    std::string uniquePath;
+    std::string code;
     int status;
 	int nNotes;
 	Note notes[MAX_NOTES];

@@ -1,8 +1,12 @@
+#include <string>
+#include <sstream>
+#include <iomanip>
 #include <stdlib.h>
 #include <time.h>
-#include <string.h>
 #include "util.hpp"
 #include "objectives.hpp"
+
+using namespace std;
 
 /**
     mallocSafe()
@@ -59,14 +63,19 @@ time_t getDayStart(time_t time) {
     formatDur()
     This function returns in 'timeString' the 'totalTime' formated as 'h:mm:ss'.
 */
-void formatDur(long int totalTime, char timeString[]) {
+string formatDur(long int totalTime) {
     int hours, minutes, seconds;
+    stringstream s;
     seconds = totalTime % 60;
     totalTime /= 60;
     minutes = totalTime % 60;
     totalTime /= 60;
     hours = totalTime;
-    sprintf(timeString, "%d:%02d:%02d", hours, minutes, seconds);
+    s << setfill('0')
+        << hours << ":"
+        << setw(2) << minutes << ":"
+        << setw(2) << seconds;
+    return s.str();
 }
 
 /**
@@ -74,24 +83,32 @@ void formatDur(long int totalTime, char timeString[]) {
     This function returns in 'timeString' the 'time' formated as
     'dd/mm/yy hh:mm:ss'.
 */
-void formatTime(long int time, char timeString[]) {
+string formatTime(long int time) {
     struct tm *structTime;
+    stringstream s;
     structTime = localtime(&time);
-    sprintf(timeString, "%02d/%02d/%02d %02d:%02d:%02d",
-        structTime->tm_mday, structTime->tm_mon + 1, structTime->tm_year - 100,
-        structTime->tm_hour, structTime->tm_min, structTime->tm_sec);
+    s << setfill('0')
+        << setw(2) << structTime->tm_mday << "/"
+        << setw(2) << structTime->tm_mon + 1 << "/"
+        << setw(2) << structTime->tm_year - 100 << " "
+        << setw(2) << structTime->tm_hour << ":"
+        << setw(2) << structTime->tm_min << ":"
+        << setw(2) << structTime->tm_sec;
+    return s.str();
 }
 
 /**
     formatDate()
-    This function returns in 'dateString' the 'time' formated as
-    'dd/mm'.
+    This function returns 'time' formated as 'dd/mm'.
 */
-void formatDate(long int time, char dateString[]) {
+string formatDate(long int time) {
     struct tm *structTime;
+    stringstream s;
     structTime = localtime(&time);
-    sprintf(dateString, "%02d/%02d",
-        structTime->tm_mday, structTime->tm_mon + 1);
+    s << setfill('0')
+        << setw(2) << structTime->tm_mday << "/"
+        << setw(2) << structTime->tm_mon + 1;
+    return s.str();
 }
 
 /*
@@ -237,10 +254,10 @@ void notAvailable(char* userCommand) {
     countTasks()
     DOCUMENTAR.
 */
-int countTasks(Task *task, char *code) {
+int countTasks(Task *task, string &code) {
     int i;
     int count = 0;
-    if (strcmp(task->code, code) == 0) count++;
+    if (task->code == code) count++;
     for (i = 0; i < task->nSubtasks; i++) {
         count += countTasks(task->subtasks[i], code);
     }
@@ -253,12 +270,14 @@ int countTasks(Task *task, char *code) {
 */
 void setUPath(Task *root, Task *task) {
     int i;
-    char uniquePath[PATH_LEN + 3 + CODE_LEN];
+    string uniquePath;
     if (countTasks(root, task->code) == 1 || task->parent == NULL) {
-        strcpy(task->uniquePath, task->code);
+        task->uniquePath = task->code;
     } else {
-        sprintf(uniquePath, "%s > %s", task->parent->uniquePath, task->code);
-        strcpy(task->uniquePath, uniquePath);
+        uniquePath += task->parent->uniquePath;
+        uniquePath += " > ";
+        uniquePath += task->code;
+        task->uniquePath = uniquePath;
     }
     for (i = 0; i < task->nSubtasks; i++) {
         setUPath(root, task->subtasks[i]);
@@ -304,7 +323,7 @@ int countTodosTask(Task *task) {
 int isInList(char word[], int size, char array[][COMMAND_LEN]) {
     int i;
     for (i = 0; i < size; i++) {
-        if (strcmp(word, array[i]) == 0) return true;
+        if (word == array[i]) return true;
     }
     return false;
 }

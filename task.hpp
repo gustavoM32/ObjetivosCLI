@@ -1,18 +1,19 @@
 #ifndef TASK_HPP
 #define TASK_HPP
 /*************************************/
+#include <string>
 #include "objectives.hpp"
 #include "period.hpp"
 #include "todo.hpp"
 #include "util.hpp"
 
-int findTaskByName(Task *, char *);
+int findTaskByName(Task *, std::string &);
 
-int findTaskByCode(Task *, char *);
+int findTaskByCode(Task *, std::string &);
 
-Task *getSubtask(Task *, char *);
+Task *getSubtask(Task *, std::string);
 
-Task *createTask(char *, char *);
+Task *createTask(std::string, std::string);
 
 void freeTask(Task *task);
 

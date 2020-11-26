@@ -1,4 +1,5 @@
-#include <string.h>
+#include <string>
+#include <cstring>
 #include <stdlib.h>
 #include "todo.hpp"
 #include "io.hpp"
@@ -6,14 +7,16 @@
 #include "help.hpp"
 #include "calendar.hpp"
 
+using namespace std;
+
 /*
     createTodo()
     Creates a to-do named 'name' with 'type'.
 */
-Todo* createTodo(char *name, int type) {
+Todo* createTodo(string name, int type) {
     Todo* newTodo;
     newTodo = (Todo *) mallocSafe(sizeof(Todo));
-    strcpy(newTodo->name, name);
+    newTodo->name = name;
     newTodo->timeSpent = 0;
     newTodo->timeEstimate = 0;
     newTodo->status = TODO_PENDING;
@@ -134,7 +137,7 @@ void removeTodo(Task* task) {
 
     if (todo == NULL) return;
 
-    printf("To-do \"%s\" removed.\n\n", todo->name);
+    printf("To-do \"%s\" removed.\n\n", todo->name.c_str());
 
     if (todo->type == ROOT) {
         Task *parent = todo->parent.task;
@@ -161,7 +164,7 @@ void removeTodo(Task* task) {
 */
 void editTodo(Task* task) {
     Todo* todo = getTodoFromPath(task, getToken(2), NULL);
-    char *name;
+    string name;
     
     if (todo == NULL) return;
 
@@ -172,15 +175,15 @@ void editTodo(Task* task) {
             return;
         }  
         todo->timeEstimate = 60 * estimate;
-        printf("Changed to-do '%s' time estimate to %d.\n\n", todo->name, estimate);
+        printf("Changed to-do '%s' time estimate to %d.\n\n", todo->name.c_str(), estimate);
     } else if (strcmp(getToken(1), "name") == 0) {
         name = getToken(3);
         if (name[0] == '\0') {
             printf("To-do name must not be empty.\n\n");
             return;
         }
-        printf("Changed to-do name from %s to %s.\n\n", todo->name, name);
-        strcpy(todo->name, name);
+        printf("Changed to-do name from %s to %s.\n\n", todo->name.c_str(), name.c_str());
+        todo->name = name;
 
     }
 }
@@ -260,7 +263,7 @@ void setTodoStatus(Task *task) {
         printf("To-dos %d-%d, status changed to \"%s\".\n\n", start + 1, end + 1, statusName);
     } else {
         if (!changeTodoStatus(todo, status)) return;
-        printf("\"%s\" is set to \"%s\".\n\n", todo->name, statusName);
+        printf("\"%s\" is set to \"%s\".\n\n", todo->name.c_str(), statusName);
     }
 }
 
@@ -340,7 +343,7 @@ void printTodoTree(Todo* todo, int level, int id, int showCompleted) {
     for (i = 0; i < level; i++) {
         printf("  ");
     }
-    printf("%2d [%c] %s", id, status, todo->name);
+    printf("%2d [%c] %s", id, status, todo->name.c_str());
     if (todo->timeSpent != 0) printf(" (%.1fh)", todo->timeSpent / 60.0);
     if (todo->nSchedules != 0) printf(" (%d schedules)", todo->nSchedules);
     printf("\n");
@@ -379,10 +382,10 @@ void todosMenu(Task* task) {
     int nStatusCommands = 3;
     char todoStatusCommands[][COMMAND_LEN] = {"set", "unset", "complete"};
 
-    printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
+    printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code.c_str());
     listTodos(task, 0);
     while (true) {
-        printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code);
+        printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code.c_str());
         commandName = getCommandName();
         periodWarning();
         if (strcmp(commandName, "add") == 0) {

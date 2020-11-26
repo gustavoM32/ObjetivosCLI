@@ -1,10 +1,13 @@
-#include <string.h>
+#include <string>
+#include <cstring>
 #include <stdlib.h>
 #include "task.hpp"
 #include "calendar.hpp"
 #include "util.hpp"
 #include "io.hpp"
 #include "help.hpp"
+
+using namespace std;
 
 static Task *selectedTask;
 
@@ -13,10 +16,10 @@ static Task *selectedTask;
     Returns index of pointer to subtask named 'name' in subtask vector of task
     'parent'. Returns -1 if there's no such subtask.
 */
-int findTaskByName(Task* parent, char* name) {
+int findTaskByName(Task* parent, string &name) {
     int i;
     for (i = 0; i < parent->nSubtasks; i++) {
-        if (strcmp(parent->subtasks[i]->name, name) == 0) {
+        if (parent->subtasks[i]->name == name) {
             return i;
         }
     }
@@ -28,10 +31,10 @@ int findTaskByName(Task* parent, char* name) {
     Returns index of pointer to subtask with code 'code' in subtask vector of task
     'parent'. Returns -1 if there's no such subtask.
 */
-int findTaskByCode(Task* parent, char* code) {
+int findTaskByCode(Task* parent, string &code) {
     int i;
     for (i = 0; i < parent->nSubtasks; i++) {
-        if (strcmp(parent->subtasks[i]->code, code) == 0) {
+        if (parent->subtasks[i]->code == code) {
             return i;
         }
     }
@@ -43,13 +46,13 @@ int findTaskByCode(Task* parent, char* code) {
     Gets subtask code from user and returns a pointer to it if it exist in task
     pointed by 'task'.
 */
-Task* getSubtask(Task* task, char *subtaskCode) {
+Task* getSubtask(Task* task, string subtaskCode) {
     int id;
     subtaskCode = toUppercase(getToken(1));
 
     id = findTaskByCode(task, subtaskCode);
     if (id == -1) {
-        printf("\"%s\" has no subtask with code \"%s\".\n\n", task->name, subtaskCode);
+        printf("\"%s\" has no subtask with code \"%s\".\n\n", task->name.c_str(), subtaskCode.c_str());
         return NULL;
     }
     return task->subtasks[id];
@@ -59,12 +62,12 @@ Task* getSubtask(Task* task, char *subtaskCode) {
     createTask()
     Creates task named 'name' and with code 'code' and returns a pointer to it.
 */
-Task* createTask(char *name, char *code) {
+Task* createTask(string name, string code) {
     Task* newTask;
     newTask = (Task *) mallocSafe(sizeof(Task));
-    strcpy(newTask->name, name);
-    strcpy(newTask->uniquePath, "");
-    strcpy(newTask->code, code);
+    newTask->name = name;
+    // newTask->uniquePath = "";
+    newTask->code = code;
     newTask->nNotes = 0;
     newTask->nTodos = 0;
     newTask->nSubtasks = 0;
@@ -95,28 +98,28 @@ void freeTask(Task *task) {
     list.
 */
 void addSubtask(Task* parent) {
-    char *subtaskName;
-    char *subtaskCode;
+    string subtaskName;
+    string subtaskCode;
     subtaskCode = toUppercase(getToken(1));
     subtaskName = getToken(2);
-    if (strlen(subtaskCode) == 0 || strlen(subtaskCode) > 5) {
+    if (subtaskCode.size() || subtaskCode.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
     } else if (findTaskByCode(parent, subtaskCode) != -1) {
-        printf("\"%s\" already has subtask with code \"%s\".\n\n", parent->name, subtaskCode);
+        printf("\"%s\" already has subtask with code \"%s\".\n\n", parent->name.c_str(), subtaskCode.c_str());
         return;
     }
-    if (strlen(subtaskName) == 0) {
+    if (subtaskName.size() == 0) {
         printf("Subtask name must not be empty.\n\n");
         return;
     } else if (findTaskByName(parent, subtaskName) != -1) {
-        printf("\"%s\" already has subtask named \"%s\".\n\n", parent->name, subtaskName);
+        printf("\"%s\" already has subtask named \"%s\".\n\n", parent->name.c_str(), subtaskName.c_str());
         return;
     }
-    parent->subtasks[parent->nSubtasks] = createTask(subtaskName, subtaskCode);
+    parent->subtasks[parent->nSubtasks] = createTask(subtaskName.c_str(), subtaskCode.c_str());
     parent->subtasks[parent->nSubtasks]->parent = parent;
     (parent->nSubtasks)++;
-    printf("Added task \"%s\".\n\n", subtaskName);
+    printf("Added task \"%s\".\n\n", subtaskName.c_str());
 }
 
 /*
@@ -125,16 +128,16 @@ void addSubtask(Task* parent) {
     by 'parent'
 */
 void removeSubtask(Task *parent) {
-    char *subtaskCode;
+    string subtaskCode;
     int id;
     subtaskCode = toUppercase(getToken(1));
     id = findTaskByCode(parent, subtaskCode);
     if (id == -1) {
-        printf("There's no task with code \"%s\".\n\n", subtaskCode);
+        printf("There's no task with code \"%s\".\n\n", subtaskCode.c_str());
         return;
     }
 
-    printf("Removed task (%s) %s.\n\n", parent->subtasks[id]->code, parent->subtasks[id]->name);
+    printf("Removed task (%s) %s.\n\n", parent->subtasks[id]->code.c_str(), parent->subtasks[id]->name.c_str());
 
     freeTask(parent->subtasks[id]);
 
@@ -145,17 +148,17 @@ void removeSubtask(Task *parent) {
     }
 }
 
-void listStatusTasks(Task* tasks[], int count, char statusName[]) {
+void listStatusTasks(Task* tasks[], int count, string statusName) {
     int i;
     if (count == 0) {
-        printf("  |   You have no %s subtasks.\n", statusName);
+        printf("  |   You have no %s subtasks.\n", statusName.c_str());
         printf("  |\n");
     } else {
         statusName[0] = statusName[0] - 'a' + 'A';
-        printf("  |   %s:\n", statusName);
+        printf("  |   %s:\n", statusName.c_str());
         printf("  |\n");
         for (i = 0; i < count; i++) {
-            printf("  |    (%s) %s (%d)\n", tasks[i]->code, tasks[i]->name, countTodosTask(tasks[i]));
+            printf("  |    (%s) %s (%d)\n", tasks[i]->code.c_str(), tasks[i]->name.c_str(), countTodosTask(tasks[i]));
         }
         printf("  |\n");
     }
@@ -167,7 +170,7 @@ void listStatusTasks(Task* tasks[], int count, char statusName[]) {
 */
 void listSubtasks(Task* task) {
     int i;
-    char statusNames[4][NAME_LEN] = {"active", "inactive", "completed", "canceled"};
+    string statusNames[4] = {"active", "inactive", "completed", "canceled"};
     int count[4] = {0, 0, 0, 0};
     Task* lists[4][MAX_CHILDS];
     for (i = 0; i < task->nSubtasks; i++) {
@@ -213,10 +216,10 @@ long int getTaskTotalTime(Task* task) {
 */
 void showTaskTotalTime(Task* task) {
     long int totalTime;
-    char formatedTime[10];
+    string formatedTime;
     totalTime = getTaskTotalTime(task);
-    formatDur(totalTime, formatedTime);
-    printf("Time spent in task (%s) %s: %s.\n\n", task->code, task->name, formatedTime);
+    formatedTime = formatDur(totalTime);
+    printf("Time spent in task (%s) %s: %s.\n\n", task->code.c_str(), task->name.c_str(), formatedTime.c_str());
 }
 
 /*
@@ -249,10 +252,10 @@ long int getTaskWeekTime(Task* task) {
 */
 void showTaskWeekTime(Task* task) {
     long int totalTime;
-    char formatedTime[10];
+    string formatedTime;
     totalTime = getTaskWeekTime(task);
-    formatDur(totalTime, formatedTime);
-    printf("Time spent in task (%s) %s this week: %s.\n\n", task->code, task->name, formatedTime);
+    formatedTime = formatDur(totalTime);
+    printf("Time spent in task (%s) %s this week: %s.\n\n", task->code.c_str(), task->name.c_str(), formatedTime.c_str());
 }
 
 
@@ -261,20 +264,20 @@ void showTaskWeekTime(Task* task) {
     Renames task pointed by 'task' to name inputed by user.
 */
 void renameTask(Task* task) {
-    char *taskName;
+    string taskName;
     taskName = getToken(1);
-    if (strlen(taskName) == 0) {
+    if (taskName.size() == 0) {
         printf("Subtask name must not be empty.\n\n");
         return;
     } else if (task->parent == NULL) {
         printf("Can't rename main task.\n\n");
         return;
     } else if (findTaskByName(task->parent, taskName) != -1) {
-        printf("\"%s\" already has subtask named \"%s\".\n\n", task->parent->name, taskName);
+        printf("\"%s\" already has subtask named \"%s\".\n\n", task->parent->name.c_str(), taskName.c_str());
         return;
     }
-    printf("\"%s\" renamed to \"%s\"\n\n", task->name, taskName);
-    strcpy(task->name, taskName);
+    printf("\"%s\" renamed to \"%s\"\n\n", task->name.c_str(), taskName.c_str());
+    task->name = taskName;
 }
 
 /*
@@ -282,20 +285,20 @@ void renameTask(Task* task) {
     Changes code of task pointed by 'task' to code inputed by user.
 */
 void changeCode(Task* task) {
-    char *code;
+    string code;
     code = toUppercase(getToken(1));
-    if (strlen(code) == 0 || strlen(code) > 5) {
+    if (code.size() == 0 || code.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
     } else if (task->parent == NULL) {
         printf("Can't change main task code.\n\n");
         return;
     } else if (findTaskByCode(task->parent, code) != -1) {
-        printf("\"%s\" already has subtask with code \"%s\".\n\n", task->parent->code, code);
+        printf("\"%s\" already has subtask with code \"%s\".\n\n", task->parent->code.c_str(), code.c_str());
         return;
     }
-    printf("\"%s\" code changed to \"%s\"\n\n", task->code, code);
-    strcpy(task->code, code);
+    printf("\"%s\" code changed to \"%s\"\n\n", task->code.c_str(), code.c_str());
+    task->code = code;
 }
 
 /*
@@ -309,7 +312,7 @@ void selectSubtask(Task* parent) {
     task = getSubtask(parent, taskCode);
     if (task == NULL) return;
     selectedTask = task;
-    printf("Selected task (%s) %s.\n\n", selectedTask->code, selectedTask->name);
+    printf("Selected task (%s) %s.\n\n", selectedTask->code.c_str(), selectedTask->name.c_str());
 }
 
 /*
@@ -323,14 +326,14 @@ void moveTask(Task* newParent) {
         printf("There's no selected task.\n\n");
         return;
     } else if (findTaskByCode(newParent, selectedTask->code) != -1) {
-        printf("\"%s\" already has subtask with code \"%s\".\n\n", newParent->name, selectedTask->code);
+        printf("\"%s\" already has subtask with code \"%s\".\n\n", newParent->name.c_str(), selectedTask->code.c_str());
         return;
     } else if (findTaskByName(newParent, selectedTask->name) != -1) {
-        printf("\"%s\" already has subtask named \"%s\".\n\n", newParent->name, selectedTask->name);
+        printf("\"%s\" already has subtask named \"%s\".\n\n", newParent->name.c_str(), selectedTask->name.c_str());
         return;
     }
 
-    printf("Moved task (%s) \"%s\" from (%s) to (%s)\n\n", selectedTask->code, selectedTask->name, selectedTask->parent->code, newParent->code);
+    printf("Moved task (%s) \"%s\" from (%s) to (%s)\n\n", selectedTask->code.c_str(), selectedTask->name.c_str(), selectedTask->parent->code.c_str(), newParent->code.c_str());
 
     /* Removes from old parent */
     selectedTask->parent->nSubtasks--;
@@ -387,11 +390,11 @@ void setSubtaskStatus(Task *task) {
     }
     if (subtask == NULL) return;
     if (status == TASK_COMPLETED && !allCompleted(subtask)) {
-        printf("You can only complete \"%s\" when all its subtasks are completed.\n\n", subtask->name);
+        printf("You can only complete \"%s\" when all its subtasks are completed.\n\n", subtask->name.c_str());
         return;
     }
     subtask->status = status;
-    printf("\"%s\" is set to \"%s\"\n\n", subtask->name, statusName);
+    printf("\"%s\" is set to \"%s\"\n\n", subtask->name.c_str(), statusName);
 }
 
 /*
@@ -514,7 +517,7 @@ Task *searchTask(Task *root) {
     if (newI == 1) return results[0];
     printf("Multiple tasks match the path given:\n\n");
     for (i = 0; i < nResults; i++) {
-        printf("   %d. %s (%s)\n\n", i + 1, results[i]->name, results[i]->uniquePath);
+        printf("   %d. %s (%s)\n\n", i + 1, results[i]->name.c_str(), results[i]->uniquePath.c_str());
     }
     printf("Select desired task: ");
     scanf("%d", &id);
@@ -534,10 +537,10 @@ Task *searchTask(Task *root) {
 */
 void subtasksMenu(Task* task) {
     char *commandName;
-    printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code);
+    printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code.c_str());
     listSubtasks(task);
     while (true) {
-        printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code);
+        printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code.c_str());
         commandName = getCommandName();
         if (strcmp(commandName, "add") == 0) {
             if (validArgs(2)) {
@@ -580,12 +583,12 @@ void taskMenu(Task* task) {
     bool showHead = true;
     while (true) {
         if (showHead) {
-            printf("***************************  Task Menu (%s)  ***************************\n\n", task->code);
+            printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
             listSubtasks(task);
             showHead = false;
         }
-        printf("***************************  Task Menu (%s)  ***************************\n\n", task->code);
-        printf(" - %s\n\n", task->name);
+        printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
+        printf(" - %s\n\n", task->name.c_str());
         periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "rename") == 0) {

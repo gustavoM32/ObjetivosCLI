@@ -1,6 +1,7 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 /*************************************/
+#include <string>
 #include <stdio.h>
 #include "objectives.hpp"
 
@@ -13,11 +14,11 @@ FILE* fopenSafe(char* fileName, char* mode);
 
 long int getCurrentTime();
 
-void formatDur(long int totalTime, char timeString[]);
+std::string formatDur(long int totalTime);
 
-void formatTime(long int time, char timeString[]);
+std::string formatTime(long int time);
 
-void formatDate(long int time, char dateString[]);
+std::string formatDate(long int time);
 
 long int getTime(int day, int month, int year, int hour, int min, int sec);
 
@@ -39,7 +40,7 @@ void copyFile(char *orig, char *dest);
 
 void notAvailable(char* userCommand);
 
-int countTasks(Task *task, char *code);
+int countTasks(Task *task, std::string &code);
 
 void setUPath(Task *root, Task *task);
 

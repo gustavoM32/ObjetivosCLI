@@ -1,10 +1,11 @@
 #ifndef TODO_HPP
 #define TODO_HPP
 /*************************************/
+#include <string>
 #include <time.h>
 #include "objectives.hpp"
 
-Todo* createTodo(char *name, int type);
+Todo* createTodo(std::string name, int type);
 
 void freeTodo(Todo *todo);
 

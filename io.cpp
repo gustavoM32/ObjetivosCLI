@@ -1,5 +1,6 @@
+#include <string>
+#include <cstring>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
@@ -8,6 +9,8 @@
 #include "task.hpp"
 
 #define SENTENCE_LIMIT '\"'
+
+using namespace std;
 
 static int nComms = 0;
 static char buffer[MAX_COMMANDS][COMMAND_LEN];
@@ -133,7 +136,7 @@ void fpfInd(FILE* file, int depth) {
 void saveTodo(Todo* todo, FILE* output, int depth) {
     int i;
     fpfInd(output, depth);
-    fprintf(output, "\"%s\" %d %d %d\n", todo->name, todo->timeSpent, todo->timeEstimate, todo->status);
+    fprintf(output, "\"%s\" %d %d %d\n", todo->name.c_str(), todo->timeSpent, todo->timeEstimate, todo->status);
     fpfInd(output, depth);
     fprintf(output, "%d\n", todo->nSchedules);
     for (i = 0; i < todo->nSchedules; i++) {
@@ -156,7 +159,7 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
 void saveTask(Task* task, FILE* output, int depth) {
     int i;
     fpfInd(output, depth);
-    fprintf(output, "\"%s\" %s %d\n", task->name, task->code, task->status);
+    fprintf(output, "\"%s\" %s %d\n", task->name.c_str(), task->code.c_str(), task->status);
     fpfInd(output, depth);
     fprintf(output, "%d\n", task->nNotes);
     for (i = 0; i < task->nNotes; i++) {
@@ -172,7 +175,7 @@ void saveTask(Task* task, FILE* output, int depth) {
     fprintf(output, "%d\n", task->nPeriods);
     for (i = 0; i < task->nPeriods; i++) {
         fpfInd(output, depth);
-        fprintf(output, "%ld %ld \"%s\"\n", task->periods[i].start, task->periods[i].end, task->periods[i].name);
+        fprintf(output, "%ld %ld \"%s\"\n", task->periods[i].start, task->periods[i].end, task->periods[i].name.c_str());
     }
     fpfInd(output, depth);
     fprintf(output, "%d\n", task->nSubtasks);
@@ -206,10 +209,10 @@ void saveAll() {
 */
 Todo* loadTodo(FILE* input, int type) {
     int i;
-    char todoName[NAME_LEN];
+    string todoName;
     Todo* todo;
     getLine(input);
-    strcpy(todoName, getToken(0));
+    todoName = getToken(0);
     todo = createTodo(todoName, type);
     todo->timeSpent = atoi(getToken(1));
     todo->timeEstimate = atoi(getToken(2));
@@ -241,12 +244,12 @@ Todo* loadTodo(FILE* input, int type) {
 */
 Task* loadTask(FILE* input) {
     int i;
-    char taskName[NAME_LEN];
-    char taskCode[CODE_LEN];
+    string taskName;
+    string taskCode;
     Task* task;
     getLine(input);
-    strcpy(taskName, getToken(0));
-    strcpy(taskCode, getToken(1));
+    taskName = getToken(0);
+    taskCode = getToken(1);
     task = createTask(taskName, taskCode);
     task->status = atoi(getToken(2));
     getLine(input);
@@ -269,7 +272,7 @@ Task* loadTask(FILE* input) {
         getLine(input);
         task->periods[i].start = atol(getToken(0));
         task->periods[i].end = atol(getToken(1));
-        strcpy(task->periods[i].name, getToken(2));
+        task->periods[i].name = getToken(2);
     }
     getLine(input);
     task->nSubtasks = atoi(getToken(0));

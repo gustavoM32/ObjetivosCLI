@@ -1,4 +1,5 @@
-#include <string.h>
+#include <string>
+#include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
 #include "period.hpp"
@@ -6,6 +7,8 @@
 #include "io.hpp"
 #include "help.hpp"
 #include "calendar.hpp"
+
+using namespace std;
 
 /*
     editPeriod()
@@ -18,8 +21,8 @@ void editPeriod(Task* task) {
     long int old;
     long int *period;
     int a, b, c;
-    char oldFormatedTime[NAME_LEN];
-    char newFormatedTime[NAME_LEN];
+    string oldFormatedTime;
+    string newFormatedTime;
     sscanf(getToken(1), "%d", &periodId);
     ext = toLowercase(getToken(2));
     type = toLowercase(getToken(3));
@@ -48,9 +51,9 @@ void editPeriod(Task* task) {
         printf("You can edit period 'time' or 'date'\n\n");
         return;
     }
-    formatTime(*period, newFormatedTime);
-    formatTime(old, oldFormatedTime);
-    printf("Period %s %s changed from %s to %s\n\n", ext, type, oldFormatedTime, newFormatedTime);
+    newFormatedTime = formatTime(*period);
+    oldFormatedTime = formatTime(old);
+    printf("Period %s %s changed from %s to %s\n\n", ext, type, oldFormatedTime.c_str(), newFormatedTime.c_str());
 }
 
 /*
@@ -96,19 +99,19 @@ void removePeriod(Task *task) {
 */
 void listPeriods(Task *task) {
     int i;
-    char formatedStartTime[NAME_LEN];
-    char formatedEndTime[NAME_LEN];
-    char formatedDur[NAME_LEN];
+    string formatedStartTime;
+    string formatedEndTime;
+    string formatedDur;
     printf("  +--------------------------> Period list <--------------------------+\n");
     printf("  |\n");
     if (task->nPeriods == 0) {
         printf("  |   List is empty\n");
     }
     for (i = 0; i < task->nPeriods; i++) {
-        formatTime(task->periods[i].start, formatedStartTime);
-        formatTime(task->periods[i].end, formatedEndTime);
-        formatDur(task->periods[i].end - task->periods[i].start, formatedDur);
-        printf("  |   %2d. [%s  ...  %s]   %s   \"%s\"\n", i + 1, formatedStartTime, formatedEndTime, formatedDur, task->periods[i].name);
+        formatedStartTime = formatTime(task->periods[i].start);
+        formatedEndTime = formatTime(task->periods[i].end);
+        formatedDur = formatDur(task->periods[i].end - task->periods[i].start);
+        printf("  |   %2d. [%s  ...  %s]   %s   \"%s\"\n", i + 1, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), task->periods[i].name.c_str());
     }
     printf("  |\n");
     printf("  +-------------------------------------------------------------------+\n\n");
@@ -121,10 +124,10 @@ void listPeriods(Task *task) {
 */
 void periodsMenu(Task *task) {
     char *commandName;
-    printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code);
+    printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
     listPeriods(task);
     while (true) {
-        printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code);
+        printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
         periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "pds") == 0) {
