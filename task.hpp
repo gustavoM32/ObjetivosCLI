@@ -7,9 +7,9 @@
 #include "todo.hpp"
 #include "util.hpp"
 
-int findTaskByName(Task *, std::string &);
+Task *findTaskByName(Task *, std::string &);
 
-int findTaskByCode(Task *, std::string &);
+Task *findTaskByCode(Task *, std::string &);
 
 Task *getSubtask(Task *, std::string);
 

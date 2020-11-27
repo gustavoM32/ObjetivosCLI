@@ -15,43 +15,41 @@ using namespace std;
     Edit period from task pointed by 'task' according to user input.
 */
 void editPeriod(Task* task) {
-    int periodId;
     char *ext;
     char *type;
     long int old;
-    long int *period;
+    long int *timestamp;
     int a, b, c;
     string oldFormatedTime;
     string newFormatedTime;
-    sscanf(getToken(1), "%d", &periodId);
+    int id = atoi(getToken(1)) - 1;
     ext = toLowercase(getToken(2));
     type = toLowercase(getToken(3));
 
-    periodId--;
-    if (periodId < 0 || periodId >= task->nPeriods) {
-        printf("Invalid period id.\n\n");
-        return;
-    }
+    Period *period = ithPeriod(task->periods, id);
+    if (period == nullptr) return;
+
     if (strcmp(ext, "start") == 0) {
-        period = &((task->periods[periodId]).start);
+        timestamp = &(period->start);
     } else if (strcmp(ext, "end") == 0) {
-        period = &((task->periods[periodId]).end);
+        timestamp = &(period->end);
     } else {
         printf("You can edit period 'start' or 'end'\n\n");
         return;
     }
-    old = *period;
+
+    old = *timestamp;
     if (strcmp(type, "time") == 0) {
         sscanf(getToken(4), "%d:%d:%d", &a, &b, &c);
-        *period = changeTime(*period, a, b, c);
+        *timestamp = changeTime(*timestamp, a, b, c);
     } else if (strcmp(type, "date") == 0) {
         sscanf(getToken(4), "%d/%d/%d", &a, &b, &c);
-        *period = changeDate(*period, a, b, 2000 + c);
+        *timestamp = changeDate(*timestamp, a, b, 2000 + c);
     } else {
         printf("You can edit period 'time' or 'date'\n\n");
         return;
     }
-    newFormatedTime = formatTime(*period);
+    newFormatedTime = formatTime(*timestamp);
     oldFormatedTime = formatTime(old);
     printf("Period %s %s changed from %s to %s\n\n", ext, type, oldFormatedTime.c_str(), newFormatedTime.c_str());
 }
@@ -62,13 +60,15 @@ void editPeriod(Task* task) {
 */
 void addPeriod(Task* task) {
     int day, month, year, hour, min, sec;
+    Period *period = new Period;
+
     sscanf(getToken(1), "%d/%d/%d", &day, &month, &year);
     sscanf(getToken(2), "%d:%d:%d", &hour, &min, &sec);
-    task->periods[task->nPeriods].start = getTime(day, month, year + 2000, hour, min, sec);
+    period->start = getTime(day, month, year + 2000, hour, min, sec);
     sscanf(getToken(3), "%d/%d/%d", &day, &month, &year);
     sscanf(getToken(4), "%d:%d:%d", &hour, &min, &sec);
-    task->periods[task->nPeriods].end = getTime(day, month, year + 2000, hour, min, sec);
-    (task->nPeriods)++;
+    period->end = getTime(day, month, year + 2000, hour, min, sec);
+    task->periods.push_back(period);
     printf("Period added.\n\n");
 }
 
@@ -77,19 +77,14 @@ void addPeriod(Task* task) {
     Ask user for a period Id of task pointed by 'task and remove if it exists.
 */
 void removePeriod(Task *task) {
-    int periodId;
-    int i;
-    sscanf(getToken(1), "%d", &periodId);
-    periodId--;
-    if (periodId < 0 || periodId >= task->nPeriods) {
-        printf("Invalid period id.\n\n");
-        return;
-    }
-    (task->nPeriods)--;
-    for (i = periodId; i < task->nPeriods; i++) {
-        task->periods[i].start = task->periods[i + 1].start;
-        task->periods[i].end = task->periods[i + 1].end;
-    }
+    int id = atoi(getToken(1)) - 1;
+    Period *period = ithPeriod(task->periods, id);
+
+    if (period == nullptr) return;
+
+    task->periods.remove(period);
+    delete period;
+
     printf("Period removed.\n\n");
 }
 
@@ -98,20 +93,22 @@ void removePeriod(Task *task) {
     Lists task periods.
 */
 void listPeriods(Task *task) {
-    int i;
+    int i = 1;
     string formatedStartTime;
     string formatedEndTime;
     string formatedDur;
     printf("  +--------------------------> Period list <--------------------------+\n");
     printf("  |\n");
-    if (task->nPeriods == 0) {
+    if (task->periods.size() == 0) {
         printf("  |   List is empty\n");
     }
-    for (i = 0; i < task->nPeriods; i++) {
-        formatedStartTime = formatTime(task->periods[i].start);
-        formatedEndTime = formatTime(task->periods[i].end);
-        formatedDur = formatDur(task->periods[i].end - task->periods[i].start);
-        printf("  |   %2d. [%s  ...  %s]   %s   \"%s\"\n", i + 1, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), task->periods[i].name.c_str());
+    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
+        Period *period = *it;
+        formatedStartTime = formatTime(period->start);
+        formatedEndTime = formatTime(period->end);
+        formatedDur = formatDur(period->end - period->start);
+        printf("  |   %2d. [%s  ...  %s]   %s   \"%s\"\n", i + 1, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), period->name.c_str());
+        i++;
     }
     printf("  |\n");
     printf("  +-------------------------------------------------------------------+\n\n");

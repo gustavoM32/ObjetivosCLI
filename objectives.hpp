@@ -2,13 +2,9 @@
 #define OBJECTIVES_HPP
 /*************************************/
 #include <string>
-#include <time.h>
+#include <list>
+#include <ctime>
 
-#define CODE_LEN 6
-#define NOTE_LEN 200
-#define MAX_CHILDS 50
-#define MAX_NOTES 50
-#define MAX_PERIODS 500
 #define COMMAND_LEN 200
 #define MAX_COMMANDS 10
 #define SECS_IN_A_DAY 86400
@@ -46,17 +42,16 @@ struct todo {
     int timeSpent;
     int timeEstimate;
     int status;
-    int nSubtodos;
-    Todo *subtodos[MAX_CHILDS];
-    int nSchedules;
-    Schedule *schedules[MAX_CHILDS];
+    std::list<Todo *> subtodos;
+    std::list<Schedule *> schedules;
+    std::list<Period *> periods;
     int type;
     TodoParent parent;
 };
 
 typedef struct {
 	long int date;
-	char text[NOTE_LEN];
+	std::string text;
 } Note;
 
 struct task {
@@ -64,22 +59,16 @@ struct task {
     std::string uniquePath;
     std::string code;
     int status;
-	int nNotes;
-	Note notes[MAX_NOTES];
-    int nTodos;
-    Todo *todos[MAX_CHILDS];
-    int nPeriods;
-    Period periods[MAX_PERIODS];
-    int nSubtasks;
-    Task *subtasks[MAX_CHILDS];
+	std::list<Note *> notes;
+    std::list<Todo *> todos;
+    std::list<Period *> periods;
+    std::list<Task *> subtasks;
     Task *parent;
 };
 
 typedef struct {
-    int nTodos;
-    Todo *todos[MAX_CHILDS*MAX_CHILDS];
-    int nSchedules;
-    Schedule *schedules[MAX_CHILDS*MAX_CHILDS];
+    std::list<Todo *> todos;
+    std::list<Schedule *> schedules;
     Schedule *periodSched;
 } Calendar;
 

@@ -21,10 +21,8 @@ char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
     Fills calendar with to-do schedules.
 */
 void updateCalendarSchedules(Calendar *calendar, Todo *todo) {
-    int i;
-    for (i = 0; i < todo->nSchedules; i++) {
-        calendar->schedules[calendar->nSchedules] = todo->schedules[i];
-        calendar->nSchedules++;
+    for (auto it = todo->schedules.begin(); it != todo->schedules.end(); it++) {
+        calendar->schedules.push_back(*it);
     }
 }
 
@@ -33,14 +31,13 @@ void updateCalendarSchedules(Calendar *calendar, Todo *todo) {
     Fills calendar with sub-to-dos of todo.
 */
 void updateCalendarTodo(Calendar *calendar, Todo *todo) {
-    int i;
-    for (i = 0; i < todo->nSubtodos; i++) {
-        if (todo->subtodos[i]->status == TODO_PRIORITY) {
-            calendar->todos[calendar->nTodos] = todo->subtodos[i];
-            calendar->nTodos++;
+    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
+        Todo *subtodo = *it;
+        if (subtodo->status == TODO_PRIORITY) {
+            calendar->todos.push_back(subtodo);
         }
-        updateCalendarSchedules(calendar, todo->subtodos[i]);
-        updateCalendarTodo(calendar, todo->subtodos[i]);
+        updateCalendarSchedules(calendar, subtodo);
+        updateCalendarTodo(calendar, subtodo);
     }
 }
 
@@ -49,17 +46,17 @@ void updateCalendarTodo(Calendar *calendar, Todo *todo) {
     Fills calendar with to-dos of task.
 */
 void updateCalendarTask(Calendar *calendar, Task *task) {
-    int i;
-    for (i = 0; i < task->nTodos; i++) {
-        if (task->todos[i]->status == TODO_PRIORITY) {
-            calendar->todos[calendar->nTodos] = task->todos[i];
-            calendar->nTodos++;
+    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
+        Todo *todo = *it;
+        if (todo->status == TODO_PRIORITY) {
+            calendar->todos.push_back(todo);
         }
-        updateCalendarSchedules(calendar, task->todos[i]);
-        updateCalendarTodo(calendar, task->todos[i]);
+        updateCalendarSchedules(calendar, todo);
+        updateCalendarTodo(calendar, todo);
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        updateCalendarTask(calendar, task->subtasks[i]);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        updateCalendarTask(calendar, *it);
     }
 }
 
@@ -67,14 +64,12 @@ void updateCalendarTask(Calendar *calendar, Task *task) {
     schedComp
     Schedule compare function.
 */
-int schedComp(const void *elem1, const void *elem2) {
-    Schedule *sched1 = *(Schedule **) elem1;
-    Schedule *sched2 = *(Schedule **) elem2;
-    if (sched1->date < sched2->date) return -1;
-    if (sched1->date > sched2->date) return 1;
-    if (sched1->timeSet) return 1;
-    if (sched2->timeSet) return -1;
-    return 0;
+bool schedComp(const Schedule *sched1, const Schedule *sched2) {
+    if (sched1->date < sched2->date) return true;
+    if (sched1->date > sched2->date) return false;
+    if (sched1->timeSet) return false;
+    if (sched2->timeSet) return true;
+    return false;
 }
 
 /*
@@ -82,7 +77,7 @@ int schedComp(const void *elem1, const void *elem2) {
     Order schedules by date.
 */
 void sortCalendar() {
-    qsort(calendar->schedules, calendar->nSchedules, sizeof(Schedule *), schedComp);
+    calendar->schedules.sort(schedComp);
 }
 
 void getTodoFullName(Todo *todo, string &name) {
@@ -101,7 +96,7 @@ void getTodoFullName(Todo *todo, string &name) {
     Prints scheduled to-dos.
 */
 void printScheduled() {
-    int i;    
+    int i = 1;
     time_t curDayStart = getDayStart(getCurrentTime());
     int totalSpent = 0, totalEstimated = 0;
     bool printLate = true;
@@ -112,17 +107,17 @@ void printScheduled() {
 
     printf(" ___________________  Scheduled  ___________________\n");
 
-    if (calendar->nSchedules == 0) {
+    if (calendar->schedules.size() == 0) {
         printf("\n    No scheduled to-dos.\n");
     } else {
-        Schedule *sched = calendar->schedules[calendar->nSchedules - 1];
+        Schedule *sched = calendar->schedules.back();
         struct tm date, schedDate;
         localtime_r(&(sched->date), &date);
         time_t dayStart = getDayStart(sched->date) + SECS_IN_A_DAY;
 
-        i = calendar->nSchedules - 1;
+        auto it = calendar->schedules.rbegin();
         do {
-            sched = calendar->schedules[i];
+            sched = *it;
             localtime_r(&(sched->date), &schedDate);
 
             if (sched->date == 0) {
@@ -147,7 +142,7 @@ void printScheduled() {
                 }
             }
 
-            printf("    %2d: ", calendar->nSchedules - i);
+            printf("    %2d: ", i);
 
             if (sched->timeSet) {
                 printf("%02d:%02d ", schedDate.tm_hour, schedDate.tm_min);
@@ -168,12 +163,13 @@ void printScheduled() {
 
             totalSpent += sched->timeSpent;
             totalEstimated += sched->timeEstimate;
-            i--;
-            if (printTotalLast && (i < 0 || calendar->schedules[i]->date < curDayStart)) {
+            i++;
+            it++;
+            if (printTotalLast && (it == calendar->schedules.rend() || (*it)->date < curDayStart)) {
                 printTotalLast = false;
                 printf("        Total %2.0fh\n", totalEstimated / 60.0);
             }
-        } while (i >= 0);
+        } while (it != calendar->schedules.rend());
     }
     printf(" ___________________________________________________\n\n");
 }
@@ -183,16 +179,16 @@ void printScheduled() {
     Prints prioritized to-dos.
 */
 void printPrioritized() {
-    int i;    
-
     printf(" __________________  Prioritized  __________________\n\n");
 
     printf("         Spent   Sched   Todo name\n");
-    for (i = 0; i < calendar->nTodos; i++) {
-        Todo *todo = calendar->todos[i];
+    int i = 1;
+    for (auto it = calendar->todos.begin(); it != calendar->todos.end(); it++) {
+        Todo *todo = *it;
         string todoName;
         getTodoFullName(todo, todoName);
-        printf("    %2d: %5.1fh  %5d     %s\n", i + 1, todo->timeSpent / 60.0, todo->nSchedules, todoName.c_str());
+        printf("    %2d: %5.1fh  %5ld     %s\n", i + 1, todo->timeSpent / 60.0, todo->schedules.size(), todoName.c_str());
+        i++;
     }
 
     printf(" ___________________________________________________\n\n");
@@ -224,33 +220,30 @@ void printPrioritized() {
     periodComp
     Period compare function.
 */
-int periodComp(const void *elem1, const void *elem2) {
-    Period *p1 = *(Period **) elem1;
-    Period *p2 = *(Period **) elem2;
-    if (p1->start < p2->start) return -1;
-    if (p1->start > p2->start) return 1;
-    return 0;
+bool periodComp(const Period *p1, const Period *p2) {
+    if (p1->start < p2->start) return true;
+    if (p1->start > p2->start) return false;
+    return false;
 }
 
 /*
     sortPeriods()
     Order periods by time.
 */
-void sortPeriods(Period *periods[], int n) {
-    qsort(periods, n, sizeof(Period *), periodComp);
+void sortPeriods(list<Period *> &periods) {
+    periods.sort(periodComp);
 }
 
 /*
     getPeriods()
     Inserts all TASK periods into PERIODS and the vector size into N.
 */
-void getPeriods(Period *periods[], int *n, Task *task) {
-    int i;
-    for (i = 0; i < task->nPeriods; i++) {
-        periods[(*n)++] = &(task->periods[i]);
+void getPeriods(list<Period *> &periods, Task *task) {
+    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
+        periods.push_back(*it);
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        getPeriods(periods, n, task->subtasks[i]);
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        getPeriods(periods, *it);
     }
 }
 
@@ -259,8 +252,7 @@ void getPeriods(Period *periods[], int *n, Task *task) {
     Prints all to-dos with no specified dates.
 */
 void printWeekSummary() {
-    int n = 0;
-    int i, p;
+    int i;
     long int curWeek[2];
     long int curTime;
     long int weekProgress;
@@ -269,9 +261,9 @@ void printWeekSummary() {
     long int weekTime = 0;
     long int dayTime = 0;
     string formatText;
-    Period *periodList[MAX_PERIODS*MAX_PERIODS];
-    getPeriods(periodList, &n, rootTask);
-    sortPeriods(periodList, n);
+    list<Period *> periodList;
+    getPeriods(periodList, rootTask);
+    sortPeriods(periodList);
     curTime = getCurrentTime();
     objStart = getTime(25, 8, 2019, 0, 0, 0);
     weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
@@ -279,7 +271,8 @@ void printWeekSummary() {
     curWeek[0] = curTime - weekProgress;
     curWeek[1] = curWeek[0] + SECS_IN_A_WEEK;
 
-    for (i = 0, p = 0; objStart + i < curWeek[1]; i += charInterval) {
+    auto pit = periodList.begin();
+    for (i = 0; objStart + i < curWeek[1]; i += charInterval) {
         int charStart = objStart + i;
         int charEnd = charStart + charInterval;
         long int prodTime = 0;
@@ -303,15 +296,15 @@ void printWeekSummary() {
         }
         if (charStart > curTime) printf(" ");
         else {
-            while (p < n && periodList[p]->end <= charStart) p++;
-            if (p == n || periodList[p]->start >= charEnd) {
+            while (pit != periodList.end() && (*pit)->end <= charStart) pit++;
+            if (pit == periodList.end() || (*pit)->start >= charEnd) {
                 printf(".");
             } else {
-                while (p < n && periodList[p]->start < charEnd) {
-                    prodTime += min(periodList[p]->end, charEnd) - max(periodList[p]->start, charStart);
-                    p++;
+                while (pit != periodList.end() && (*pit)->start < charEnd) {
+                    prodTime += min((*pit)->end, charEnd) - max((*pit)->start, charStart);
+                    pit++;
                 }
-                p--;
+                pit--;
                 dayTime += prodTime;
                 if ((double) prodTime / charInterval > 0.5) printf("#");
                 else printf(".");
@@ -336,8 +329,9 @@ void printWeekSummary() {
     Updates the calendar.
 */
 void updateCalendar() {
-    calendar->nTodos = 0;
-    calendar->nSchedules = 0;
+    calendar->todos.clear();
+    calendar->schedules.clear();
+
     updateCalendarTask(calendar, rootTask);
     setUPath(rootTask, rootTask);
 }
@@ -347,11 +341,8 @@ void updateCalendar() {
     Creates the calendar.
 */
 Calendar *createCalendar() {
-    Calendar* calendar;
-    calendar = (Calendar *) mallocSafe(sizeof(Calendar));
-    calendar->nTodos = 0;
-    calendar->nSchedules = 0;
-    calendar->periodSched = NULL;
+    Calendar* calendar = new Calendar;
+    calendar->periodSched = nullptr;
     return calendar;
 }
 
@@ -366,29 +357,28 @@ void startPeriod() {
     Todo *todo;
     string todoName;
 
-    if (calendar->periodSched != NULL) {
+    if (calendar->periodSched != nullptr) {
         printf("There is already a period running.\n\n");
         return;
     }
 
-    id = calendar->nSchedules - atoi(getToken(1));
-    if (id < 0 || id >= calendar->nSchedules) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
+    id = calendar->schedules.size() - atoi(getToken(1));
+    calendar->periodSched = ithSchedule(calendar->schedules, id);
+
+    if (calendar->periodSched == nullptr) return;
     
-    calendar->periodSched = calendar->schedules[id];
     todo = calendar->periodSched->todo;
     getTodoFullName(todo, todoName);
 
     while (todo->type != ROOT) todo = todo->parent.todo;
     task = todo->parent.task;
-    period = &(task->periods[task->nPeriods]);
+
+    period = new Period;
+    task->periods.push_back(period);
 
     period->start = period->end = getCurrentTime();
     period->name = todoName;
 
-    (task->nPeriods)++;
     printf("Period \"%s\" started. Type 'stop' when done.\n\n", period->name.c_str());
 }
 
@@ -404,7 +394,7 @@ void stopPeriod() {
     long int taskDur = 0;
     string formatedDur;
 
-    if (calendar->periodSched == NULL) {
+    if (calendar->periodSched == nullptr) {
         printf("There is no period running.\n\n");
         return;
     }
@@ -413,15 +403,16 @@ void stopPeriod() {
     todo = sched->todo;
     while (todo->type != ROOT) todo = todo->parent.todo;
     task = todo->parent.task;
-    period = &(task->periods[task->nPeriods - 1]);
+    period = task->periods.back();
 
     period->end = getCurrentTime();
     taskDur = period->end - period->start;
     sched->timeSpent += taskDur / 60;
     sched->todo->timeSpent += taskDur / 60;
+
     formatedDur = formatDur(taskDur);
     printf("Period \"%s\" stopped. Duration: %s.\n\n", period->name.c_str(), formatedDur.c_str());
-    calendar->periodSched = NULL;
+    calendar->periodSched = nullptr;
 }
 
 /*
@@ -435,7 +426,7 @@ void cancelPeriod() {
     long int taskDur = 0;
     string formatedDur;
 
-    if (calendar->periodSched == NULL) {
+    if (calendar->periodSched == nullptr) {
         printf("There is no period running.\n\n");
         return;
     }
@@ -443,13 +434,15 @@ void cancelPeriod() {
     todo = calendar->periodSched->todo;
     while (todo->type != ROOT) todo = todo->parent.todo;
     task = todo->parent.task;
-    period = &(task->periods[task->nPeriods - 1]);
+    period = task->periods.back();
 
     taskDur = getCurrentTime() - period->start;
-    (task->nPeriods)--;
+    task->periods.pop_back();
+    delete period;
+
     formatedDur = formatDur(taskDur);
     printf("Period \"%s\" canceled. Duration: %s.\n\n", period->name.c_str(), formatedDur.c_str());
-    calendar->periodSched = NULL;
+    calendar->periodSched = nullptr;
 }
 
 /*
@@ -463,7 +456,7 @@ void showTaskPeriodTime() {
     long int taskDur = 0;
     string formatedDur;
 
-    if (calendar->periodSched == NULL) {
+    if (calendar->periodSched == nullptr) {
         printf("There is no period running.\n\n");
         return;
     }
@@ -471,9 +464,10 @@ void showTaskPeriodTime() {
     todo = calendar->periodSched->todo;
     while (todo->type != ROOT) todo = todo->parent.todo;
     task = todo->parent.task;
-    period = &(task->periods[task->nPeriods - 1]);
+    period = task->periods.back();
 
     period->end = getCurrentTime();
+
     taskDur = period->end - period->start;
     formatedDur = formatDur(taskDur);
     printf("Time spent in period \"%s\". Duration: %s.\n\n", period->name.c_str(), formatedDur.c_str());
@@ -489,19 +483,16 @@ void periodWarning() {
     Todo *todo;
     long int taskDur = 0;
     string formatedDur;
-    int n = 0;
-    int last = -1;
-    Period *periodList[MAX_PERIODS*MAX_PERIODS];
-
-    getPeriods(periodList, &n, rootTask);
+    Period *last = nullptr;
+    list<Period *> periodList;
+    getPeriods(periodList, rootTask);
 
     if (calendar->periodSched == NULL) {
-        for (int i = 0; i < n; i++) {
-            if (last == -1 || periodList[last]->end < periodList[i]->end) last = i;
+        for (auto it = periodList.begin(); it != periodList.end(); it++) {
+            if (last == nullptr || last->end < (*it)->end) last = *it;
         }
-        if (last != -1) {
-            period = periodList[last];
-            taskDur = getCurrentTime() - period->end;
+        if (last != nullptr) {
+            taskDur = getCurrentTime() - last->end;
             formatedDur = formatDur(taskDur);
             printf("Time since last period: %s\n\n", formatedDur.c_str());
         }
@@ -509,7 +500,7 @@ void periodWarning() {
         todo = calendar->periodSched->todo;
         while (todo->type != ROOT) todo = todo->parent.todo;
         task = todo->parent.task;
-        period = &(task->periods[task->nPeriods - 1]);
+        period = task->periods.back();
 
         period->end = getCurrentTime();
         taskDur = period->end - period->start;
@@ -531,12 +522,10 @@ void scheduleTodoCalendar() {
     int estimate;
     
     id = atoi(getToken(1)) - 1;
-    if (id < 0 || id >= calendar->nTodos) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
+    todo = ithTodo(calendar->todos, id);
 
-    todo = calendar->todos[id];
+    if (todo == nullptr) return;
+
     args = getNComms();
 
     if (args != 2) {
@@ -575,34 +564,19 @@ void scheduleTodoCalendar() {
     Delete schedule.
 */
 void removeSchedule() {
-    int id, i;
+    int id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
 
-    id = calendar->nSchedules - atoi(getToken(1));
+    if (sched == nullptr) return;
 
-    if (id < 0 || id >= calendar->nSchedules) {
-        printf("Invalid schedule ID.\n\n");
-        return;
-    }
-
-    Schedule *sched = calendar->schedules[id];
     Todo *todo = sched->todo;
 
     printf("Schedule '%s' removed.\n\n", todo->name.c_str());
 
-    todo->nSchedules--;
-
-    i = 0;
-
-    while (todo->schedules[i] != sched) i++;
-
-    while (i < todo->nSchedules) {
-        todo->schedules[i] = todo->schedules[i + 1];
-        i++;
-    }
+    todo->schedules.remove(sched);
+    delete sched;
 
     updateCalendar();
-
-    free(sched);
 }
 
 /*
@@ -610,25 +584,18 @@ void removeSchedule() {
     Delete schedule and set its to-do to complete.
 */
 void completeTodo() {
-    int id, i;
+    int id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
 
-    id = calendar->nSchedules - atoi(getToken(1));
+    if (sched != nullptr) return;
 
-    if (id < 0 || id >= calendar->nSchedules) {
-        printf("Invalid schedule ID.\n\n");
-        return;
-    }
-
-    Schedule *sched = calendar->schedules[id];
     Todo *todo = sched->todo;
 
     printf("Todo '%s' completed.\n\n", todo->name.c_str());
 
-    for (i = 0; i < todo->nSchedules; i++) {
-        free(todo->schedules[i]);
+    for (auto it = todo->schedules.begin(); it != todo->schedules.end(); it++) {
+        delete *it;
     }
-
-    todo->nSchedules = 0;
 
     todo->status = TODO_COMPLETED;
 
@@ -641,16 +608,11 @@ void completeTodo() {
 */
 void editSchedule() {
     int id, hour, min, day, mon, year;
-    Schedule *sched;
     
-    id = calendar->nSchedules - atoi(getToken(2));
+    id = calendar->schedules.size() - atoi(getToken(2));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
 
-    if (id < 0 || id >= calendar->nSchedules) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
-
-    sched = calendar->schedules[id];
+    if (sched != nullptr) return;
 
     if (getNComms() == 4) {
         if (strcmp(getToken(1), "time") == 0) {
@@ -690,17 +652,10 @@ void editSchedule() {
     Edits schedule attributes.
 */
 void delaySchedule() {
-    int id;
-    Schedule *sched;
-    
-    id = calendar->nSchedules - atoi(getToken(1));
+    int id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
 
-    if (id < 0 || id >= calendar->nSchedules) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
-
-    sched = calendar->schedules[id];
+    if (sched != nullptr) return;
 
     int delay = atoi(getToken(2));
     sched->date += SECS_IN_A_DAY * delay;
@@ -714,21 +669,13 @@ void delaySchedule() {
     Changes status of prioritized to-do.
 */
 void changePrioritizeStatus() {
-    int id;
-    Todo *todo;
     char *statusName;
     int status;
-    
-    id = atoi(getToken(1));
+    int id = atoi(getToken(1)) - 1;
 
-    id--;
+    Todo *todo = ithTodo(calendar->todos, id);
 
-    if (id < 0 || id >= calendar->nTodos) {
-        printf("Invalid to-do ID.\n\n");
-        return;
-    }
-
-    todo = calendar->todos[id];
+    if (todo != nullptr) return;
 
     if (strcmp(getToken(2), "remove") == 0) {
         status = TODO_PENDING;

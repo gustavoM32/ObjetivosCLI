@@ -1,4 +1,7 @@
+#include <iostream>
 #include <string>
+#include <sstream>
+#include <queue>
 #include <cstring>
 #include <stdlib.h>
 #include "task.hpp"
@@ -16,14 +19,14 @@ static Task *selectedTask;
     Returns index of pointer to subtask named 'name' in subtask vector of task
     'parent'. Returns -1 if there's no such subtask.
 */
-int findTaskByName(Task* parent, string &name) {
-    int i;
-    for (i = 0; i < parent->nSubtasks; i++) {
-        if (parent->subtasks[i]->name == name) {
-            return i;
+Task *findTaskByName(Task* parent, string &name) {
+    for (auto it = parent->subtasks.begin(); it != parent->subtasks.end(); it++) {
+        Task *subtask = *it;
+        if (subtask->name == name) {
+            return subtask;
         }
     }
-    return -1;
+    return nullptr;
 }
 
 /*
@@ -31,14 +34,14 @@ int findTaskByName(Task* parent, string &name) {
     Returns index of pointer to subtask with code 'code' in subtask vector of task
     'parent'. Returns -1 if there's no such subtask.
 */
-int findTaskByCode(Task* parent, string &code) {
-    int i;
-    for (i = 0; i < parent->nSubtasks; i++) {
-        if (parent->subtasks[i]->code == code) {
-            return i;
+Task *findTaskByCode(Task* parent, string &code) {
+    for (auto it = parent->subtasks.begin(); it != parent->subtasks.end(); it++) {
+        Task *subtask = *it;
+        if (subtask->code == code) {
+            return subtask;
         }
     }
-    return -1;
+    return nullptr;
 }
 
 /*
@@ -46,16 +49,16 @@ int findTaskByCode(Task* parent, string &code) {
     Gets subtask code from user and returns a pointer to it if it exist in task
     pointed by 'task'.
 */
-Task* getSubtask(Task* task, string subtaskCode) {
-    int id;
-    subtaskCode = toUppercase(getToken(1));
+Task* getSubtask(Task* task) {
+    string subtaskCode = toUppercase(getToken(1));
 
-    id = findTaskByCode(task, subtaskCode);
-    if (id == -1) {
+    Task *subtask = findTaskByCode(task, subtaskCode);
+    
+    if (subtask == nullptr) {
         printf("\"%s\" has no subtask with code \"%s\".\n\n", task->name.c_str(), subtaskCode.c_str());
-        return NULL;
     }
-    return task->subtasks[id];
+
+    return subtask;
 }
 
 /*
@@ -63,15 +66,10 @@ Task* getSubtask(Task* task, string subtaskCode) {
     Creates task named 'name' and with code 'code' and returns a pointer to it.
 */
 Task* createTask(string name, string code) {
-    Task* newTask;
-    newTask = (Task *) mallocSafe(sizeof(Task));
+    Task* newTask = new Task;
     newTask->name = name;
     // newTask->uniquePath = "";
     newTask->code = code;
-    newTask->nNotes = 0;
-    newTask->nTodos = 0;
-    newTask->nSubtasks = 0;
-    newTask->nPeriods = 0;
     newTask->status = TASK_ACTIVE;
     newTask->parent = NULL;
     return newTask;
@@ -82,14 +80,14 @@ Task* createTask(string name, string code) {
 	Frees the memory allocated to 'task' and its substasks.
 */
 void freeTask(Task *task) {
-	int i;
-	for (i = 0; i < task->nTodos; i++) {
-		freeTodo(task->todos[i]);
-	}
-	for (i = 0; i < task->nSubtasks; i++) {
-		freeTask(task->subtasks[i]);
-	}
-	free(task);
+    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
+        freeTodo(*it);
+    }
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        freeTask(*it);
+    }
+
+    delete task;
 }
 
 /*
@@ -102,23 +100,27 @@ void addSubtask(Task* parent) {
     string subtaskCode;
     subtaskCode = toUppercase(getToken(1));
     subtaskName = getToken(2);
+
     if (subtaskCode.size() || subtaskCode.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
-    } else if (findTaskByCode(parent, subtaskCode) != -1) {
+    } else if (findTaskByCode(parent, subtaskCode) != nullptr) {
         printf("\"%s\" already has subtask with code \"%s\".\n\n", parent->name.c_str(), subtaskCode.c_str());
         return;
     }
+
     if (subtaskName.size() == 0) {
         printf("Subtask name must not be empty.\n\n");
         return;
-    } else if (findTaskByName(parent, subtaskName) != -1) {
+    } else if (findTaskByName(parent, subtaskName) != nullptr) {
         printf("\"%s\" already has subtask named \"%s\".\n\n", parent->name.c_str(), subtaskName.c_str());
         return;
     }
-    parent->subtasks[parent->nSubtasks] = createTask(subtaskName.c_str(), subtaskCode.c_str());
-    parent->subtasks[parent->nSubtasks]->parent = parent;
-    (parent->nSubtasks)++;
+
+    Task *task = createTask(subtaskName.c_str(), subtaskCode.c_str());
+    parent->subtasks.push_back(task);
+    task->parent = parent;
+
     printf("Added task \"%s\".\n\n", subtaskName.c_str());
 }
 
@@ -129,36 +131,32 @@ void addSubtask(Task* parent) {
 */
 void removeSubtask(Task *parent) {
     string subtaskCode;
-    int id;
     subtaskCode = toUppercase(getToken(1));
-    id = findTaskByCode(parent, subtaskCode);
-    if (id == -1) {
+    Task *task = findTaskByCode(parent, subtaskCode);
+
+    if (task == nullptr) {
         printf("There's no task with code \"%s\".\n\n", subtaskCode.c_str());
         return;
     }
 
-    printf("Removed task (%s) %s.\n\n", parent->subtasks[id]->code.c_str(), parent->subtasks[id]->name.c_str());
+    printf("Removed task (%s) %s.\n\n", task->code.c_str(), task->name.c_str());
+    
+    freeTask(task);
 
-    freeTask(parent->subtasks[id]);
-
-    parent->nSubtasks--;
-    while (id < parent->nSubtasks) {
-        parent->subtasks[id] = parent->subtasks[id + 1];
-        id++;
-    }
+    parent->subtasks.remove(task);
 }
 
-void listStatusTasks(Task* tasks[], int count, string statusName) {
-    int i;
-    if (count == 0) {
+void listStatusTasks(list<Task *> tasks, string statusName) {
+    if (tasks.size() == 0) {
         printf("  |   You have no %s subtasks.\n", statusName.c_str());
         printf("  |\n");
     } else {
         statusName[0] = statusName[0] - 'a' + 'A';
         printf("  |   %s:\n", statusName.c_str());
         printf("  |\n");
-        for (i = 0; i < count; i++) {
-            printf("  |    (%s) %s (%d)\n", tasks[i]->code.c_str(), tasks[i]->name.c_str(), countTodosTask(tasks[i]));
+        for (auto it = tasks.begin(); it != tasks.end(); it++) {
+            Task *task = *it;
+            printf("  |    (%s) %s (%d)\n", task->code.c_str(), task->name.c_str(), countTodosTask(task));
         }
         printf("  |\n");
     }
@@ -171,14 +169,13 @@ void listStatusTasks(Task* tasks[], int count, string statusName) {
 void listSubtasks(Task* task) {
     int i;
     string statusNames[4] = {"active", "inactive", "completed", "canceled"};
-    int count[4] = {0, 0, 0, 0};
-    Task* lists[4][MAX_CHILDS];
-    for (i = 0; i < task->nSubtasks; i++) {
-        int status = task->subtasks[i]->status;
-        lists[status][count[status]] = task->subtasks[i];
-        count[status]++;
+    list<Task *> lists[4];
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        Task *subtask = *it;
+        int status = subtask->status;
+        lists[status].push_back(subtask);
     }
-    if ((count[0] + count[1] + count[2] + count[3]) == 0) {
+    if ((lists[0].size() + lists[1].size() + lists[2].size() + lists[3].size()) == 0) {
         printf("  +---------------------------> Subtasks <---------------------------+\n");
         printf("  |\n");
         printf("  |   This task has no subtasks.\n");
@@ -189,7 +186,7 @@ void listSubtasks(Task* task) {
     printf("  +---------------------------> Subtasks <---------------------------+\n");
     printf("  |\n");
     for (i = 0; i < 4; i++) {
-        listStatusTasks(lists[i], count[i], statusNames[i]);
+        listStatusTasks(lists[i], statusNames[i]);
     }
     printf("  +------------------------------------------------------------------+\n\n");
 }
@@ -200,13 +197,16 @@ void listSubtasks(Task* task) {
 */
 long int getTaskTotalTime(Task* task) {
     long int totalTime = 0;
-    int i;
-    for (i = 0; i < task->nPeriods; i++) {
-        totalTime += task->periods[i].end - task->periods[i].start;
+
+    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
+        Period *period = *it;
+        totalTime += period->end - period->start;
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        totalTime += getTaskTotalTime(task->subtasks[i]);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        totalTime += getTaskTotalTime(*it);
     }
+
     return totalTime;
 }
 
@@ -232,17 +232,20 @@ long int getTaskWeekTime(Task* task) {
     long int weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
     long int inicioSemana = curTime - weekProgress;
     long int totalTime = 0;
-    int i;
-    for (i = 0; i < task->nPeriods; i++) {
+
+    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
+        Period *period = *it;
         long int inicio = inicioSemana;
         long int timeThisWeek;
-        if (task->periods[i].start > inicio) inicio = task->periods[i].start;
-        timeThisWeek = task->periods[i].end - inicio;
+        if (period->start > inicio) inicio = period->start;
+        timeThisWeek = period->end - inicio;
         if (timeThisWeek > 0) totalTime += timeThisWeek;
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        totalTime += getTaskWeekTime(task->subtasks[i]);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        totalTime += getTaskWeekTime(*it);
     }
+
     return totalTime;
 }
 
@@ -272,7 +275,7 @@ void renameTask(Task* task) {
     } else if (task->parent == NULL) {
         printf("Can't rename main task.\n\n");
         return;
-    } else if (findTaskByName(task->parent, taskName) != -1) {
+    } else if (findTaskByName(task->parent, taskName) != nullptr) {
         printf("\"%s\" already has subtask named \"%s\".\n\n", task->parent->name.c_str(), taskName.c_str());
         return;
     }
@@ -293,7 +296,7 @@ void changeCode(Task* task) {
     } else if (task->parent == NULL) {
         printf("Can't change main task code.\n\n");
         return;
-    } else if (findTaskByCode(task->parent, code) != -1) {
+    } else if (findTaskByCode(task->parent, code) != nullptr) {
         printf("\"%s\" already has subtask with code \"%s\".\n\n", task->parent->code.c_str(), code.c_str());
         return;
     }
@@ -306,11 +309,10 @@ void changeCode(Task* task) {
     Saves address of subtask of 'parent' inputed by user.
 */
 void selectSubtask(Task* parent) {
-    Task *task;
-    char *taskCode;
-    taskCode = toUppercase(getToken(1));
-    task = getSubtask(parent, taskCode);
-    if (task == NULL) return;
+    Task *task = getSubtask(parent);
+
+    if (task == nullptr) return;
+
     selectedTask = task;
     printf("Selected task (%s) %s.\n\n", selectedTask->code.c_str(), selectedTask->name.c_str());
 }
@@ -320,15 +322,13 @@ void selectSubtask(Task* parent) {
     Moves selected task to 'parent' subtask list.
 */
 void moveTask(Task* newParent) {
-    int id;
-
-    if (selectedTask == NULL) {
+    if (selectedTask == nullptr) {
         printf("There's no selected task.\n\n");
         return;
-    } else if (findTaskByCode(newParent, selectedTask->code) != -1) {
+    } else if (findTaskByCode(newParent, selectedTask->code) != nullptr) {
         printf("\"%s\" already has subtask with code \"%s\".\n\n", newParent->name.c_str(), selectedTask->code.c_str());
         return;
-    } else if (findTaskByName(newParent, selectedTask->name) != -1) {
+    } else if (findTaskByName(newParent, selectedTask->name) != nullptr) {
         printf("\"%s\" already has subtask named \"%s\".\n\n", newParent->name.c_str(), selectedTask->name.c_str());
         return;
     }
@@ -336,19 +336,12 @@ void moveTask(Task* newParent) {
     printf("Moved task (%s) \"%s\" from (%s) to (%s)\n\n", selectedTask->code.c_str(), selectedTask->name.c_str(), selectedTask->parent->code.c_str(), newParent->code.c_str());
 
     /* Removes from old parent */
-    selectedTask->parent->nSubtasks--;
-    for (id = 0; selectedTask->parent->subtasks[id] != selectedTask; id++);
-    while (id < selectedTask->parent->nSubtasks) {
-        selectedTask->parent->subtasks[id] = selectedTask->parent->subtasks[id + 1];
-        id++;
-    }
+    selectedTask->parent->subtasks.remove(selectedTask);
 
     /* Adds in new parent */
-    newParent->subtasks[newParent->nSubtasks] = selectedTask;
-    selectedTask->parent = newParent;
-    (newParent->nSubtasks)++;
-
-    selectedTask = NULL;
+    newParent->subtasks.push_back(selectedTask);
+    
+    selectedTask = nullptr;
 }
 
 /*
@@ -358,9 +351,9 @@ void moveTask(Task* newParent) {
 */
 bool allCompleted(Task* task) {
     bool res = true;
-    int i;
-    for (i = 0; i < task->nSubtasks && res; i++) {
-        res = task->subtasks[i]->status == TASK_COMPLETED && allCompleted(task->subtasks[i]);
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end() && res; it++) {
+        Task *subtask = *it;
+        res = subtask->status == TASK_COMPLETED && allCompleted(subtask);
     }
     return res;
 }
@@ -374,7 +367,7 @@ void setSubtaskStatus(Task *task) {
     char *statusName;
     Task *subtask;
     int status;
-    subtask = getSubtask(task, getToken(1));
+    subtask = getSubtask(task);
     statusName = toLowercase(getToken(2));
     if (strcmp(statusName, "active") == 0) {
         status = TASK_ACTIVE;
@@ -402,14 +395,16 @@ void setSubtaskStatus(Task *task) {
     Ask user for note content and add it in task pointed by 'task' notes.
 */
 void addNote(Task *task) {
-    char *noteText;
+    string noteText;
     noteText = getToken(1);
-    if (noteText[0] == '\0') {
+    if (noteText.size() == 0) {
         printf("Note text must not be empty.\n\n");
         return;
     }
-	task->notes[task->nNotes].date = getCurrentTime();
-	strcpy(task->notes[task->nNotes++].text, noteText);
+    Note *note = new Note;
+    note->date = getCurrentTime();
+    note->text = noteText;
+    task->notes.push_back(note);
     printf("Added note\n\n");
 }
 
@@ -418,19 +413,15 @@ void addNote(Task *task) {
     Ask user for note ID and remove it from task pointed by 'task'.
 */
 void removeNote(Task* task) {
-    int id;
-    sscanf(getToken(1), "%d", &id);
-    id--;
-    if (id < 0 || task->nNotes <= id) {
-        printf("Invalid note ID.\n\n");
-        return;
-    }
-    task->nNotes--;
+    int id = atoi(getToken(1)) - 1;
+
+    Note *note = ithNote(task->notes, id);
+
+    if (note == nullptr) return;
+
     printf("Note %d removed.\n\n", id + 1);
-    while (id < task->nNotes) {
-        task->notes[id] = task->notes[id + 1];
-        id++;
-    }
+
+    task->notes.remove(note);
 }
 
 /*
@@ -438,16 +429,18 @@ void removeNote(Task* task) {
     Print list of notes of task pointed by 'task'.
 */
 void listNotes(Task* task) {
-    int i;
+    int i = 1;
     struct tm *stm;
     printf("  +--------------------------> Notes <--------------------------+\n");
     printf("  |\n");
-    if (task->nNotes == 0) {
+    if (task->notes.size() == 0) {
         printf("  |   No notes\n");
     }
-    for (i = 0; i < task->nNotes; i++) {
-        stm = localtime(&(task->notes[i].date));
-        printf("  |   %2d. (%02d/%02d/%04d) %s\n", i + 1, stm->tm_mday, stm->tm_mon + 1, stm->tm_year + 1900, task->notes[i].text);
+    for (auto it = task->notes.begin(); it != task->notes.end(); it++) {
+        Note *note = *it;
+        stm = localtime(&(note->date));
+        printf("  |   %2d. (%02d/%02d/%04d) %s\n", i, stm->tm_mday, stm->tm_mon + 1, stm->tm_year + 1900, note->text.c_str());
+        i++;
     }
     printf("  |\n");
     printf("  +------------------------------------------------------------------+\n\n");
@@ -457,11 +450,25 @@ void listNotes(Task* task) {
     getTasks()
     Inserts all TASK subtasks into tasks and the vector size into N.
 */
-void getTasks(Task *tasks[], int *n, Task *task) {
-    int i;
-    for (i = 0; i < task->nSubtasks; i++) {
-        tasks[(*n)++] = task->subtasks[i];
-        getTasks(tasks, n, task->subtasks[i]);
+void getTasks(list<Task *> &tasks, Task *task) {
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        tasks.push_back(*it);
+        getTasks(tasks, *it);
+    }
+}
+
+/*
+    extractCodes()
+    Extract codes from path into codes list.
+*/
+void extractCodes(string path, list<string> &codes) {
+    stringstream pathstream;
+    pathstream.str(path);
+    while (!pathstream.eof()) {
+        string code;
+        pathstream >> code;
+        codes.push_back(code);
+        pathstream >> code;
     }
 }
 
@@ -470,65 +477,66 @@ void getTasks(Task *tasks[], int *n, Task *task) {
     Asks user for task suffix path and returns pointer to task.
 */
 Task *searchTask(Task *root) {
-    int nResults = 1;
-    int old, newI, i, j, id;
-    Task *results[MAX_CHILDS * MAX_CHILDS];
+    int i, id;
+    list<Task *> tasks;
+    list<Task *> results;
+    list<string> inputCodes;
     int nInputs = getNComms() - 1;
-    char *inputCodes[MAX_CHILDS];
-    for (i = 0; i < nInputs; i++) {
-        inputCodes[i] = toUppercase(getToken(i+1));
+    for (i = 1; i <= nInputs; i++) {
+        inputCodes.push_back(toUppercase(getToken(i)));
     }
-    results[0] = root;
 
-    getTasks(results, &nResults, root);
+    tasks.push_back(root);
+
+    getTasks(tasks, root);
     setUPath(root, root);
-    for (old = 0, newI = 0; old < nResults; old++) {
-        int pathLen = 0;
-        char codes[MAX_CHILDS][CODE_LEN];
-        bool match = true;
-        i = 0;
-        while (true) {
-            for (j = 0; j < 3; j++) {
-                codes[pathLen][j] = results[old]->uniquePath[i+j];
-            }
-            codes[pathLen][3] = '\0';
-            pathLen++;
-            if (results[old]->uniquePath[i+3] == '\0') break;
-            i += 6;
+
+    for (auto it = tasks.begin(); it != tasks.end(); it++) {
+        Task *task = *it;
+        list<string> codes;
+
+        extractCodes(task->uniquePath, codes);
+
+        if (codes.size() < inputCodes.size()) continue;
+
+        auto inputCode = inputCodes.rbegin();
+        auto code = codes.rbegin();
+
+        while (inputCode != inputCodes.rend()) {
+            if (*inputCode != *code) break;
+            inputCode++;
+            code++;
         }
-        if (pathLen < nInputs) continue;
-        for (i = pathLen - 1, j = nInputs - 1; j >= 0; i--, j--) {
-            if (strcmp(inputCodes[j], codes[i]) != 0) match = false;
-        }
-        if (!match) {
+
+        if (inputCode != inputCodes.rend()) {
             continue;
         }
-        if (newI == old) {
-            newI++;
-            continue;
-        }
-        results[newI++] = results[old];
+
+        results.push_back(task);
     }
-    nResults = newI;
-    if (newI == 0) {
+
+    if (results.size() == 0) {
         printf("No task found.\n\n");
-        return NULL;
+        return nullptr;
     }
-    if (newI == 1) return results[0];
+
+    if (results.size() == 1) return results.front();
+
     printf("Multiple tasks match the path given:\n\n");
-    for (i = 0; i < nResults; i++) {
-        printf("   %d. %s (%s)\n\n", i + 1, results[i]->name.c_str(), results[i]->uniquePath.c_str());
+
+    i = 1;
+    for (auto it = results.begin(); it != results.end(); it++) {
+        Task *result = *it;
+        printf("   %d. %s (%s)\n\n", i, result->name.c_str(), result->uniquePath.c_str());
+        i++;
     }
+
     printf("Select desired task: ");
     scanf("%d", &id);
     getchar();
     printf("\n");
-    id--;
-    if (id < 0 || id >= nResults) {
-        printf("Invalid ID.\n\n");
-        return NULL;
-    }
-    return results[id];
+
+    return ithTask(results, id - 1);
 }
 
 /*
@@ -658,7 +666,7 @@ void taskMenu(Task* task) {
                         return;
                     }
                 } else {
-                    Task *nextTask = getSubtask(task, getToken(1));
+                    Task *nextTask = getSubtask(task);
                     if (nextTask != NULL) {
                         curTask = nextTask;
                         return;

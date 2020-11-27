@@ -2,6 +2,7 @@
 #define UTIL_HPP
 /*************************************/
 #include <string>
+#include <list>
 #include <stdio.h>
 #include "objectives.hpp"
 
@@ -46,6 +47,16 @@ void setUPath(Task *root, Task *task);
 
 int countTodosTask(Task *task);
 
-int isInList(char word[], int size, char array[][COMMAND_LEN]);
+int isInList(std::string word, std::list<std::string> l);
+
+Task *ithTask(std::list<Task *> &tasks, size_t i);
+
+Todo *ithTodo(std::list<Todo *> &todos, size_t i);
+
+Period *ithPeriod(std::list<Period *> &periods, size_t i);
+
+Schedule *ithSchedule(std::list<Schedule *> &schedules, size_t i);
+
+Note *ithNote(std::list<Note *> &notes, size_t i);
 /*************************************/
 #endif

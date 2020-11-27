@@ -1,8 +1,9 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <list>
+#include <ctime>
 #include <stdlib.h>
-#include <time.h>
 #include "util.hpp"
 #include "objectives.hpp"
 
@@ -255,11 +256,10 @@ void notAvailable(char* userCommand) {
     DOCUMENTAR.
 */
 int countTasks(Task *task, string &code) {
-    int i;
     int count = 0;
     if (task->code == code) count++;
-    for (i = 0; i < task->nSubtasks; i++) {
-        count += countTasks(task->subtasks[i], code);
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        count += countTasks(*it, code);
     }
     return count;
 }
@@ -269,8 +269,8 @@ int countTasks(Task *task, string &code) {
     DOCUMENTAR.
 */
 void setUPath(Task *root, Task *task) {
-    int i;
     string uniquePath;
+
     if (countTasks(root, task->code) == 1 || task->parent == NULL) {
         task->uniquePath = task->code;
     } else {
@@ -279,8 +279,9 @@ void setUPath(Task *root, Task *task) {
         uniquePath += task->code;
         task->uniquePath = uniquePath;
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        setUPath(root, task->subtasks[i]);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        setUPath(root, *it);
     }
 }
 
@@ -290,10 +291,10 @@ void setUPath(Task *root, Task *task) {
 */
 int countTodosTodo(Todo *todo) {
     int res = 0;
-    int i;
-    for (i = 0; i < todo->nSubtodos; i++) {
-        if (todo->subtodos[i]->status != TODO_COMPLETED)
-            res += 1 + countTodosTodo(todo->subtodos[i]);
+    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
+        Todo *subtodo = *it;
+        if (subtodo->status != TODO_COMPLETED)
+            res += 1 + countTodosTodo(subtodo);
     }
     return res;
 }
@@ -304,14 +305,17 @@ int countTodosTodo(Todo *todo) {
 */
 int countTodosTask(Task *task) {
     int res = 0;
-    int i;
-    for (i = 0; i < task->nTodos; i++) {
-        if (task->todos[i]->status != TODO_COMPLETED)
-            res += 1 + countTodosTodo(task->todos[i]);
+
+    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
+        Todo *todo = *it;
+        if (todo->status != TODO_COMPLETED)
+            res += 1 + countTodosTodo(todo);
     }
-    for (i = 0; i < task->nSubtasks; i++) {
-        res += countTodosTask(task->subtasks[i]);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        res += countTodosTask(*it);
     }
+
     return res;
 }
 
@@ -320,10 +324,94 @@ int countTodosTask(Task *task) {
     Returns 1 if a word is in an array of words
 */
 
-int isInList(char word[], int size, char array[][COMMAND_LEN]) {
-    int i;
-    for (i = 0; i < size; i++) {
-        if (word == array[i]) return true;
+int isInList(string word, list<string> l) {
+    for (auto it = l.begin(); it != l.end(); it++) {
+        if (word == *it) return true;
     }
     return false;
+}
+
+/*
+    ithTask()
+    Returns the ith task in a list, nullptr if i is a invalid ID.
+*/
+Task *ithTask(list<Task *> &tasks, size_t i) {
+    if (i < 0 || i >= tasks.size()) {
+        printf("Invalid ID.\n\n");
+        return nullptr;
+    }
+
+    for (auto it = tasks.begin(); it != tasks.end(); it++) {
+        if (i == 0) return *it;
+        i--;
+    }
+    return nullptr;
+}
+
+/*
+    ithTodo()
+    Returns the ith todo in a list, nullptr if i is a invalid ID.
+*/
+Todo *ithTodo(list<Todo *> &todos, size_t i) {
+    if (i < 0 || i >= todos.size()) {
+        printf("Invalid ID.\n\n");
+        return nullptr;
+    }
+
+    for (auto it = todos.begin(); it != todos.end(); it++) {
+        if (i == 0) return *it;
+        i--;
+    }
+    return nullptr;
+}
+
+/*
+    ithPeriod()
+    Returns the ith period in a list, nullptr if i is a invalid ID.
+*/
+Period *ithPeriod(list<Period *> &periods, size_t i) {
+    if (i < 0 || i >= periods.size()) {
+        printf("Invalid ID.\n\n");
+        return nullptr;
+    }
+
+    for (auto it = periods.begin(); it != periods.end(); it++) {
+        if (i == 0) return *it;
+        i--;
+    }
+    return nullptr;
+}
+
+/*
+    ithSchedule()
+    Returns the ith schedule in a list, nullptr if i is a invalid ID.
+*/
+Schedule *ithSchedule(list<Schedule *> &schedules, size_t i) {
+    if (i < 0 || i >= schedules.size()) {
+        printf("Invalid ID.\n\n");
+        return nullptr;
+    }
+
+    for (auto it = schedules.begin(); it != schedules.end(); it++) {
+        if (i == 0) return *it;
+        i--;
+    }
+    return nullptr;
+}
+
+/*
+    ithNote()
+    Returns the ith note in a list, nullptr if i is a invalid ID.
+*/
+Note *ithNote(list<Note *> &notes, size_t i) {
+    if (i < 0 || i >= notes.size()) {
+        printf("Invalid ID.\n\n");
+        return nullptr;
+    }
+
+    for (auto it = notes.begin(); it != notes.end(); it++) {
+        if (i == 0) return *it;
+        i--;
+    }
+    return nullptr;
 }

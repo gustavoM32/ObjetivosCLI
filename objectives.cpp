@@ -17,7 +17,7 @@ Task* curTask;
 
 void freeAll() {
 	freeTask(rootTask);
-    free(calendar);
+    delete calendar;
 }
 
 bool generalCommands(char *commandName) {
