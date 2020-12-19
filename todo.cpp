@@ -289,7 +289,7 @@ bool changeTodoStatus(Todo *todo, int status) {
         Todo *parent = todo;
         while (parent->parent != nullptr) {
             if (todoCompleted(parent)) parent->status = TODO_PENDING;
-            parent = todo->parent;
+            parent = parent->parent;
         }
         if (todoCompleted(parent)) parent->status = TODO_PENDING;
         for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
