@@ -9,6 +9,8 @@
 #include "calendar.hpp"
 #include "help.hpp"
 
+using namespace std;
+
 Task* rootTask;
 Calendar *calendar;
 int lastMenu;
@@ -24,7 +26,7 @@ bool generalCommands(char *commandName) {
     if (strcmp(commandName, "goto") == 0) {
         if (getNComms() > 1) {
             Task *nextTask = searchTask(rootTask);
-            if (nextTask != NULL) {
+            if (nextTask != nullptr) {
                 curTask = nextTask;
                 curMenu = TASK_MENU;
                 return true;
@@ -56,13 +58,18 @@ bool generalCommands(char *commandName) {
     return false;
 };
 
-int main() {
+#include "ioold.hpp"
+
+int main(int argc, char **argv) {
     calendar = createCalendar();
     printf("*** Welcome to Control! ***\n\n");
     printf("Type 'help' for a list of commands.\n\n");
     
     rootTask = createTask("Objetivos", "OBJ");
-    loadAll();
+
+    if (argc > 1) loadAllOld();
+    else loadAll();
+
     curMenu = TASK_MENU;
     curTask = rootTask;
     while (curMenu != -1) {

@@ -11,10 +11,9 @@
 using namespace std;
 
 /*
-    editPeriod()
     Edit period from task pointed by 'task' according to user input.
 */
-void editPeriod(Task* task) {
+void editPeriod(Task* task, list<Period *> &periods) {
     char *ext;
     char *type;
     long int old;
@@ -22,11 +21,11 @@ void editPeriod(Task* task) {
     int a, b, c;
     string oldFormatedTime;
     string newFormatedTime;
-    int id = atoi(getToken(1)) - 1;
-    ext = toLowercase(getToken(2));
-    type = toLowercase(getToken(3));
+    ext = toLowercase(getToken(1));
+    type = toLowercase(getToken(2));
+    int id = atoi(getToken(3)) - 1;
 
-    Period *period = ithPeriod(task->periods, id);
+    Period *period = ithPeriod(periods, id);
     if (period == nullptr) return;
 
     if (strcmp(ext, "start") == 0) {
@@ -55,96 +54,79 @@ void editPeriod(Task* task) {
 }
 
 /*
-    addPeriod()
-    Add period in task pointed by 'task' according to user input.
-*/
-void addPeriod(Task* task) {
-    int day, month, year, hour, min, sec;
-    Period *period = new Period;
-
-    sscanf(getToken(1), "%d/%d/%d", &day, &month, &year);
-    sscanf(getToken(2), "%d:%d:%d", &hour, &min, &sec);
-    period->start = getTime(day, month, year + 2000, hour, min, sec);
-    sscanf(getToken(3), "%d/%d/%d", &day, &month, &year);
-    sscanf(getToken(4), "%d:%d:%d", &hour, &min, &sec);
-    period->end = getTime(day, month, year + 2000, hour, min, sec);
-    task->periods.push_back(period);
-    printf("Period added.\n\n");
-}
-
-/*
-    removePeriod()
     Ask user for a period Id of task pointed by 'task and remove if it exists.
 */
-void removePeriod(Task *task) {
+void removePeriod(Task *task, list<Period *> &periods) {
     int id = atoi(getToken(1)) - 1;
-    Period *period = ithPeriod(task->periods, id);
 
+    Period *period = ithPeriod(periods, id);
     if (period == nullptr) return;
 
-    task->periods.remove(period);
+    period->todo->periods.remove(period);
     delete period;
 
     printf("Period removed.\n\n");
 }
 
 /*
-    listPeriods()
     Lists task periods.
 */
-void listPeriods(Task *task) {
+void listPeriods(Task *task, list<Period *> &periods) {
     int i = 1;
     string formatedStartTime;
     string formatedEndTime;
     string formatedDur;
+    string periodName;
+
+    periods.clear();
+    getPeriodsFromTodo(periods, task->rootTodo);
+    periods.sort(periodComp);
+
     printf("  +--------------------------> Period list <--------------------------+\n");
     printf("  |\n");
-    if (task->periods.size() == 0) {
+    if (periods.size() == 0) {
         printf("  |   List is empty\n");
     }
-    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
+    for (auto it = periods.begin(); it != periods.end(); it++) {
         Period *period = *it;
         formatedStartTime = formatTime(period->start);
         formatedEndTime = formatTime(period->end);
         formatedDur = formatDur(period->end - period->start);
-        printf("  |   %2d. [%s  ...  %s]   %s   \"%s\"\n", i + 1, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), period->name.c_str());
+        periodName = getTodoPath(period->todo);
+
+        printf("  |   %3d. [%s  ...  %s]   %s   \"%s\"\n", i, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), periodName.c_str());
         i++;
     }
     printf("  |\n");
     printf("  +-------------------------------------------------------------------+\n\n");
-
 }
 
 /*
-    periodsMenu()
     Enters periods menu.
 */
 void periodsMenu(Task *task) {
     char *commandName;
+    list<Period *> periods;
     printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
-    listPeriods(task);
+    listPeriods(task, periods);
+    
     while (true) {
         printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
         periodWarning();
         commandName = getCommandName();
+
         if (strcmp(commandName, "pds") == 0) {
-            if (validArgs(0)) listPeriods(task);
-        } else if (strcmp(commandName, "set") == 0) {
+            if (validArgs(0)) listPeriods(task, periods);
+        } else if (strcmp(commandName, "edit") == 0) {
             if (validArgs(4)) {
-                editPeriod(task);
-                listPeriods(task);
-                saveAll();
-            }
-        } else if (strcmp(commandName, "add") == 0) {
-           if (validArgs(4)) {
-                addPeriod(task);
-                listPeriods(task);
+                editPeriod(task, periods);
+                listPeriods(task, periods);
                 saveAll();
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
-                removePeriod(task);
-                listPeriods(task);
+                removePeriod(task, periods);
+                listPeriods(task, periods);
                 saveAll();
             }
         } else if (strcmp(commandName, "cd") == 0) {

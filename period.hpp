@@ -9,7 +9,7 @@ void addPeriod(Task *task);
 
 void removePeriod(Task *task);
 
-void listPeriods(Task *task);
+// void listPeriods(Task *task);
 
 void periodsMenu(Task* task);
 /*************************************/

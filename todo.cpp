@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <cstring>
 #include <stdlib.h>
@@ -10,16 +11,14 @@
 using namespace std;
 
 /*
-    createTodo()
-    Creates a to-do named 'name' with 'type'.
+    Creates a to-do named 'name'.
 */
-Todo* createTodo(string name, int type) {
+Todo* createTodo(string name, Task *task, Todo *parent) {
     Todo* newTodo = new Todo;
     newTodo->name = name;
-    newTodo->timeSpent = 0;
-    newTodo->timeEstimate = 0;
     newTodo->status = TODO_PENDING;
-    newTodo->type = type;
+    newTodo->parent = parent;
+    newTodo->task = task;
     return newTodo;
 }
 
@@ -40,22 +39,21 @@ void freeTodo(Todo *todo) {
 }
 
 /*
-    getTodoFromPath()
     Get todo from path in text.
 */
 Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
     char *token;
     int id;
-    Todo *todo = NULL;
+    Todo *todo = nullptr;
 
     token = strtok(text, ".");
     id = atoi(token) - 1;
 
-    todo = ithTodo(task->todos, id);
+    todo = ithTodo(task->rootTodo->subtodos, id);
 
     if (todo == nullptr) return nullptr;
    
-    while ((token = strtok(NULL, ".")) != NULL) {
+    while ((token = strtok(nullptr, ".")) != nullptr) {
         id = atoi(token) - 1;
         if (todo == nullptr) return nullptr;
         todo = ithTodo(todo->subtodos, id);
@@ -67,7 +65,17 @@ Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
 }
 
 /*
-    addTodo()
+    Return the status name given the status enun id.
+*/
+string getTodoStatusName(int status) {
+    if (status == TODO_PENDING) return "pending";
+    if (status == TODO_PRIORITY) return "prioritized";
+    if (status == TODO_COMPLETED) return "completed";
+    if (status == TODO_COMPLETED_HIDDEN) return "completed hidden";
+    return "invalid status";
+}
+
+/*
     Ask user for a to-do name and add it in task pointed by 'task' to-dos.
 */
 void addTodo(Task *task) {
@@ -81,23 +89,22 @@ void addTodo(Task *task) {
         return;
     }
 
+    Todo *parent;
+
     if (type == ROOT) {
-        Todo *todo = createTodo(name, type);
-        task->todos.push_back(todo);
-        todo->parent.task = task;
+        parent = task->rootTodo;
     } else {
-        Todo *todo = getTodoFromPath(task, getToken(1), nullptr);
-        if (todo == nullptr) return;
-        todo = createTodo(name, type);
-        task->todos.push_back(todo);
-        todo->parent.todo = todo;
+        parent = getTodoFromPath(task, getToken(1), nullptr);
+        if (parent == nullptr) return;
     }
 
+    Todo *todo = createTodo(name, task, parent);
+    parent->subtodos.push_back(todo);
+    
     printf("Added to-do \"%s\"\n\n", name.c_str());
 }
 
 /*
-    addTodoEsp()
     Ask user the interval [a ... b] and name prefix to create to-dos
     [prefix a ... prefix b] in task pointed by 'task'.
 */
@@ -121,48 +128,54 @@ void addTodo(Task *task) {
 // }
 
 /*
-    removeTodo()
+    Add all periods from 'todo' and from all of its descendants todo.
+*/
+void addPeriodsFromTodo(Todo *destTodo, Todo *todo) {
+    for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
+        (*it)->todo = destTodo;
+        destTodo->periods.push_back(*it);
+    }
+
+    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
+        addPeriodsFromTodo(destTodo, *it);
+    }
+}
+
+/*
     Ask user for to-do ID and remove it from task pointed by 'task'.
 */
 void removeTodo(Task* task) {
     int id;
     Todo *todo = getTodoFromPath(task, getToken(1), &id);
 
-    if (todo == NULL) return;
+    if (todo == nullptr) return;
+
+    printf("Periods from to-do and their descendants will be moved to parent. Are you sure? ");
+
+    char op;
+    scanf("%c", &op);
+
+    if (op != 'y') return;
 
     printf("To-do \"%s\" removed.\n\n", todo->name.c_str());
 
-    if (todo->type == ROOT) {
-        Task *parent = todo->parent.task;
-        parent->todos.remove(todo);
-    } else {
-        Todo *parent = todo->parent.todo;
-        parent->subtodos.remove(todo);
-        parent->timeSpent += todo->timeSpent;
-    }
+    addPeriodsFromTodo(todo->parent, todo);
+    todo->parent->periods.sort(periodComp);
+    todo->parent->subtodos.remove(todo);
 
     freeTodo(todo);
 }
 
 /*
-    editTodo()
     Sets the estimate of todo of 'task'.
 */
 void editTodo(Task* task) {
-    Todo* todo = getTodoFromPath(task, getToken(2), NULL);
+    Todo* todo = getTodoFromPath(task, getToken(2), nullptr);
     string name;
     
-    if (todo == NULL) return;
+    if (todo == nullptr) return;
 
-    if (strcmp(getToken(1), "estimate") == 0) {
-        int estimate = atof(getToken(3));
-        if (estimate < 0) {
-            printf("Estimate can't be negative.\n\n");
-            return;
-        }  
-        todo->timeEstimate = 60 * estimate;
-        printf("Changed to-do '%s' time estimate to %d.\n\n", todo->name.c_str(), estimate);
-    } else if (strcmp(getToken(1), "name") == 0) {
+    if (strcmp(getToken(1), "name") == 0) {
         name = getToken(3);
         if (name[0] == '\0') {
             printf("To-do name must not be empty.\n\n");
@@ -174,27 +187,111 @@ void editTodo(Task* task) {
     }
 }
 
+/*
+    Movo first to-do to before second to-do.
+*/
+void moveTodo(Task* task) {
+    list<size_t> origPath;
+    list<size_t> destPath;
+    
+    getIdPath(getToken(2), origPath);
+    getIdPath(getToken(3), destPath);
+
+    auto origMatch = origPath.begin();
+    auto destMatch = destPath.begin();
+
+    while (origMatch != origPath.end() && destMatch != destPath.end()) {
+        if (*origMatch != *destMatch) break;
+        origMatch++;
+        destMatch++;
+    }
+
+    if (origMatch == origPath.end()) {
+        cout << "Destination can't be inside origin\n" << endl;
+        return;
+    }
+
+    if (origPath.size() == 0 || destPath.size() == 0) return;
+
+    Todo *origParent = task->rootTodo;
+    Todo *destParent = task->rootTodo;
+
+    while (origPath.size() > 1) {
+        origParent = ithTodo(origParent->subtodos, origPath.front() - 1);
+        if (origParent == nullptr) return;
+        origPath.pop_front();
+    }
+
+    while (destPath.size() > 1) {
+        destParent = ithTodo(destParent->subtodos, destPath.front() - 1);
+        if (destParent == nullptr) return;
+        destPath.pop_front();
+    }
+
+    size_t origId = origPath.front() - 1;
+    size_t destId = destPath.front() - 1;
+
+    if (origId >= origParent->subtodos.size()) {
+        cout << "Invalid origin ID.\n" << endl;    
+        return;
+    }
+
+    if (destId >= destParent->subtodos.size() + 1) {
+        cout << "Invalid destination ID.\n" << endl;    
+        return;
+    }
+
+    auto origIt = origParent->subtodos.begin();
+    auto destIt = destParent->subtodos.begin();
+
+    while (origId--) origIt++;
+    while (destId--) destIt++;
+
+    Todo *orig = *origIt;
+    string option = getToken(1);
+    
+    if (option == "before") {
+        destParent->subtodos.insert(destIt, orig);
+    } else if (option == "inside") {
+        if (destIt == destParent->subtodos.end()) {
+            cout << "Invalid destination ID.\n" << endl;    
+            return;
+        }
+        orig->parent = *destIt; 
+        (*destIt)->subtodos.push_back(orig);
+    } else {
+        cout << "Invalid option.\n" << endl;
+        return;
+    }
+
+    origParent->subtodos.erase(origIt);
+
+    cout << "Todo '" << orig->name << "' moved.\n" << endl;
+}
+
 bool descendentsCompleted(Todo *todo) {
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
         Todo *todo = *it;
-        if (todo->status != TODO_COMPLETED || !descendentsCompleted(todo)) return false;
+        if (!todoCompleted(todo) || !descendentsCompleted(todo)) return false;
     }
     return true;
 }
 
 bool changeTodoStatus(Todo *todo, int status) {
-    if (status == TODO_COMPLETED) {
-        if (!descendentsCompleted(todo)) {
+    bool toComplete = status == TODO_COMPLETED || status == TODO_COMPLETED_HIDDEN;
+
+    if (toComplete) {
+        if (!todoCompleted(todo) && !descendentsCompleted(todo)) {
             printf("All sub to-dos must be completed before to-do can be set as completed.\n\n");
             return false;
         }
     } else if (status == TODO_PENDING) {
         Todo *parent = todo;
-        while (parent->type != ROOT) {
-            if (parent->status == TODO_COMPLETED) parent->status = TODO_PENDING;
-            parent = todo->parent.todo;
+        while (parent->parent != nullptr) {
+            if (todoCompleted(parent)) parent->status = TODO_PENDING;
+            parent = todo->parent;
         }
-        if (parent->status == TODO_COMPLETED) parent->status = TODO_PENDING;
+        if (todoCompleted(parent)) parent->status = TODO_PENDING;
         for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
             Todo *todo = *it;
             if (todo->status == TODO_PRIORITY) todo->status = TODO_PENDING;
@@ -211,33 +308,26 @@ bool changeTodoStatus(Todo *todo, int status) {
 }
 
 /*
-    setTodoStatus()
     Changes status of to-do.
 */
 void setTodoStatus(Task *task) {
-    char *statusName;
     int status;
     Todo *todo;
     size_t start, end;
-    int mult = (getNComms() == 3);
+    int mult = strcmp(getToken(1), "esp") == 0;
 
-    todo = getTodoFromPath(task, getToken(1), NULL);
+    if (mult && getNComms() == 3) todo = task->rootTodo;
+    else todo = getTodoFromPath(task, getToken(1 + mult), nullptr);
     
-    if (todo == NULL) return;
+    if (todo == nullptr) return;
 
-    if (strcmp(getToken(0), "unset") == 0) {
-        status = TODO_PENDING;
-        statusName = "pending";
-    } else if (strcmp(getToken(0), "set") == 0) {
-        status = TODO_PRIORITY;
-        statusName = "prioritized";
-    } else {
-        status = TODO_COMPLETED;
-        statusName = "completed";
-    }
+    if (strcmp(getToken(0), "unset") == 0) status = TODO_PENDING;
+    else if (strcmp(getToken(0), "set") == 0) status = TODO_PRIORITY;
+    else if (strcmp(getToken(0), "complete") == 0) status = TODO_COMPLETED;
+    else status = TODO_COMPLETED_HIDDEN;
 
     if (mult) {
-        sscanf(getToken(2), "%ld-%ld", &start, &end);
+        sscanf(getToken(getNComms() - 1), "%ld-%ld", &start, &end);
         start--;
         end--;
         if (start > end || start < 0 || end >= todo->subtodos.size()) {
@@ -246,15 +336,23 @@ void setTodoStatus(Task *task) {
         }
         
         size_t i = 0;
-        for (auto it = todo->subtodos.begin(); i <= end; it++) {
-            if (!changeTodoStatus(*it, status)) return;
+        auto it = todo->subtodos.begin();
+
+        while (i < start) {
+            it++;
             i++;
         }
 
-        printf("To-dos %ld-%ld, status changed to \"%s\".\n\n", start + 1, end + 1, statusName);
+        while (i <= end) {
+            if (!changeTodoStatus(*it, status)) return;
+            it++;
+            i++;
+        }
+
+        printf("To-dos %ld-%ld, status changed to \"%s\".\n\n", start + 1, end + 1, getTodoStatusName(status).c_str());
     } else {
         if (!changeTodoStatus(todo, status)) return;
-        printf("\"%s\" is set to \"%s\".\n\n", todo->name.c_str(), statusName);
+        printf("\"%s\" is set to \"%s\".\n\n", todo->name.c_str(), getTodoStatusName(status).c_str());
     }
 }
 
@@ -266,7 +364,6 @@ void createSchedule(Todo *todo, int timeSet, time_t date, int estimate) {
     sched->timeSet = timeSet;
     sched->date = date;
     sched->todo = todo;
-    sched->timeSpent = 0;
     sched->timeEstimate = estimate;
     todo->schedules.push_back(sched);
 }
@@ -279,9 +376,9 @@ void scheduleTodo(Task *task) {
     int args;
     int estimate;
     
-    todo = getTodoFromPath(task, getToken(1), NULL);
+    todo = getTodoFromPath(task, getToken(1), nullptr);
 
-    if (todo == NULL) return;
+    if (todo == nullptr) return;
 
     args = getNComms();
 
@@ -316,52 +413,51 @@ void scheduleTodo(Task *task) {
 
 }
 
-
 /*
-    printTodoTree()
     Print to-do tree of to-do pointed by 'todo'.
 */
-void printTodoTree(Todo* todo, int level, int id, int showCompleted) {
+void printTodoTree(Todo* todo, int level, int id, int showHidden) {
     int i;
     char status;
 
     if (todo->status == TODO_PENDING) status = ' ';
     else if (todo->status == TODO_PRIORITY) status = '*';
-    else status = 'x';
+    else if (todo->status == TODO_COMPLETED) status = 'x';
+    else if (showHidden) status = 'h';
+    else return;
 
     printf("  |   ");
     for (i = 0; i < level; i++) {
         printf("  ");
     }
     printf("%2d [%c] %s", id, status, todo->name.c_str());
-    if (todo->timeSpent != 0) printf(" (%.1fh)", todo->timeSpent / 60.0);
+
+    long int timeSpent = countTime(todo->periods);
+    if (timeSpent != 0) printf(" (%.1fh)", timeSpent / 3600.0);
     if (todo->schedules.size() != 0) printf(" (%ld schedules)", todo->schedules.size());
     printf("\n");
 
-    if (!showCompleted && todo->status == TODO_COMPLETED) return;
-
     i = 1;
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-        printTodoTree(*it, level + 1, i, showCompleted);
+        printTodoTree(*it, level + 1, i, showHidden);
         i++;
     }
 }
 
 /*
-    listTodos()
     Print list of to-dos of task pointed by 'task'.
 */
-void listTodos(Task* task, int showCompleted) {
+void listTodos(Task* task, int showHidden) {
     int i;
     printf("  +--------------------------> To-do list <--------------------------+\n");
     printf("  |\n");
-    if (task->todos.size() == 0) {
+    if (task->rootTodo->subtodos.size() == 0) {
         printf("  |   List is empty\n");
     }
 
     i = 1;
-    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
-        printTodoTree(*it, 0, i, showCompleted);
+    for (auto it = task->rootTodo->subtodos.begin(); it != task->rootTodo->subtodos.end(); it++) {
+        printTodoTree(*it, 0, i, showHidden);
         i++;
     }
     printf("  |\n");
@@ -369,12 +465,11 @@ void listTodos(Task* task, int showCompleted) {
 }
 
 /*
-    todosMenu()
     Enters in to-do menu of task pointed by 'task'.
 */
 void todosMenu(Task* task) {
     char *commandName;
-    list<string> todoStatusCommands = {"set", "unset", "complete"};
+    list<string> todoStatusCommands = {"set", "unset", "complete", "hide"};
 
     printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code.c_str());
     listTodos(task, 0);
@@ -408,6 +503,12 @@ void todosMenu(Task* task) {
                 listTodos(task, 0);
                 saveAll();
             }
+        } else if (strcmp(commandName, "move") == 0) {
+            if (validArgs(3)) {
+                moveTodo(task);
+                listTodos(task, 0);
+                saveAll();
+            }
         } else if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodo(task);
@@ -428,7 +529,7 @@ void todosMenu(Task* task) {
                 printf("Invalid number of arguments.\n");
             }
         } else if (isInList(commandName, todoStatusCommands)) {
-            if (getNComms() == 2 || getNComms() == 3) {
+            if (getNComms() >= 2 || getNComms() <= 4) {
                 setTodoStatus(task);
                 listTodos(task, 0);
                 saveAll();

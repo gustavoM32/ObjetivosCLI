@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include "objectives.hpp"
 
-#define min(a, b) ((a) < (b) ? (a) : (b))
-#define max(a, b) ((a) > (b) ? (a) : (b))
-
 void* mallocSafe(int nBytes);
 
 FILE* fopenSafe(char* fileName, char* mode);
@@ -45,6 +42,8 @@ int countTasks(Task *task, std::string &code);
 
 void setUPath(Task *root, Task *task);
 
+int countTodosTodo(Todo *todo);
+
 int countTodosTask(Task *task);
 
 int isInList(std::string word, std::list<std::string> l);
@@ -58,5 +57,25 @@ Period *ithPeriod(std::list<Period *> &periods, size_t i);
 Schedule *ithSchedule(std::list<Schedule *> &schedules, size_t i);
 
 Note *ithNote(std::list<Note *> &notes, size_t i);
+
+bool periodComp(const Period *p1, const Period *p2);
+
+bool schedComp(const Schedule *sched1, const Schedule *sched2);
+
+void sortPeriods(std::list<Period *> &periods);
+
+void getPeriodsFromTodo(std::list<Period *> &periods, Todo *todo);
+
+void getPeriodsFromTask(std::list<Period *> &periods, Task *task);
+
+long int countTime(std::list<Period *> periods);
+
+void getIdPath(std::string path, std::list<size_t> &ids);
+
+std::string getTodoFullName(Todo *todo);
+
+std::string getTodoPath(Todo *todo);
+
+bool todoCompleted(Todo *todo);
 /*************************************/
 #endif

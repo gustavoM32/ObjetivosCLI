@@ -11,18 +11,12 @@
 #define SECS_IN_A_WEEK 604800
 
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
-enum TodoStatus {TODO_PENDING, TODO_PRIORITY, TODO_COMPLETED};
+enum TodoStatus {TODO_PENDING, TODO_PRIORITY, TODO_COMPLETED, TODO_COMPLETED_HIDDEN};
 enum TodoType {ROOT, NODE};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIODS_MENU, CALENDAR_MENU};
 
 typedef struct task Task;
 typedef struct todo Todo;
-
-typedef struct {
-    long int start;
-    long int end;
-    std::string name; // remove
-} Period;
 
 typedef union {
     Task *task;
@@ -30,8 +24,14 @@ typedef union {
 } TodoParent;
 
 typedef struct {
+    long int start;
+    long int end;
+    std::string name; // remover após conversão
     Todo *todo;
-    int timeSpent;
+} Period;
+
+typedef struct {
+    Todo *todo;
     int timeEstimate;
     int timeSet;
     time_t date;
@@ -39,14 +39,12 @@ typedef struct {
 
 struct todo {
     std::string name;
-    int timeSpent;
-    int timeEstimate;
     int status;
-    std::list<Todo *> subtodos;
     std::list<Schedule *> schedules;
     std::list<Period *> periods;
-    int type;
-    TodoParent parent;
+    std::list<Todo *> subtodos;
+    Todo *parent;
+    Task *task;
 };
 
 typedef struct {
@@ -60,8 +58,7 @@ struct task {
     std::string code;
     int status;
 	std::list<Note *> notes;
-    std::list<Todo *> todos;
-    std::list<Period *> periods;
+    Todo *rootTodo;
     std::list<Task *> subtasks;
     Task *parent;
 };

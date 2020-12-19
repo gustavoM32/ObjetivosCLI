@@ -9,37 +9,34 @@
 
 using namespace std;
 
-/**
-    mallocSafe()
+/*
     This function does the same thing as malloc but exits the program if it
     can't allocate memory.
 */
 void* mallocSafe(int nBytes) {
     void* ptr = malloc(nBytes);
-    if (ptr == NULL) {
+    if (ptr == nullptr) {
         printf("Out of memory! Exiting...\n");
         exit(EXIT_FAILURE);
     }
     return ptr;
 }
 
-/**
-    fopenSafe()
+/*
     This function does the same thing as fopen but exits the program if is
     unable to open the file.
 */
 FILE* fopenSafe(char* fileName, char* mode) {
     FILE* file;
 	file = fopen(fileName, mode);
-    if (file == NULL) {
+    if (file == nullptr) {
 	    printf("Error opening file.\n\n");
 	    exit(EXIT_FAILURE);
 	}
     return file;
 }
 
-/**
-    getCurrentTime()
+/*
     This function returns current time in seconds since the start of 1970.
 */
 long int getCurrentTime() {
@@ -48,8 +45,7 @@ long int getCurrentTime() {
     return curTime;
 }
 
-/**
-    getDayStart()
+/*
     Returns the start of the day of supplied date in local time.
 */
 time_t getDayStart(time_t time) {
@@ -60,8 +56,7 @@ time_t getDayStart(time_t time) {
     return mktime(stm);
 }
 
-/**
-    formatDur()
+/*
     This function returns in 'timeString' the 'totalTime' formated as 'h:mm:ss'.
 */
 string formatDur(long int totalTime) {
@@ -79,8 +74,7 @@ string formatDur(long int totalTime) {
     return s.str();
 }
 
-/**
-    formatTime()
+/*
     This function returns in 'timeString' the 'time' formated as
     'dd/mm/yy hh:mm:ss'.
 */
@@ -98,8 +92,7 @@ string formatTime(long int time) {
     return s.str();
 }
 
-/**
-    formatDate()
+/*
     This function returns 'time' formated as 'dd/mm'.
 */
 string formatDate(long int time) {
@@ -113,13 +106,12 @@ string formatDate(long int time) {
 }
 
 /*
-    getTime()
     Returns time in seconds of date 'day'/'month'/'year' and time
     'hour':'min':'sec'.
 */
 long int getTime(int day, int month, int year, int hour, int min, int sec) {
     struct tm *structTime;
-    time_t curTime = time(NULL);
+    time_t curTime = time(nullptr);
     structTime = localtime(&curTime);
     structTime->tm_mday = day;
     structTime->tm_mon = month - 1;
@@ -131,7 +123,6 @@ long int getTime(int day, int month, int year, int hour, int min, int sec) {
 }
 
 /*
-    changeTime()
     Returns new time from 'oldTime' with changed 'hour', 'min' and 'sec'.
 */
 long int changeTime(long int oldTime, int hour, int min, int sec) {
@@ -144,7 +135,6 @@ long int changeTime(long int oldTime, int hour, int min, int sec) {
 }
 
 /*
-    changeDate()
     Returns new time from 'oldTime' with changed 'day', 'month' and 'year'.
 */
 long int changeDate(long int oldTime, int day, int month, int year) {
@@ -158,7 +148,6 @@ long int changeDate(long int oldTime, int day, int month, int year) {
 }
 
 /*
-    formatTaskName()
     Takes input and removes starting spaces and ends it after a newline or end
     of string character is found
 */
@@ -174,7 +163,6 @@ void formatTaskName(char* input) {
 }
 
 /*
-    readFileString()
     Returns in 'name' the next string in file 'input', skipping spaces and
     newline chars until the start of string and ends it when a newline char is
     found or 'size' is reached.
@@ -195,7 +183,6 @@ void readFileString(char* name, int size, FILE* input) {
 }
 
 /*
-    toLowercase()
     Converts string 's' to lowercase.
 */
 char *toLowercase(char *s) {
@@ -209,7 +196,6 @@ char *toLowercase(char *s) {
 }
 
 /*
-    toUppercase()
     Converts string 's' to uppercase.
 */
 char *toUppercase(char *s) {
@@ -223,7 +209,6 @@ char *toUppercase(char *s) {
 }
 
 /*
-    copyFile()
     Copy file with name orig to dest.
 */
 void copyFile(char *orig, char *dest) {
@@ -232,7 +217,7 @@ void copyFile(char *orig, char *dest) {
     char c;
     input = fopen(orig, "r");
     output = fopen(dest, "w");
-    if (input == NULL || output == NULL) {
+    if (input == nullptr || output == nullptr) {
         printf("Erro na cópia de \"%s\" para \"%s\"!\n", orig, dest);
         return;
     }
@@ -244,7 +229,6 @@ void copyFile(char *orig, char *dest) {
 }
 
 /*
-    notAvailable()
     Warns user that the command doesn't exist in current scope.
 */
 void notAvailable(char* userCommand) {
@@ -252,7 +236,6 @@ void notAvailable(char* userCommand) {
 }
 
 /*
-    countTasks()
     DOCUMENTAR.
 */
 int countTasks(Task *task, string &code) {
@@ -265,13 +248,12 @@ int countTasks(Task *task, string &code) {
 }
 
 /*
-    setUPath()
     DOCUMENTAR.
 */
 void setUPath(Task *root, Task *task) {
     string uniquePath;
 
-    if (countTasks(root, task->code) == 1 || task->parent == NULL) {
+    if (countTasks(root, task->code) == 1 || task->parent == nullptr) {
         task->uniquePath = task->code;
     } else {
         uniquePath += task->parent->uniquePath;
@@ -286,31 +268,24 @@ void setUPath(Task *root, Task *task) {
 }
 
 /*
-    countTodosTodo()
-    Count the number of to-dos in a todo.
+    Count the number of incomplete to-dos in a todo.
 */
 int countTodosTodo(Todo *todo) {
     int res = 0;
+    
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
         Todo *subtodo = *it;
-        if (subtodo->status != TODO_COMPLETED)
-            res += 1 + countTodosTodo(subtodo);
+        if (!todoCompleted(subtodo)) res += 1 + countTodosTodo(subtodo);
     }
+
     return res;
 }
 
 /*
-    countTodosTask()
-    Count the number of to-dos in a task.
+    Count the number of incomplete to-dos in a task.
 */
 int countTodosTask(Task *task) {
-    int res = 0;
-
-    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
-        Todo *todo = *it;
-        if (todo->status != TODO_COMPLETED)
-            res += 1 + countTodosTodo(todo);
-    }
+    int res = countTodosTodo(task->rootTodo);
 
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
         res += countTodosTask(*it);
@@ -320,7 +295,6 @@ int countTodosTask(Task *task) {
 }
 
 /*
-    isInList()
     Returns 1 if a word is in an array of words
 */
 
@@ -332,7 +306,6 @@ int isInList(string word, list<string> l) {
 }
 
 /*
-    ithTask()
     Returns the ith task in a list, nullptr if i is a invalid ID.
 */
 Task *ithTask(list<Task *> &tasks, size_t i) {
@@ -349,7 +322,6 @@ Task *ithTask(list<Task *> &tasks, size_t i) {
 }
 
 /*
-    ithTodo()
     Returns the ith todo in a list, nullptr if i is a invalid ID.
 */
 Todo *ithTodo(list<Todo *> &todos, size_t i) {
@@ -366,7 +338,6 @@ Todo *ithTodo(list<Todo *> &todos, size_t i) {
 }
 
 /*
-    ithPeriod()
     Returns the ith period in a list, nullptr if i is a invalid ID.
 */
 Period *ithPeriod(list<Period *> &periods, size_t i) {
@@ -383,7 +354,6 @@ Period *ithPeriod(list<Period *> &periods, size_t i) {
 }
 
 /*
-    ithSchedule()
     Returns the ith schedule in a list, nullptr if i is a invalid ID.
 */
 Schedule *ithSchedule(list<Schedule *> &schedules, size_t i) {
@@ -400,7 +370,6 @@ Schedule *ithSchedule(list<Schedule *> &schedules, size_t i) {
 }
 
 /*
-    ithNote()
     Returns the ith note in a list, nullptr if i is a invalid ID.
 */
 Note *ithNote(list<Note *> &notes, size_t i) {
@@ -414,4 +383,129 @@ Note *ithNote(list<Note *> &notes, size_t i) {
         i--;
     }
     return nullptr;
+}
+
+/*
+    periodComp
+    Period compare function.
+*/
+bool periodComp(const Period *p1, const Period *p2) {
+    if (p1->start < p2->start) return true;
+    if (p1->start > p2->start) return false;
+    return false;
+}
+
+/*
+    schedComp
+    Schedule compare function.
+*/
+bool schedComp(const Schedule *sched1, const Schedule *sched2) {
+    if (sched1->date < sched2->date) return true;
+    if (sched1->date > sched2->date) return false;
+    if (sched1->timeSet) return false;
+    if (sched2->timeSet) return true;
+    return false;
+}
+
+/*
+    Order periods by time.
+*/
+void sortPeriods(list<Period *> &periods) {
+    periods.sort(periodComp);
+}
+
+/*
+    Inserts all TODO periods into PERIODS and the vector size into N.
+*/
+void getPeriodsFromTodo(list<Period *> &periods, Todo *todo) {
+    for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
+        periods.push_back(*it);
+    }
+    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
+        getPeriodsFromTodo(periods, *it);
+    }
+}
+
+
+/*
+    Inserts all TASK periods into PERIODS and the vector size into N.
+*/
+void getPeriodsFromTask(list<Period *> &periods, Task *task) {    
+    getPeriodsFromTodo(periods, task->rootTodo);
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        getPeriodsFromTask(periods, *it);
+    }
+}
+
+/*
+    Counts total time of list of periods.
+*/
+long int countTime(list<Period *> periods) {
+    long int count = 0;
+    for (auto it = periods.begin(); it != periods.end(); it++) {
+        Period *period = *it;
+        count += period->end - period->start;
+    }
+    return count;
+}
+
+#include <iostream>
+
+/*
+    Get a list of ids from a id path.
+*/
+void getIdPath(string path, list<size_t> &ids) {
+    for (size_t i = 0; i < path.size(); i++) {
+        if (path[i] >= '0' && path[i] <= '9') continue;
+        path[i] = ' ';
+    }
+    stringstream pathStream(path);
+    while (pathStream.good()) {
+        size_t num;
+        pathStream >> num;
+        ids.push_back(num);
+    }
+
+    if (!pathStream.eof()) {
+        cerr << "Error getting ids\n" << endl;
+        ids.clear();
+    }
+}
+
+string getTodoFullName(Todo *todo) {
+    string name = "";
+
+    if (todo->parent->parent == nullptr) {
+        name += todo->task->uniquePath;
+    } else {
+        name += getTodoFullName(todo->parent);
+    }
+
+    name += " > ";
+    name += todo->name;
+    return name;
+}
+
+string getTodoPath(Todo *todo) {
+    string name = "";
+
+    if (todo->parent == nullptr) {
+        return todo->task->name;
+    }
+
+    if (todo->parent->parent != nullptr) {
+        name += getTodoPath(todo->parent);
+        name += " > ";
+    }
+
+    name += todo->name;
+    return name;
+}
+
+/*
+    Return 'true' if 'todo' is completed
+*/
+bool todoCompleted(Todo *todo) {
+    return todo->status == TODO_COMPLETED || todo->status == TODO_COMPLETED_HIDDEN;
 }

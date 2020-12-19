@@ -8,6 +8,11 @@
 #include "util.hpp"
 #include "task.hpp"
 
+
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <list>
 #define SENTENCE_LIMIT '\"'
 
 using namespace std;
@@ -16,7 +21,6 @@ static int nComms = 0;
 static char buffer[MAX_COMMANDS][COMMAND_LEN];
 
 /*
-    getNComms()
     Returns the number of read commands;
 */
 int getNComms() {
@@ -24,7 +28,6 @@ int getNComms() {
 }
 
 /*
-    getLine()
     Reads a line from stream and separate it into words
     and "sentences with spaces" and stores it into BUFFER.
 */
@@ -68,7 +71,6 @@ int getLine(FILE *stream) {
 }
 
 /*
-    invalidArgs()
     Returns true if num of arguments in buffer equals NARGS.
     Returns false otherwise and a error message.
 */
@@ -84,23 +86,21 @@ int validArgs(int nArgs) {
 }
 
 /*
-    getToken()
     Returns a string from buffer given its ID.
 */
 char *getToken(int id) {
-    if (id >= nComms) return NULL;
+    if (id >= nComms) return nullptr;
     return buffer[id];
 }
 
 /*
-    getCommandName()
     Prompts user for a command until its name is not empty.
 */
 char *getCommandName() {
-    char *commandName = NULL;
+    char *commandName = nullptr;
     char *line;
     FILE *stream;
-    while (commandName == NULL) {
+    while (commandName == nullptr) {
         line = readline("> ");
         add_history(line);
         int size = strlen(line);
@@ -118,7 +118,6 @@ char *getCommandName() {
 }
 
 /*
-    fpfInd()
     Prints indentation of depth 'depth' in file pointed by 'file'.
 */
 void fpfInd(FILE* file, int depth) {
@@ -129,19 +128,25 @@ void fpfInd(FILE* file, int depth) {
 }
 
 /*
-    saveTodo()
     Save all data from todo pointed by 'todo' in file pointed by 'output' with
     depth 'depth' in task tree.
 */
 void saveTodo(Todo* todo, FILE* output, int depth) {
     fpfInd(output, depth);
-    fprintf(output, "\"%s\" %d %d %d\n", todo->name.c_str(), todo->timeSpent, todo->timeEstimate, todo->status);
+    fprintf(output, "\"%s\" %d\n", todo->name.c_str(), todo->status);
     fpfInd(output, depth);
     fprintf(output, "%ld\n", todo->schedules.size());
     for (auto it = todo->schedules.begin(); it != todo->schedules.end(); it++) {
         Schedule *sched = *it;
         fpfInd(output, depth);
-        fprintf(output, "%d %d %d %ld\n", sched->timeSpent, sched->timeEstimate, sched->timeSet, sched->date);
+        fprintf(output, "%d %d %ld\n", sched->timeEstimate, sched->timeSet, sched->date);
+    }
+    fpfInd(output, depth);
+    fprintf(output, "%ld\n", todo->periods.size());
+    for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
+        Period *period = *it;
+        fpfInd(output, depth);
+        fprintf(output, "%ld %ld\n", period->start, period->end);
     }
     fpfInd(output, depth);
     fprintf(output, "%ld\n", todo->subtodos.size());
@@ -151,7 +156,6 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
 }
 
 /*
-    saveTask()
     Save all data from task pointed by 'task' in file pointed by 'output' with
     depth 'depth' in task tree.
 */
@@ -165,19 +169,10 @@ void saveTask(Task* task, FILE* output, int depth) {
         fpfInd(output, depth);
         fprintf(output, "\"%s\" %ld\n", note->text.c_str(), note->date);
     }
-	fpfInd(output, depth);
-    fprintf(output, "%ld\n", task->todos.size());
-    for (auto it = task->todos.begin(); it != task->todos.end(); it++) {
-        saveTodo(*it, output, depth);
-    }
-    fpfInd(output, depth);
-    fprintf(output, "%ld\n", task->periods.size());
-    for (auto it = task->periods.begin(); it != task->periods.end(); it++) {
-        Period *period = *it;
-        fpfInd(output, depth);
-        fprintf(output, "%ld %ld \"%s\"\n", period->start, period->end, period->name.c_str());
-    }
-    fpfInd(output, depth);
+
+    saveTodo(task->rootTodo, output, depth + 1);
+
+    fpfInd(output, depth + 1);
     fprintf(output, "%ld\n", task->subtasks.size());
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
         saveTask(*it, output, depth + 1);
@@ -185,7 +180,6 @@ void saveTask(Task* task, FILE* output, int depth) {
 }
 
 /*
-    saveAll()
     Saves all tasks in a file.
 */
 void saveAll() {
@@ -196,27 +190,24 @@ void saveAll() {
     output = fopenSafe("data/tasks.txt", "w");
     fprintf(output, "%ld\n", rootTask->subtasks.size());
     for (auto it = rootTask->subtasks.begin(); it != rootTask->subtasks.end(); it++) {
-        saveTask(*it, output, 1);
+        saveTask(*it, output, 0);
     }
     printf("Tasks saved!\n\n");
     fclose(output);
 }
 
 /*
-    loadTodo()
     Gets todo data from file pointed by 'input'.
 */
-Todo* loadTodo(FILE* input, int type) {
+void loadTodo(FILE* input, Task *task, Todo *parent) {
     int count;
     string todoName;
     Todo* todo;
 
     getLine(input);
     todoName = getToken(0);
-    todo = createTodo(todoName, type);
-    todo->timeSpent = atoi(getToken(1));
-    todo->timeEstimate = atoi(getToken(2));
-    todo->status = atoi(getToken(3));
+    todo = createTodo(todoName, task, parent);
+    todo->status = atoi(getToken(1));
 
 	getLine(input);
     count = atoi(getToken(0));
@@ -224,25 +215,34 @@ Todo* loadTodo(FILE* input, int type) {
         Schedule *sched = new Schedule;
         sched->todo = todo;
         getLine(input);
-        sched->timeSpent = atoi(getToken(0));
-        sched->timeEstimate = atoi(getToken(1));
-        sched->timeSet = atoi(getToken(2));
-        sched->date = atol(getToken(3));
+        sched->timeEstimate = atoi(getToken(0));
+        sched->timeSet = atoi(getToken(1));
+        sched->date = atol(getToken(2));
         todo->schedules.push_back(sched);
+    }
+
+    getLine(input);
+    count = atoi(getToken(0));
+    while (count--) {
+        Period *period = new Period;
+        getLine(input);
+        period->start = atol(getToken(0));
+        period->end = atol(getToken(1));
+        period->todo = todo;
+        todo->periods.push_back(period);
     }
 
 	getLine(input);
     count = atoi(getToken(0));
     while (count--) {
-        Todo *subtodo = loadTodo(input, NODE);
-        todo->subtodos.push_back(subtodo);
-        subtodo->parent.todo = todo;
+        loadTodo(input, task, todo);
     }
-    return todo;
+
+    if (parent != nullptr) todo->parent->subtodos.push_back(todo);
+    else task->rootTodo = todo;
 }
 
 /*
-    loadTask()
     Gets task data from file pointed by 'input'.
 */
 Task* loadTask(FILE* input) {
@@ -266,26 +266,9 @@ Task* loadTask(FILE* input) {
         note->date = atol(getToken(1));
         task->notes.push_back(note);
     }
-	
-    getLine(input);
-    count = atoi(getToken(0));
-    while (count--) {
-        Todo *todo = loadTodo(input, ROOT);
-        todo->parent.task = task;
-        task->todos.push_back(todo);
-    }
 
-    getLine(input);
-    count = atoi(getToken(0));
-    while (count--) {
-        Period *period = new Period;
-        getLine(input);
-        period->start = atol(getToken(0));
-        period->end = atol(getToken(1));
-        period->name = getToken(2);
-        task->periods.push_back(period);
-    }
-
+    loadTodo(input, task, nullptr);
+    
     getLine(input);
     count = atoi(getToken(0));
     while (count--) {
@@ -297,7 +280,6 @@ Task* loadTask(FILE* input) {
 }
 
 /*
-    loadAll()
     Loads all task data from a file.
 */
 void loadAll() {
