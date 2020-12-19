@@ -30,6 +30,7 @@ void showTaskWeekTime(Task* task);
 
 // void extractCodes(string path, list<string> &codes);
 
-// Task *searchTask(Task *root);
+
+void printTaskTree();
 
 #endif

@@ -1,4 +1,5 @@
 #include <sstream>
+#include <cstring>
 #include "io.hpp"
 #include "util.hpp"
 #include "taskUtil.hpp"
@@ -237,39 +238,43 @@ Task *searchTask(Task *root) {
 
         extractCodes(task->uniquePath, codes);
 
-        if (codes.size() < inputCodes.size()) continue;
+/*
+    Print task in a tree structure.
+*/
+void printTaskTreeRec(Task *task, int depth, bool onlyActive, bool onlyIncomplete) {
+    if (onlyActive && task->status != TASK_ACTIVE) return;
+    if (onlyIncomplete && task->status == TASK_COMPLETED) return;
 
-        auto inputCode = inputCodes.rbegin();
-        auto code = codes.rbegin();
-
-        while (inputCode != inputCodes.rend()) {
-            if (*inputCode != *code) break;
-            inputCode++;
-            code++;
-        }
-
-        if (inputCode != inputCodes.rend()) {
-            continue;
-        }
-
-        results.push_back(task);
+    for (int i = 0; i < depth; i++) {
+        printf("   ");
     }
 
-    if (results.size() == 0) {
-        printf("No task found.\n\n");
-        return nullptr;
+    printf("* ");
+    if (onlyIncomplete && task->status == TASK_INACTIVE) printf("(inactive) ");
+    if (!onlyActive && !onlyIncomplete) {
+        if (task->status == TASK_INACTIVE) printf("(inactive) ");
+        else if (task->status == TASK_CANCELED) printf("(canceled) ");
+        else if (task->status == TASK_COMPLETED) printf("(completed) ");
+    }
+    printf("%s - %s\n", task->code.c_str(), task->name.c_str());
+
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        printTaskTreeRec(*it, depth + 1, onlyActive, onlyIncomplete);
     }
 
-    if (results.size() == 1) return results.front();
+}
 
-    printf("Multiple tasks match the path given:\n\n");
+/*
+    Print all tasks in a tree structure.
+*/
+void printTaskTree() {
+    if (getNComms() == 1) printTaskTreeRec(rootTask, 0, true, false);
+    else if (strcmp(getToken(1), "incomplete") == 0) printTaskTreeRec(rootTask, 0, false, true);
+    else if (strcmp(getToken(1), "all") == 0) printTaskTreeRec(rootTask, 0, false, false);
+    else printf("Invalid option.\n");
 
-    i = 1;
-    for (auto it = results.begin(); it != results.end(); it++) {
-        Task *result = *it;
-        printf("   %d. %s (%s)\n\n", i, result->name.c_str(), result->uniquePath.c_str());
-        i++;
-    }
+    printf("\n");
+}
 
     printf("Select desired task: ");
     scanf("%d", &id);

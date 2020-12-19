@@ -42,6 +42,12 @@ bool generalCommands(char *commandName) {
         }
     } else if (strcmp(commandName, "week") == 0) {
         if (validArgs(0)) printWeekSummary();
+    } else if (strcmp(commandName, "tree") == 0) {
+        if (getNComms() == 1 || getNComms() == 2) {
+            printTaskTree();
+        } else {
+            printf("Invalid number of arguments.\n\n");
+        }
     } else if (strcmp(commandName, "help") == 0) {
         if (validArgs(0)) printHelp(curMenu);
     } else if (strcmp(commandName, "save") == 0) {
