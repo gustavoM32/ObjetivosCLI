@@ -66,7 +66,6 @@ void updateCalendar() {
     calendar->schedules.clear();
 
     updateCalendarTask(calendar, rootTask);
-    setUPath(rootTask, rootTask);
 }
 
 /*

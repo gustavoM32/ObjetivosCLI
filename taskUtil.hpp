@@ -26,10 +26,7 @@ void showTaskWeekTime(Task* task);
 
 // bool allCompleted(Task* task);
 
-// void getTasks(list<Task *> &tasks, Task *task);
-
-// void extractCodes(string path, list<string> &codes);
-
+Task *searchTask();
 
 void printTaskTree();
 

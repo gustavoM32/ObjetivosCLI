@@ -57,7 +57,6 @@ Task* getSubtask(Task* task) {
 Task* createTask(string name, string code) {
     Task* newTask = new Task;
     newTask->name = name;
-    // newTask->uniquePath = "";
     newTask->code = code;
     newTask->status = TASK_ACTIVE;
     newTask->rootTodo = createTodo("To-dos", newTask, nullptr);
@@ -191,52 +190,33 @@ bool allCompleted(Task* task) {
 }
 
 /*
-    Inserts all TASK subtasks into tasks and the vector size into N.
+    Searches recursively for task with 'code' among 'task' descendants
 */
-void getTasks(list<Task *> &tasks, Task *task) {
+Task *searchTaskRec(Task *task, string &code) {
+    if (task->code == code) return task;
+
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
-        tasks.push_back(*it);
-        getTasks(tasks, *it);
+        Task *subtask = searchTaskRec(*it, code);
+        if (subtask != nullptr) return subtask;
     }
+
+    return nullptr;
 }
 
 /*
-    Extract codes from path into codes list.
+    Asks user for task code and searches among all tasks.
 */
-void extractCodes(string path, list<string> &codes) {
-    stringstream pathstream;
-    pathstream.str(path);
-    while (!pathstream.eof()) {
-        string code;
-        pathstream >> code;
-        codes.push_back(code);
-        pathstream >> code;
+Task *searchTask() {
+    string code = toUppercase(getToken(1));
+    Task *task = searchTaskRec(rootTask, code);
+
+    if (task == nullptr) {
+        printf("No task found.\n\n");
+        return nullptr;
     }
+
+    return task;
 }
-
-/*
-    Asks user for task suffix path and returns pointer to task.
-*/
-Task *searchTask(Task *root) {
-    int i, id;
-    list<Task *> tasks;
-    list<Task *> results;
-    list<string> inputCodes;
-    int nInputs = getNComms() - 1;
-    for (i = 1; i <= nInputs; i++) {
-        inputCodes.push_back(toUppercase(getToken(i)));
-    }
-
-    tasks.push_back(root);
-
-    getTasks(tasks, root);
-    setUPath(root, root);
-
-    for (auto it = tasks.begin(); it != tasks.end(); it++) {
-        Task *task = *it;
-        list<string> codes;
-
-        extractCodes(task->uniquePath, codes);
 
 /*
     Print task in a tree structure.

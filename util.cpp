@@ -248,26 +248,6 @@ int countTasks(Task *task, string &code) {
 }
 
 /*
-    DOCUMENTAR.
-*/
-void setUPath(Task *root, Task *task) {
-    string uniquePath;
-
-    if (countTasks(root, task->code) == 1 || task->parent == nullptr) {
-        task->uniquePath = task->code;
-    } else {
-        uniquePath += task->parent->uniquePath;
-        uniquePath += " > ";
-        uniquePath += task->code;
-        task->uniquePath = uniquePath;
-    }
-
-    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
-        setUPath(root, *it);
-    }
-}
-
-/*
     Count the number of incomplete to-dos in a todo.
 */
 int countTodosTodo(Todo *todo) {
@@ -477,7 +457,7 @@ string getTodoFullName(Todo *todo) {
     string name = "";
 
     if (todo->parent->parent == nullptr) {
-        name += todo->task->uniquePath;
+        name += todo->task->code;
     } else {
         name += getTodoFullName(todo->parent);
     }

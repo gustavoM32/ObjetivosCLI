@@ -54,7 +54,6 @@ typedef struct {
 
 struct task {
     std::string name;
-    std::string uniquePath;
     std::string code;
     int status;
 	std::list<Note *> notes;

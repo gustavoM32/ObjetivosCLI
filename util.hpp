@@ -40,8 +40,6 @@ void notAvailable(char* userCommand);
 
 int countTasks(Task *task, std::string &code);
 
-void setUPath(Task *root, Task *task);
-
 int countTodosTodo(Todo *todo);
 
 int countTodosTask(Task *task);

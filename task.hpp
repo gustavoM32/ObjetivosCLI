@@ -17,8 +17,6 @@ Task *createTask(std::string, std::string);
 
 void freeTask(Task *task);
 
-Task *searchTask(Task *root);
-
 void addSubtask(Task *);
 
 void deleteTask(Task *);
