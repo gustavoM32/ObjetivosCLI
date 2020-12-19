@@ -416,7 +416,7 @@ void scheduleTodo(Task *task) {
 /*
     Print to-do tree of to-do pointed by 'todo'.
 */
-void printTodoTree(Todo* todo, int level, int id, int showHidden) {
+void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
     int i;
     char status;
 
@@ -427,10 +427,11 @@ void printTodoTree(Todo* todo, int level, int id, int showHidden) {
     else return;
 
     printf("  |   ");
-    for (i = 0; i < level; i++) {
-        printf("  ");
+    for (auto it = path.begin(); it != path.end(); it++) {
+        if (it == path.begin()) continue;
+        printf(" : ");
     }
-    printf("%2d [%c] %s", id, status, todo->name.c_str());
+    printf("%2d [%c] %s", path.back(), status, todo->name.c_str());
 
     long int timeSpent = countTime(todo->periods);
     if (timeSpent != 0) printf(" (%.1fh)", timeSpent / 3600.0);
@@ -439,7 +440,9 @@ void printTodoTree(Todo* todo, int level, int id, int showHidden) {
 
     i = 1;
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-        printTodoTree(*it, level + 1, i, showHidden);
+        path.push_back(i);
+        printTodoTree(*it, path, showHidden);
+        path.pop_back();
         i++;
     }
 }
@@ -448,6 +451,7 @@ void printTodoTree(Todo* todo, int level, int id, int showHidden) {
     Print list of to-dos of task pointed by 'task'.
 */
 void listTodos(Task* task, int showHidden) {
+    list<int> path;
     int i;
     printf("  +--------------------------> To-do list <--------------------------+\n");
     printf("  |\n");
@@ -457,7 +461,9 @@ void listTodos(Task* task, int showHidden) {
 
     i = 1;
     for (auto it = task->rootTodo->subtodos.begin(); it != task->rootTodo->subtodos.end(); it++) {
-        printTodoTree(*it, 0, i, showHidden);
+        path.push_back(i);
+        printTodoTree(*it, path, showHidden);
+        path.pop_back();
         i++;
     }
     printf("  |\n");

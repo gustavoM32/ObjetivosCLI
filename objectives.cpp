@@ -5,6 +5,7 @@
 #include "objectives.hpp"
 #include "util.hpp"
 #include "task.hpp"
+#include "taskUtil.hpp"
 #include "io.hpp"
 #include "calendar.hpp"
 #include "help.hpp"
