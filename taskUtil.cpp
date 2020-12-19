@@ -276,10 +276,15 @@ void printTaskTree() {
     printf("\n");
 }
 
-    printf("Select desired task: ");
-    scanf("%d", &id);
-    getchar();
-    printf("\n");
+/*
+    Return true if 'code' is already being used in 'task' or its descendants.
+*/
+bool codeUsed(Task *task, string &code) {
+    if (task->code == code) return true;
 
-    return ithTask(results, id - 1);
+    for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
+        if (codeUsed(*it, code)) return true;
+    }
+
+    return false;
 }

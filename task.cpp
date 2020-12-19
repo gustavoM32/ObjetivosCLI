@@ -25,11 +25,11 @@ void addSubtask(Task* parent) {
     subtaskCode = toUppercase(getToken(1));
     subtaskName = getToken(2);
 
-    if (subtaskCode.size() || subtaskCode.size() > 5) {
+    if (subtaskCode.size() < 1 || subtaskCode.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
-    } else if (findTaskByCode(parent, subtaskCode) != nullptr) {
-        printf("\"%s\" already has subtask with code \"%s\".\n\n", parent->name.c_str(), subtaskCode.c_str());
+    } else if (codeUsed(rootTask, subtaskCode)) {
+        printf("Code \"%s\" is not available.\n\n", subtaskCode.c_str());
         return;
     }
 
@@ -160,14 +160,14 @@ void renameTask(Task* task) {
 void changeCode(Task* task) {
     string code;
     code = toUppercase(getToken(1));
-    if (code.size() == 0 || code.size() > 5) {
+    if (code.size() < 1 || code.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
     } else if (task->parent == nullptr) {
         printf("Can't change main task code.\n\n");
         return;
-    } else if (findTaskByCode(task->parent, code) != nullptr) {
-        printf("\"%s\" already has subtask with code \"%s\".\n\n", task->parent->code.c_str(), code.c_str());
+    } else if (codeUsed(rootTask, code)) {
+        printf("Code \"%s\" is not available.\n\n", code.c_str());
         return;
     }
     printf("\"%s\" code changed to \"%s\"\n\n", task->code.c_str(), code.c_str());

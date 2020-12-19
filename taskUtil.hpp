@@ -33,4 +33,6 @@ void showTaskWeekTime(Task* task);
 
 void printTaskTree();
 
+bool codeUsed(Task *task, std::string &code);
+
 #endif
