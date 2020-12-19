@@ -152,10 +152,10 @@ void removeTodo(Task* task) {
 
     printf("Periods from to-do and their descendants will be moved to parent. Are you sure? ");
 
-    char op;
-    scanf("%c", &op);
+    string op;
+    cin >> op;
 
-    if (op != 'y') return;
+    if (op != "y") return;
 
     printf("To-do \"%s\" removed.\n\n", todo->name.c_str());
 
