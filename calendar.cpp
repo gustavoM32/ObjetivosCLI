@@ -160,6 +160,8 @@ void completeTodo() {
         delete *it;
     }
 
+    todo->schedules.clear();
+
     todo->status = TODO_COMPLETED;
 
     updateCalendar();
