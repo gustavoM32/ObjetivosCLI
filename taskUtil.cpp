@@ -100,13 +100,13 @@ void listStatusTasks(list<Task *> tasks, string statusName) {
 /*
     Returns total period time of task pointed by 'task' and its subtasks.
 */
-long int getTaskTotalTime(Task* task) {
-    long int totalTime = 0;
+time_t getTaskTotalTime(Task* task, int option) {
+    time_t totalTime = 0;
 
-    totalTime += getTodoTotalTime(task->rootTodo);
+    totalTime += getTodoTotalTime(task->rootTodo, option);
 
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
-        totalTime += getTaskTotalTime(*it);
+        totalTime += getTaskTotalTime(*it, option);
     }
 
     return totalTime;

@@ -365,7 +365,7 @@ void printScheduled() {
             if (sched->date == 0) {
                 if (printCommon) {
                     printCommon = false;
-                    printf("\n ________________  Common  _________________\n\n");
+                    printf("\n ________________  Periodic  _________________\n\n");
                 }
             } else if (sched->date < curDayStart) {
                 if (printLate) {
@@ -402,7 +402,14 @@ void printScheduled() {
                 else printf("%2.0fh ", sched->timeEstimate / 60.0);
             }
             
-            cout << todoName << endl;
+            cout << todoName;
+            if (sched->date == 0) {
+                if (!sched->todo->periods.empty()) {
+                    time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
+                    cout << " (last " << formatDur(timeSince) << ")";
+                }
+            }
+            cout << endl;
 
             totalEstimated += sched->timeEstimate;
             i++;

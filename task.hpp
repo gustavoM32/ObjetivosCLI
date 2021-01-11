@@ -25,8 +25,6 @@ void removeSubtask(Task *);
 
 void listSubtasks(Task *);
 
-long int getTaskTotalTime(Task *);
-
 void showTaskTotalTime(Task *);
 
 void renameTask(Task *);

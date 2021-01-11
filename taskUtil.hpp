@@ -16,7 +16,7 @@ Task* getSubtask(Task* task);
 
 void listStatusTasks(std::list<Task *> tasks, std::string statusName);
 
-// long int getTaskTotalTime(Task* task);
+time_t getTaskTotalTime(Task* task, int option = TIME_OPTION_NONE);
 
 // void showTaskTotalTime(Task* task);
 

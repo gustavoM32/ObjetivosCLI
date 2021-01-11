@@ -309,6 +309,12 @@ void taskMenu(Task* task) {
     while (true) {
         if (showHead) {
             printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
+            time_t totalTime = getTaskTotalTime(task);
+            time_t lastWeekTime = getTaskTotalTime(task, TIME_OPTION_LAST_WEEK);
+            time_t currentWeekTime = getTaskTotalTime(task, TIME_OPTION_CURRENT_WEEK);
+            printf("  Total time: %s\n", formatDur(totalTime).c_str());
+            printf("  Last week time: %s\n", formatDur(lastWeekTime).c_str());
+            printf("  Current week time: %s\n\n", formatDur(currentWeekTime).c_str());
             listSubtasks(task);
             showHead = false;
         }
