@@ -265,6 +265,8 @@ int countTodosTodo(Todo *todo) {
     Count the number of incomplete to-dos in a task.
 */
 int countTodosTask(Task *task) {
+    if (task->status != TASK_ACTIVE) return 0;
+
     int res = countTodosTodo(task->rootTodo);
 
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
