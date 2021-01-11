@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     printf("*** Welcome to Control! ***\n\n");
     printf("Type 'help' for a list of commands.\n\n");
     
-    rootTask = createTask("Objetivos", "OBJ");
+    rootTask = createTask("Objetivos", "OBJS");
 
     if (argc > 1) loadAllOld();
     else loadAll();
