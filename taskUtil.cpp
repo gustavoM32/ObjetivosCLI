@@ -88,28 +88,13 @@ void listStatusTasks(list<Task *> tasks, string statusName) {
         printf("  |\n");
         for (auto it = tasks.begin(); it != tasks.end(); it++) {
             Task *task = *it;
-            printf("  |    (%s) %s (%d)\n", task->code.c_str(), task->name.c_str(), countTodosTask(task));
+            printf("  |    (%s) %s", task->code.c_str(), task->name.c_str());
+            int todos = countTodosTask(task);
+            if (todos != 0) printf(" (%d)", todos);
+            printf("\n");
         }
         printf("  |\n");
     }
-}
-
-/*
-    Returns total period time of todo pointed by 'todo' and its subtodos.
-*/
-long int getTodoTotalTime(Todo* todo) {
-    long int totalTime = 0;
-
-    for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
-        Period *period = *it;
-        totalTime += period->end - period->start;
-    }
-
-    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-        totalTime += getTodoTotalTime(*it);
-    }
-
-    return totalTime;
 }
 
 /*
@@ -168,8 +153,8 @@ void showTaskTotalTime(Task* task) {
     Prints week period time of task pointed by 'task' and all of its subtasks.
 */
 void showTaskWeekTime(Task* task) {
-    long int totalTime;
-    string formatedTime;
+    // long int totalTime;
+    // string formatedTime;
     // totalTime = getTaskWeekTime(task);
     // formatedTime = formatDur(totalTime);
     // printf("Time spent in task (%s) %s this week: %s.\n\n", task->code.c_str(), task->name.c_str(), formatedTime.c_str());

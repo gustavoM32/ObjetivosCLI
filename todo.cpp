@@ -431,10 +431,16 @@ void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
         if (it == path.begin()) continue;
         printf(" : ");
     }
-    printf("%2d [%c] %s", path.back(), status, todo->name.c_str());
 
-    long int timeSpent = countTime(todo->periods);
-    if (timeSpent != 0) printf(" (%.1fh)", timeSpent / 3600.0);
+    time_t timeSpentThisTodo = getTodoTime(todo);
+    time_t timeSpentTotal = getTodoTotalTime(todo);
+
+    printf("%2d [%c] ", path.back(), status);
+    printf("%s", todo->name.c_str());
+    printf(" (%.1fh", timeSpentThisTodo / 3600.0);
+    if (timeSpentThisTodo == timeSpentTotal) printf(")");
+    else printf(" | %.1fh)", timeSpentTotal / 3600.0);
+    
     if (todo->schedules.size() != 0) printf(" (%ld schedules)", todo->schedules.size());
     printf("\n");
 

@@ -428,7 +428,7 @@ void printPrioritized() {
         Todo *todo = *it;
         string todoName;
         todoName = getTodoFullName(todo);
-        long int timeSpent = countTime(todo->periods);
+        long int timeSpent = getTodoTime(todo);
         printf("    %2d: %5.1fh  %5ld     %s\n", i + 1, timeSpent / 3600.0, todo->schedules.size(), todoName.c_str());
         i++;
     }

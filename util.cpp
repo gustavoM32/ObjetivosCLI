@@ -1,5 +1,6 @@
 #include <string>
 #include <sstream>
+#include <iostream>
 #include <iomanip>
 #include <list>
 #include <ctime>
@@ -421,18 +422,27 @@ void getPeriodsFromTask(list<Period *> &periods, Task *task) {
 }
 
 /*
-    Counts total time of list of periods.
+    Returns the time spent in to-do.
 */
-long int countTime(list<Period *> periods) {
-    long int count = 0;
-    for (auto it = periods.begin(); it != periods.end(); it++) {
+time_t getTodoTime(Todo *todo) {
+    time_t time = 0;
+    for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
         Period *period = *it;
-        count += period->end - period->start;
+        time += period->end - period->start;
     }
-    return count;
+    return time;
 }
 
-#include <iostream>
+/*
+    Returns the time spent in to-do and its descendants.
+*/
+time_t getTodoTotalTime(Todo *todo) {
+    time_t time = getTodoTime(todo);
+    for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
+        time += getTodoTotalTime(*it);
+    }
+    return time;
+}
 
 /*
     Get a list of ids from a id path.

@@ -66,7 +66,9 @@ void getPeriodsFromTodo(std::list<Period *> &periods, Todo *todo);
 
 void getPeriodsFromTask(std::list<Period *> &periods, Task *task);
 
-long int countTime(std::list<Period *> periods);
+time_t getTodoTime(Todo *todo);
+
+time_t getTodoTotalTime(Todo *todo);
 
 void getIdPath(std::string path, std::list<size_t> &ids);
 
