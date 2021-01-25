@@ -168,6 +168,33 @@ void completeTodo() {
 }
 
 /*
+    Touch a to-do, creating a period of zero length.
+*/
+void touchTodo() {
+    Period *period;
+    int id;
+    Todo *todo;
+    string todoName;
+    Schedule *sched;
+
+    id = calendar->schedules.size() - atoi(getToken(1));
+    sched = ithSchedule(calendar->schedules, id);
+
+    if (sched == nullptr) return;
+    
+    todo = sched->todo;
+
+    period = new Period;
+    period->todo = todo;
+    todo->periods.push_back(period);
+
+    period->start = period->end = getCurrentTime();
+
+    printf("Todo \"%s > %s\" touched.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+}
+
+
+/*
     Starts a period of todo.
 */
 void startPeriod() {
@@ -486,6 +513,11 @@ void calendarMenu() {
         } else if (strcmp(commandName, "start") == 0) {
             if (validArgs(1)) {
                 startPeriod();
+                saveAll();
+            }
+        } else if (strcmp(commandName, "touch") == 0) {
+            if (validArgs(1)) {
+                touchTodo();
                 saveAll();
             }
         } else if (strcmp(commandName, "stop") == 0) {
