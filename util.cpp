@@ -211,6 +211,30 @@ char *toUppercase(char *s) {
 }
 
 /*
+    Replaces new line characters to escaped ones.
+*/
+string escapeNewLines(string s) {
+    size_t start_pos = 0;
+    while((start_pos = s.find("\n", start_pos)) != string::npos) {
+        s.replace(start_pos, 1, "\\n");
+        start_pos += 2;
+    }
+    return s;
+}
+
+/*
+    Replaces escaped new line characters to real ones.
+*/
+string unescapeNewLines(string s) {
+    size_t start_pos = 0;
+    while((start_pos = s.find("\\n", start_pos)) != string::npos) {
+        s.replace(start_pos, 2, "\n");
+        start_pos += 1;
+    }
+    return s;
+}
+
+/*
     Copy file with name orig to dest.
 */
 void copyFile(char *orig, char *dest) {

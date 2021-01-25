@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <queue>
 #include <cstring>
@@ -258,6 +259,48 @@ void listNotes(Task* task) {
     printf("  +------------------------------------------------------------------+\n\n");
 }
 
+#include <unistd.h>
+
+/*
+    Opens a text editor to edit the description of 'task'.
+*/
+void editDescription(Task* task) {
+    fstream file;
+    stringstream stream;
+    file.open("temp.txt", fstream::out);
+    file << task->description;
+    file.close();
+    system("nvim temp.txt");
+    file.open("temp.txt", fstream::in);
+    
+    stream << file.rdbuf();
+    task->description = stream.str();
+    int end = task->description.size() - 1;
+    if (end >= 0) {
+        if (task->description[end] != '\n') {
+            task->description += '\n';
+        } else {
+            while (end > 0 && task->description[end - 1] == '\n') end--;
+            task->description = task->description.substr(0, end + 1);
+        }
+    }
+    system("rm temp.txt");
+}
+
+void printDescription(Task *task) {
+    uint size = task->description.size();
+    if (size == 0) return;
+    cout << "  ";
+    for (uint i = 0; i < size; i++) {
+        char c = task->description[i];
+        cout << c;
+        if (i != size - 1 && c == '\n') {
+            cout << "  ";
+        }
+    }
+    cout << "\n";
+}
+
 /*
     Enters in subtask menu of task pointed by 'task'.
 */
@@ -316,6 +359,7 @@ void taskMenu(Task* task) {
             printf("  Last week time: %s\n", formatDur(lastWeekTime).c_str());
             printf("  Current week time: %s\n\n", formatDur(currentWeekTime).c_str());
             listSubtasks(task);
+            printDescription(task);
             showHead = false;
         }
         printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
@@ -371,6 +415,11 @@ void taskMenu(Task* task) {
         } else if (strcmp(commandName, "nts") == 0) {
             if (validArgs(0)) {
                 listNotes(task);
+            }
+        } else if (strcmp(commandName, "desc") == 0) {
+            if (validArgs(0)) {
+                editDescription(task);
+                showHead = true;
             }
         // } else if (strcmp(commandName, "alltds") == 0) {
             // if (validArgs(0)) printNoDateTodos(todoCalendar, rootTask);

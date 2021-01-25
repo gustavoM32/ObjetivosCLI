@@ -34,6 +34,10 @@ char *toLowercase(char *);
 
 char *toUppercase(char *);
 
+std::string escapeNewLines(std::string s);
+
+std::string unescapeNewLines(std::string s);
+
 void copyFile(char *orig, char *dest);
 
 void notAvailable(char* userCommand);

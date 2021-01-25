@@ -56,6 +56,7 @@ typedef struct {
 struct task {
     std::string name;
     std::string code;
+    std::string description;
     int status;
 	std::list<Note *> notes;
     Todo *rootTodo;
