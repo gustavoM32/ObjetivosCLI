@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -g -Wno-write-strings
 LIBS = -lreadline
-MODULES = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o todo.o util.o ioold.o
+MODULES = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o todo.o util.o # ioold.o
 
 #----
 
@@ -35,8 +35,8 @@ todo.o: todo.cpp todo.hpp
 util.o: util.cpp util.hpp
 	$(CC) $(CFLAGS) -c util.cpp
 
-ioold.o: ioold.cpp ioold.hpp
-	$(CC) $(CFLAGS) -c ioold.cpp
+# ioold.o: ioold.cpp ioold.hpp
+	# $(CC) $(CFLAGS) -c ioold.cpp
 
 clear:
 	rm *.o objetivos

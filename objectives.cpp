@@ -63,8 +63,6 @@ bool generalCommands(char *commandName) {
     return false;
 };
 
-#include "ioold.hpp"
-
 int main(int argc, char **argv) {
     calendar = createCalendar();
     printf("*** Welcome to Control! ***\n\n");
@@ -72,8 +70,10 @@ int main(int argc, char **argv) {
     
     rootTask = createTask("Objetivos", "OBJS");
 
-    if (argc > 1) loadAllOld();
-    else loadAll();
+    // if (argc > 1) loadAllOld();
+    // else loadAll();
+
+    loadAll();
 
     curMenu = TASK_MENU;
     curTask = rootTask;
