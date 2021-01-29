@@ -1,86 +1,87 @@
-#include <stdio.h>
+#include <iostream>
+#include <vector>
 #include "help.hpp"
 #include "objectives.hpp"
+#include "util.hpp"
+
+using namespace std;
 
 void printHelp(int page) {
-    const char* lineStart = "  |";
-    const char* nameStart = "       ";
-    const char* itemStart = "    *";
-    printf("  +--------------------------------------------------------------------+\n");
-    switch (page) {
-        case TASK_MENU:
-            printf("%s%s Task Menu commands\n", lineStart, nameStart);
-            printf("%s\n", lineStart);
-            printf("%s%s rename \"new name\" - rename task\n", lineStart, itemStart);
-            printf("%s%s code <new code> - change task code\n", lineStart, itemStart);
-            printf("%s%s set <task code> <status> - set subtask status\n", lineStart, itemStart);
-            printf("%s%s active, inactive, completed\n", lineStart, itemStart);
-            printf("%s%s time - show total time spent in task\n", lineStart, itemStart);
-            printf("%s%s weektime - show time spent in task this week\n", lineStart, itemStart);
-            printf("%s%s noteadd \"note text\" - add note\n", lineStart, itemStart);
-            printf("%s%s noterem <note id> - remove note\n", lineStart, itemStart);
-            printf("%s%s pds - manage periods\n", lineStart, itemStart);
-            printf("%s%s sts - manage subtasks\n", lineStart, itemStart);
-            printf("%s%s tds - manage to-do list\n", lineStart, itemStart);
-            printf("%s%s nts - show note list\n", lineStart, itemStart);
-            printf("%s%s cal - show calendar\n", lineStart, itemStart);
-            printf("%s%s week - print week summary\n", lineStart, itemStart);
-            printf("%s%s alltds - show all to-dos with no date\n", lineStart, itemStart);
-            printf("%s%s ls - list subtasks and to-dos\n", lineStart, itemStart);
-            printf("%s%s cd <task code> - open the subtask menu\n", lineStart, itemStart);
-            printf("%s%s cd .. - go back to parent task\n", lineStart, itemStart);
-            printf("%s%s goto ... [<parent code>] <task code> - open task menu\n", lineStart, itemStart);
-            printf("%s%s help - show this menu\n", lineStart, itemStart);
-            printf("%s%s save - save all data\n", lineStart, itemStart);
-            printf("%s%s exit - exit program\n", lineStart, itemStart);
-            break;
-        case SUBTASKS_MENU:
-            printf("%s%s Subtask Menu commands\n", lineStart, nameStart);
-            printf("%s\n", lineStart);
-            printf("%s%s add <task code> \"task name\" - add new subtask\n", lineStart, itemStart);
-            printf("%s%s rem <task code> - remove a subtask\n", lineStart, itemStart);
-            printf("%s%s select <task code> - select a subtask\n", lineStart, itemStart);
-            printf("%s%s move - move selected subtask to current subtask list\n", lineStart, itemStart);
-            printf("%s%s sts - list subtasks\n", lineStart, itemStart);
-            printf("%s%s help - show this menu\n", lineStart, itemStart);
-            printf("%s%s cd .. - go back to task menu\n", lineStart, itemStart);
-            break;
-        case TODOS_MENU:
-            printf("%s%s To-do Menu commands\n", lineStart, nameStart);
-            printf("%s\n", lineStart);
-            printf("%s%s add \"name\" - add a to-do\n", lineStart, itemStart);
-            printf("%s%s addesp <start-end> \"name\" - add to-dos with numbers\n", lineStart, itemStart);
-            printf("%s%s rem <id> - remove a to-do\n", lineStart, itemStart);
-            printf("%s%s tds - list to-dos\n", lineStart, itemStart);
-            printf("%s%s set <id> <dd/mm> - change to-do planned date\n", lineStart, itemStart);
-            printf("%s%s setesp <start-end> <dd/mm> - change to-do planned date\n", lineStart, itemStart);
-            printf("%s%s start - start a period\n", lineStart, itemStart);
-            printf("%s%s stop - stop period\n", lineStart, itemStart);
-            printf("%s%s cancel - cancel period\n", lineStart, itemStart);
-            printf("%s%s time - time spent in current period\n", lineStart, itemStart);
-            printf("%s%s help - show this menu\n", lineStart, itemStart);
-            printf("%s%s cd .. - go back to task menu\n", lineStart, itemStart);
-            break;
-        case PERIODS_MENU:
-            printf("%s%s Period Menu commands\n", lineStart, nameStart);
-            printf("%s\n", lineStart);
-            printf("%s%s pds - list periods\n", lineStart, itemStart);
-            printf("%s%s set <id> <start/end> <time> <hh:mm:ss> or\n", lineStart, itemStart);
-            printf("%s%s set <id> <start/end> <date> <dd/mm/yy> - edit period\n", lineStart, itemStart);
-            printf("%s%s add <dd/mm/yy> <hh:mm:ss> <dd/mm/yy> <hh:mm:ss> - add period\n", lineStart, itemStart);
-            printf("%s%s rem <id> - remove period\n", lineStart, itemStart);
-            printf("%s%s help - show this menu\n", lineStart, itemStart);
-            printf("%s%s cd .. - go back to task menu\n", lineStart, itemStart);
-            break;
-        // case WEEK_MENU:
-        //     printf("%s%s Week Menu commands\n", lineStart, nameStart);
-        //     printf("%s\n", lineStart);
-        //     printf("%s%s add \"day\" \"month\" \"task name\" - add week task\n", lineStart, itemStart);
-        //     printf("%s%s rem \"day\" \"month\" \"id\" - remove week task\n", lineStart, itemStart);
-        //     printf("%s%s help - show this menu\n", lineStart, itemStart);
-        //     printf("%s%s cd .. - go back to previous menu\n", lineStart, itemStart);
-        //     break;
+    vector<string> helpItems;
+
+    printTitle("Ajuda", SECONDARY_LEVEL);
+    if (page == TASK_MENU) {
+        cout << colorString("    # Comandos do menu do objetivo\n\n", CYAN);
+        helpItems.push_back("rename \"nome\" - renomeia objetivo");
+        helpItems.push_back("code <código> - muda código do objetivo");
+        helpItems.push_back("set <código> <estado> - muda estado do objetivo (active, inactive, completed, canceled)");
+        helpItems.push_back("noteadd \"texto\" - adiciona anotação");
+        helpItems.push_back("noterem <id> - remove anotação");
+        helpItems.push_back("pds - abre menu de períodos");
+        helpItems.push_back("sts - abre menu de sub-objetivos");
+        helpItems.push_back("tds - abre menu de to-dos");
+        helpItems.push_back("nts - mostra lista de anotações");
+        helpItems.push_back("desc - edita descrição do objetivo");
+        // helpItems.push_back("ls - lista to-dos");
+        helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
+        helpItems.push_back("cd .. - vai para o objetivo pai");
+    } else if (page == SUBTASKS_MENU) {
+        cout << colorString("    # Comandos do menu de sub-objetivos\n\n", CYAN);
+        helpItems.push_back("add <código> \"nome\" - adiciona sub-objetivo");
+        helpItems.push_back("rem <código> - remove um sub-objetivo");
+        helpItems.push_back("select <código> - seleciona um sub-objetivo");
+        helpItems.push_back("move - torna o objetivo selecionado filho do objetivo atual");
+        helpItems.push_back("sts - lista sub-objetivos");
+        helpItems.push_back("cd .. - volta para o menu do objetivo");
+    } else if (page == TODOS_MENU) {
+        cout << colorString("    # Comandos do menu de to-dos\n\n", CYAN);
+        helpItems.push_back("add \"name\" - adiciona um to-do");
+        // helpItems.push_back("addesp <start-end> \"name\" - add to-dos with numbers");
+        helpItems.push_back("rem <id> - remove um to-do");
+        helpItems.push_back("edit name <id> \"nome\" - edita o nome de um to-do");
+        helpItems.push_back("move inside|before <idOrigem> <idDestino> - move um to-do");
+        helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
+        helpItems.push_back("tds [all] - lista to-dos");
+        helpItems.push_back("set <id> [<esp> <idPai> <inicio-fim>] - prioriza um to-do");
+        helpItems.push_back("unset <id> [<esp> <idPai> <inicio-fim>] - desprioriza um to-do");
+        helpItems.push_back("complete <id> [<esp> <idPai> <inicio-fim>] - completa um to-do");
+        helpItems.push_back("hide <id> [<esp> <idPai> <inicio-fim>] - completa e esconde um to-do");
+        helpItems.push_back("cd .. - volta para o menu do objetivo");
+    } else if (page == PERIODS_MENU) {
+        cout << colorString("    # Comandos do menu de períodos\n\n", CYAN);
+        helpItems.push_back("pds - lista períodos");
+        helpItems.push_back("edit start|end <hora> <id> <hh:mm:ss> ou");
+        helpItems.push_back("edit start|end <data> <id> <dd/mm/yy> - edita período");
+        helpItems.push_back("rem <id> - remove período");
+        helpItems.push_back("cd .. - volta para o menu do objetivo");
+    } else if (page == CALENDAR_MENU) {
+        cout << colorString("    # Comandos do calendário\n\n", CYAN);
+        helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
+        helpItems.push_back("edit time|date|estimate|notime <id> [hora|data|estimativa|vazio] - edita um agendamento");
+        helpItems.push_back("delay <id> <dias> - adia um agendamento");
+        helpItems.push_back("rem <id> - remove um agendamento");
+        helpItems.push_back("complete <id> - completa o to-do relacionado a um agendamento");
+        helpItems.push_back("start <id> - inicia um período");
+        helpItems.push_back("touch <id> - cria um período vazio");
+        helpItems.push_back("stop - para período");
+        helpItems.push_back("cancel - cancela período");
+        helpItems.push_back("time - mostra tempo gasto no período atual");
+        // helpItems.push_back("todo - mostra tempo gasto no período atual");
+        helpItems.push_back("cal - mostra calendário");
+        helpItems.push_back("cd .. - go back to previous menu");
     }
-    printf("%s\n", lineStart);
-    printf("  +--------------------------------------------------------------------+\n\n");
+
+    helpItems.push_back("goto <código> - vai para objetivo");
+    helpItems.push_back("cal - vai para o calendário");
+    helpItems.push_back("week - mostra resumo semanal");
+    helpItems.push_back("tree [incomplete|all] - mostra árvore de objetivos");
+    helpItems.push_back("help - mostra esse menu");
+    helpItems.push_back("save - salva todos os dados");
+    helpItems.push_back("exit - sai do programa");
+    
+    for (auto it = helpItems.begin(); it != helpItems.end(); it++) {
+        cout << colorString("    * ", BRIGHT_BLUE) << *it << endl;
+    }
+    cout << "\n";
+    printLine(SECONDARY_LEVEL);
 }
