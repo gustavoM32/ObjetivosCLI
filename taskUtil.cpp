@@ -1,3 +1,4 @@
+#include <iostream>
 #include <sstream>
 #include <cstring>
 #include "io.hpp"
@@ -80,21 +81,24 @@ void freeTask(Task *task) {
 }
 
 void listStatusTasks(list<Task *> tasks, string statusName) {
-    if (tasks.size() == 0) {
-        printf("  |   You have no %s subtasks.\n", statusName.c_str());
-        printf("  |\n");
-    } else {
-        statusName[0] = statusName[0] - 'a' + 'A';
-        printf("  |   %s:\n", statusName.c_str());
-        printf("  |\n");
+    if (tasks.size() > 0) {
+        Color color;
+        if (statusName == "active") color = CYAN;
+        else if (statusName == "inactive") color = BRIGHT_BLACK;
+        else if (statusName == "completed") color = GREEN;
+        else if (statusName == "canceled") color = RED;
+
         for (auto it = tasks.begin(); it != tasks.end(); it++) {
-            Task *task = *it;
-            printf("  |    (%s) %s", task->code.c_str(), task->name.c_str());
-            int todos = countTodosTask(task);
-            if (todos != 0) printf(" (%d)", todos);
-            printf("\n");
+            Task *subtask = *it;
+            stringstream subtaskName;
+            subtaskName << subtask->code;
+            int todos = countTodosTask(subtask);
+            if (todos != 0) {
+                subtaskName << " (" << todos << ")";
+            }
+            cout << colorString(subtaskName.str(), color);
+            cout << "    ";
         }
-        printf("  |\n");
     }
 }
 
@@ -111,17 +115,6 @@ time_t getTaskTotalTime(Task* task, int option) {
     }
 
     return totalTime;
-}
-
-/*;
-    Prints total period time of task pointed by 'task' and all of its subtasks.
-*/
-void showTaskTotalTime(Task* task) {
-    long int totalTime;
-    string formatedTime;
-    totalTime = getTaskTotalTime(task);
-    formatedTime = formatDur(totalTime);
-    printf("Time spent in task (%s) %s: %s.\n\n", task->code.c_str(), task->name.c_str(), formatedTime.c_str());
 }
 
 /*
@@ -149,18 +142,6 @@ void showTaskTotalTime(Task* task) {
 
 //     return totalTime;
 // }
-
-/*;
-    Prints week period time of task pointed by 'task' and all of its subtasks.
-*/
-void showTaskWeekTime(Task* task) {
-    // long int totalTime;
-    // string formatedTime;
-    // totalTime = getTaskWeekTime(task);
-    // formatedTime = formatDur(totalTime);
-    // printf("Time spent in task (%s) %s this week: %s.\n\n", task->code.c_str(), task->name.c_str(), formatedTime.c_str());
-}
-
 
 /*
     Returns 1 if all subtasks of task pointed by 'task' are completed, and 0

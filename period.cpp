@@ -1,3 +1,5 @@
+#include <iostream>
+#include <iomanip>
 #include <string>
 #include <cstring>
 #include <stdio.h>
@@ -82,10 +84,8 @@ void listPeriods(Task *task, list<Period *> &periods) {
     getPeriodsFromTodo(periods, task->rootTodo);
     periods.sort(periodComp);
 
-    printf("  +--------------------------> Period list <--------------------------+\n");
-    printf("  |\n");
     if (periods.size() == 0) {
-        printf("  |   List is empty\n");
+        printf("    Não há períodos.\n");
     }
     for (auto it = periods.begin(); it != periods.end(); it++) {
         Period *period = *it;
@@ -93,12 +93,12 @@ void listPeriods(Task *task, list<Period *> &periods) {
         formatedEndTime = formatTime(period->end);
         formatedDur = formatDur(period->end - period->start);
         periodName = getTodoPath(period->todo);
-
-        printf("  |   %3d. [%s  ...  %s]   %s   \"%s\"\n", i, formatedStartTime.c_str(), formatedEndTime.c_str(), formatedDur.c_str(), periodName.c_str());
+        cout << "    " << getColor(CYAN) << setw(3) << i << "." << getColor(BRIGHT_WHITE);
+        cout << " [" << formatedStartTime << " ... " << formatedEndTime << "]   " << formatedDur << "   \"" << periodName << "\"\n";
         i++;
     }
-    printf("  |\n");
-    printf("  +-------------------------------------------------------------------+\n\n");
+    cout << "\n";
+    printLine(MAIN_LEVEL);
 }
 
 /*
@@ -107,13 +107,13 @@ void listPeriods(Task *task, list<Period *> &periods) {
 void periodsMenu(Task *task) {
     char *commandName;
     list<Period *> periods;
-    printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
+    printTitle("Períodos - " + task->code, MAIN_LEVEL);
     listPeriods(task, periods);
-    
+        
     while (true) {
-        printf(" _________________________  Period Menu (%s)  _________________________\n\n", task->code.c_str());
         periodWarning();
         commandName = getCommandName();
+        printTitle("Períodos - " + task->code, MAIN_LEVEL);
 
         if (strcmp(commandName, "pds") == 0) {
             if (validArgs(0)) listPeriods(task, periods);
@@ -135,7 +135,7 @@ void periodsMenu(Task *task) {
                     curMenu = TASK_MENU;
                     return;
                 } else {
-                    printf("Type 'cd ..' to go back\n\n");
+                    printf("Digite 'cd ..' para voltar\n\n");
                 }
             }
         } else if (generalCommands(commandName)) return;

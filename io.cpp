@@ -194,7 +194,7 @@ void saveAll() {
     for (auto it = rootTask->subtasks.begin(); it != rootTask->subtasks.end(); it++) {
         saveTask(*it, output, 0);
     }
-    printf("Tasks saved!\n\n");
+    printf("Dados salvos!\n\n");
     fclose(output);
 }
 
@@ -299,6 +299,6 @@ void loadAll() {
         rootTask->subtasks.push_back(subtask);
         subtask->parent = rootTask;
     }
-    printf("Tasks loaded!\n\n");
+    printf("Dados carregados!\n\n");
     fclose(input);
 }

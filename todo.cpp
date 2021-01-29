@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <string>
 #include <cstring>
 #include <stdlib.h>
@@ -418,31 +420,34 @@ void scheduleTodo(Task *task) {
 */
 void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
     int i;
-    char status;
+    string status;
 
-    if (todo->status == TODO_PENDING) status = ' ';
-    else if (todo->status == TODO_PRIORITY) status = '*';
-    else if (todo->status == TODO_COMPLETED) status = 'x';
-    else if (showHidden) status = 'h';
+    if (todo->status == TODO_PENDING) status = " ";
+    else if (todo->status == TODO_PRIORITY) status = "*";
+    else if (todo->status == TODO_COMPLETED) status = "x";
+    else if (showHidden) status = "h";
     else return;
 
-    printf("  |   ");
+    stringstream todoLine;
+
+    todoLine << "    ";
     for (auto it = path.begin(); it != path.end(); it++) {
         if (it == path.begin()) continue;
-        printf(" : ");
+        cout << "   ";
     }
 
     time_t timeSpentThisTodo = getTodoTime(todo);
     time_t timeSpentTotal = getTodoTotalTime(todo);
 
-    printf("%2d [%c] ", path.back(), status);
-    printf("%s", todo->name.c_str());
-    printf(" (%.1fh", timeSpentThisTodo / 3600.0);
-    if (timeSpentThisTodo == timeSpentTotal) printf(")");
-    else printf(" | %.1fh)", timeSpentTotal / 3600.0);
+    todoLine << setw(2) << colorString(to_string(path.back()), BRIGHT_BLUE);
+    todoLine << colorString(" [", BRIGHT_CYAN) << colorString(status, YELLOW) << colorString("] ", BRIGHT_CYAN);
+    todoLine << todo->name;
+    todoLine << " (" << setprecision(1) << fixed << timeSpentThisTodo / 3600.0 << "h";
+    if (timeSpentThisTodo == timeSpentTotal) todoLine << ")";
+    else todoLine << " | " << setprecision(1) << fixed << timeSpentTotal / 3600.0 << "h)";
     
-    if (todo->schedules.size() != 0) printf(" (%ld schedules)", todo->schedules.size());
-    printf("\n");
+    if (todo->schedules.size() != 0) todoLine << "    " << todo->schedules.size() << " agendamento(s)";
+    cout << todoLine.str() << "\n";
 
     i = 1;
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
@@ -457,23 +462,19 @@ void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
     Print list of to-dos of task pointed by 'task'.
 */
 void listTodos(Task* task, int showHidden) {
-    list<int> path;
-    int i;
-    printf("  +--------------------------> To-do list <--------------------------+\n");
-    printf("  |\n");
     if (task->rootTodo->subtodos.size() == 0) {
-        printf("  |   List is empty\n");
+        printf("    Não há to-dos.\n");
+    } else {
+        list<int> path;
+        int i = 1;
+        for (auto it = task->rootTodo->subtodos.begin(); it != task->rootTodo->subtodos.end(); it++) {
+            path.push_back(i);
+            printTodoTree(*it, path, showHidden);
+            path.pop_back();
+            i++;
+        }
     }
-
-    i = 1;
-    for (auto it = task->rootTodo->subtodos.begin(); it != task->rootTodo->subtodos.end(); it++) {
-        path.push_back(i);
-        printTodoTree(*it, path, showHidden);
-        path.pop_back();
-        i++;
-    }
-    printf("  |\n");
-    printf("  +------------------------------------------------------------------+\n\n");
+    cout << "\n";
 }
 
 /*
@@ -482,11 +483,11 @@ void listTodos(Task* task, int showHidden) {
 void todosMenu(Task* task) {
     char *commandName;
     list<string> todoStatusCommands = {"set", "unset", "complete", "hide"};
-
-    printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code.c_str());
+    
+    printTitle("To-dos - " + task->code, MAIN_LEVEL);
     listTodos(task, 0);
     while (true) {
-        printf(" _________________________  To-dos Menu (%s)  _________________________\n\n", task->code.c_str());
+        printTitle("To-dos - " + task->code, MAIN_LEVEL);
         commandName = getCommandName();
         periodWarning();
         if (strcmp(commandName, "add") == 0) {
@@ -495,7 +496,7 @@ void todosMenu(Task* task) {
                 listTodos(task, 0);
                 saveAll();
             } else {
-                printf("Invalid number of arguments.\n");
+                printf("Número inválido de argumentos.\n");
             }
         // } else if (strcmp(commandName, "addesp") == 0) {
         //     if (validArgs(2)) {
@@ -526,7 +527,7 @@ void todosMenu(Task* task) {
                 scheduleTodo(task);
                 listTodos(task, 0);
             } else {
-                printf("Invalid number of arguments.\n\n");
+                printf("Número inválido de argumentos.\n\n");
             }
         } else if (strcmp(commandName, "tds") == 0) {
             if (getNComms() == 1) {
@@ -538,7 +539,7 @@ void todosMenu(Task* task) {
                     printf("Invalid argument.\n\n");
                 }
             } else {
-                printf("Invalid number of arguments.\n");
+                printf("Número inválido de argumentos.\n");
             }
         } else if (isInList(commandName, todoStatusCommands)) {
             if (getNComms() >= 2 || getNComms() <= 4) {
@@ -546,7 +547,7 @@ void todosMenu(Task* task) {
                 listTodos(task, 0);
                 saveAll();
             } else {
-                printf("Invalid number of arguments.\n");
+                printf("Número inválido de argumentos.\n");
             }
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
@@ -554,7 +555,7 @@ void todosMenu(Task* task) {
                     curMenu = TASK_MENU;
                     return;
                 } else {
-                    printf("Type 'cd ..' to go back\n\n");
+                    printf("Digite 'cd ..' para voltar\n\n");
                 }
             }
         } else if (generalCommands(commandName)) return;

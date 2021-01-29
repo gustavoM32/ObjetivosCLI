@@ -45,7 +45,7 @@ bool generalCommands(char *commandName) {
         if (getNComms() == 1 || getNComms() == 2) {
             printTaskTree();
         } else {
-            printf("Invalid number of arguments.\n\n");
+            printf("Número inválido de argumentos.\n\n");
         }
     } else if (strcmp(commandName, "help") == 0) {
         if (validArgs(0)) printHelp(curMenu);
@@ -65,8 +65,8 @@ bool generalCommands(char *commandName) {
 
 int main(int argc, char **argv) {
     calendar = createCalendar();
-    printf("*** Welcome to Control! ***\n\n");
-    printf("Type 'help' for a list of commands.\n\n");
+    printTitle("Objetivos", PROGRAM_LEVEL);
+    printf("Digite 'ajuda' para uma lista de comandos.\n\n");
     
     rootTask = createTask("Objetivos", "OBJS");
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -119,20 +120,15 @@ void listSubtasks(Task* task) {
         int status = subtask->status;
         lists[status].push_back(subtask);
     }
+    cout << "    ";
     if ((lists[0].size() + lists[1].size() + lists[2].size() + lists[3].size()) == 0) {
-        printf("  +---------------------------> Subtasks <---------------------------+\n");
-        printf("  |\n");
-        printf("  |   This task has no subtasks.\n");
-        printf("  |\n");
-        printf("  +------------------------------------------------------------------+\n\n");
-        return;
+        cout << colorString("Não há sub-objetivos.\n", CYAN);
+    } else {
+        for (i = 0; i < 4; i++) {
+            listStatusTasks(lists[i], statusNames[i]);
+        }
+        cout << "\n";
     }
-    printf("  +---------------------------> Subtasks <---------------------------+\n");
-    printf("  |\n");
-    for (i = 0; i < 4; i++) {
-        listStatusTasks(lists[i], statusNames[i]);
-    }
-    printf("  +------------------------------------------------------------------+\n\n");
 }
 
 /*
@@ -244,19 +240,19 @@ void removeNote(Task* task) {
 void listNotes(Task* task) {
     int i = 1;
     struct tm *stm;
-    printf("  +--------------------------> Notes <--------------------------+\n");
-    printf("  |\n");
+    printTitle("Notes", MAIN_LEVEL);
     if (task->notes.size() == 0) {
         printf("  |   No notes\n");
     }
     for (auto it = task->notes.begin(); it != task->notes.end(); it++) {
         Note *note = *it;
         stm = localtime(&(note->date));
-        printf("  |   %2d. (%02d/%02d/%04d) %s\n", i, stm->tm_mday, stm->tm_mon + 1, stm->tm_year + 1900, note->text.c_str());
+        cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << "." << getColor(BRIGHT_WHITE);
+        cout << getColor(BRIGHT_CYAN) << " (" << setw(2) << stm->tm_mday << "/" << setw(2) << stm->tm_mon + 1 << "/" << setw(4) << stm->tm_year + 1900 << ") " << getColor(BRIGHT_WHITE);
+        cout << note->text << "\n" << endl;
         i++;
     }
-    printf("  |\n");
-    printf("  +------------------------------------------------------------------+\n\n");
+    printLine(MAIN_LEVEL);
 }
 
 #include <unistd.h>
@@ -293,12 +289,15 @@ void printDescription(Task *task) {
     cout << "  ";
     for (uint i = 0; i < size; i++) {
         char c = task->description[i];
-        cout << c;
+        if (c == '#') cout << "\033[94m";
+        if (c == '*') cout << colorString("*", BRIGHT_BLUE);
+        else cout << c;
         if (i != size - 1 && c == '\n') {
             cout << "  ";
+            cout << "\033[0m";
         }
     }
-    cout << "\n";
+    cout << "\n\n";
 }
 
 /*
@@ -306,10 +305,11 @@ void printDescription(Task *task) {
 */
 void subtasksMenu(Task* task) {
     char *commandName;
-    printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code.c_str());
+    printTitle("Sub-objetivos - " + task->code, MAIN_LEVEL);
     listSubtasks(task);
+    cout << "\n";
+    printLine(MAIN_LEVEL);
     while (true) {
-        printf(" ________________________  Subtasks Menu (%s)  ________________________\n\n", task->code.c_str());
         commandName = getCommandName();
         if (strcmp(commandName, "add") == 0) {
             if (validArgs(2)) {
@@ -336,7 +336,7 @@ void subtasksMenu(Task* task) {
                     curMenu = TASK_MENU;
                     return;
                 } else {
-                    printf("Type 'cd ..' to go back\n\n");
+                    printf("Digite 'cd ..' para voltar\n\n");
                 }
             }
         } else if (generalCommands(commandName)) return;
@@ -351,19 +351,22 @@ void taskMenu(Task* task) {
     bool showHead = true;
     while (true) {
         if (showHead) {
-            printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
+            printTitle("Objetivo - " + task->code, MAIN_LEVEL);
             time_t totalTime = getTaskTotalTime(task);
             time_t lastWeekTime = getTaskTotalTime(task, TIME_OPTION_LAST_WEEK);
             time_t currentWeekTime = getTaskTotalTime(task, TIME_OPTION_CURRENT_WEEK);
-            printf("  Total time: %s\n", formatDur(totalTime).c_str());
-            printf("  Last week time: %s\n", formatDur(lastWeekTime).c_str());
-            printf("  Current week time: %s\n\n", formatDur(currentWeekTime).c_str());
+            printf(" - %s\n\n", task->name.c_str());
+            printf("  Tempo total: %s\n", formatDur(totalTime).c_str());
+            printf("  Tempo na última semana: %s\n", formatDur(lastWeekTime).c_str());
+            printf("  Tempo na semana atual: %s\n\n", formatDur(currentWeekTime).c_str());
+            
+            printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
             listSubtasks(task);
+            printLine(SECONDARY_LEVEL);
             printDescription(task);
             showHead = false;
         }
-        printf("***************************  Task Menu (%s)  ***************************\n\n", task->code.c_str());
-        printf(" - %s\n\n", task->name.c_str());
+        printLine(MAIN_LEVEL);
         periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "rename") == 0) {
@@ -381,10 +384,6 @@ void taskMenu(Task* task) {
                 setSubtaskStatus(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "time") == 0) {
-            if (validArgs(0)) showTaskTotalTime(task);
-        } else if (strcmp(commandName, "weektime") == 0) {
-            if (validArgs(0)) showTaskWeekTime(task);
         } else if (strcmp(commandName, "noteadd") == 0) {
             if (validArgs(1)) {
                 addNote(task);
@@ -421,13 +420,11 @@ void taskMenu(Task* task) {
                 editDescription(task);
                 showHead = true;
             }
-        // } else if (strcmp(commandName, "alltds") == 0) {
-            // if (validArgs(0)) printNoDateTodos(todoCalendar, rootTask);
-        } else if (strcmp(commandName, "ls") == 0) {
-            if (validArgs(0)) {
-                listSubtasks(task);
-                listTodos(task, 0);
-            }
+        // } else if (strcmp(commandName, "ls") == 0) {
+        //     if (validArgs(0)) {
+        //         listSubtasks(task);
+        //         listTodos(task, 0);
+        //     }
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {

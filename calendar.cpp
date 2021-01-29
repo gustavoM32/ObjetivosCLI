@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <algorithm>
 #include <cstring>
 #include <string>
@@ -190,7 +192,7 @@ void touchTodo() {
 
     period->start = period->end = getCurrentTime();
 
-    printf("Todo \"%s > %s\" touched.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+    printf("To-do \"%s > %s\" atualizado.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
 }
 
 
@@ -204,7 +206,7 @@ void startPeriod() {
     string todoName;
 
     if (calendar->periodSched != nullptr) {
-        printf("There is already a period running.\n\n");
+        printf("Há um período em execução.\n\n");
         return;
     }
 
@@ -221,7 +223,7 @@ void startPeriod() {
 
     period->start = period->end = getCurrentTime();
 
-    printf("Period \"%s > %s\" started. Type 'stop' when done.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+    printf("Período \"%s > %s\" iniciado. Digite 'stop' para parar.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
 }
 
 /*
@@ -235,7 +237,7 @@ void stopPeriod() {
     string formatedDur;
 
     if (calendar->periodSched == nullptr) {
-        printf("There is no period running.\n\n");
+        printf("Não há período em execução.\n\n");
         return;
     }
 
@@ -247,7 +249,7 @@ void stopPeriod() {
     taskDur = period->end - period->start;
 
     formatedDur = formatDur(taskDur);
-    printf("Period \"%s > %s\" stopped. Duration: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Período \"%s > %s\" encerrado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
     calendar->periodSched = nullptr;
 }
 
@@ -261,7 +263,7 @@ void cancelPeriod() {
     string formatedDur;
 
     if (calendar->periodSched == nullptr) {
-        printf("There is no period running.\n\n");
+        printf("Não há período em execução.\n\n");
         return;
     }
 
@@ -273,7 +275,7 @@ void cancelPeriod() {
     delete period;
 
     formatedDur = formatDur(taskDur);
-    printf("Period \"%s > %s\" canceled. Duration: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Period \"%s > %s\" cancelado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
     calendar->periodSched = nullptr;
 }
 
@@ -287,7 +289,7 @@ void showTaskPeriodTime() {
     string formatedDur;
 
     if (calendar->periodSched == nullptr) {
-        printf("There is no period running.\n\n");
+        printf("Não há período em execução.\n\n");
         return;
     }
 
@@ -298,7 +300,7 @@ void showTaskPeriodTime() {
 
     taskDur = period->end - period->start;
     formatedDur = formatDur(taskDur);
-    printf("Time spent in period \"%s > %s\". Duration: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Tempo gasto no período \"%s > %s\": %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
 }
 
 /*
@@ -320,7 +322,7 @@ void periodWarning() {
         if (last != nullptr) {
             taskDur = getCurrentTime() - last->end;
             formatedDur = formatDur(taskDur);
-            printf("Time since last period \"%s > %s\": %s\n\n", last->todo->task->code.c_str(), last->todo->name.c_str(), formatedDur.c_str());
+            printf("Tempo desde o último período \"%s > %s\": %s\n\n", last->todo->task->code.c_str(), last->todo->name.c_str(), formatedDur.c_str());
         }
     } else {
         todo = calendar->periodSched->todo;
@@ -329,7 +331,7 @@ void periodWarning() {
         period->end = getCurrentTime();
         taskDur = period->end - period->start;
         formatedDur = formatDur(taskDur);
-        printf("Period \"%s > %s\" running! Duration: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+        printf("Período \"%s > %s\" em execução! Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
     }
 }
 
@@ -349,7 +351,7 @@ void changePrioritizedStatus() {
     } else if (strcmp(getToken(2), "complete") == 0) {
         status = TODO_COMPLETED;
     } else {
-        printf("Invalid argument.\n\n");
+        printf("Argumento inválido.\n\n");
         return;
     }
 
@@ -357,7 +359,7 @@ void changePrioritizedStatus() {
 
     updateCalendar();
 
-    printf("\"%s\" status is set to \"%s\".\n\n", todo->name.c_str(), getTodoStatusName(status).c_str());
+    printf("Estado do to-do \"%s\" foi alterado para \"%s\".\n\n", todo->name.c_str(), getTodoStatusName(status).c_str());
 }
 
 
@@ -374,10 +376,10 @@ void printScheduled() {
 
     sortCalendar();
 
-    printf(" ___________________  Scheduled  ___________________\n");
+    printTitle("Calendário", MAIN_LEVEL);
 
     if (calendar->schedules.size() == 0) {
-        printf("\n    No scheduled to-dos.\n");
+        cout << "\n    Não há agendamentos.\n";
     } else {
         Schedule *sched = calendar->schedules.back();
         struct tm date, schedDate;
@@ -392,50 +394,61 @@ void printScheduled() {
             if (sched->date == 0) {
                 if (printCommon) {
                     printCommon = false;
-                    printf("\n ________________  Periodic  _________________\n\n");
+                    cout << endl;
+                    printTitle("Periódicos", SECONDARY_LEVEL);
                 }
             } else if (sched->date < curDayStart) {
                 if (printLate) {
                     printLate = false;
-                    printf("\n ________________  Late  _________________\n\n");
+                    cout << endl;
+                    printTitle("Atrasados", SECONDARY_LEVEL);
                 }
             } else {
                 while (sched->date < dayStart) {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
                     if (totalEstimated != 0) {
-                        printf("        Total %2.0fh\n", totalEstimated / 60.0);
+                        cout << getColor(BRIGHT_BLUE) << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor(BRIGHT_WHITE);
                         totalEstimated = 0;
                     }
-                    printf("\n _____________  %s (%02d/%02d)  _____________\n\n", wDayShort[date.tm_wday], date.tm_mday, date.tm_mon + 1);
+                    stringstream dateString;
+                    dateString << wDayShort[date.tm_wday] << " (" << date.tm_mday << "/" << date.tm_mon + 1 << ")";
+                    cout << endl;
+                    printTitle(dateString.str(), SECONDARY_LEVEL);
                 }
             }
 
-            printf("    %2d: ", i);
+            cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ": " << getColor(BRIGHT_WHITE);
 
+            cout << getColor(CYAN);
             if (sched->timeSet) {
-                printf("%02d:%02d ", schedDate.tm_hour, schedDate.tm_min);
+                cout << setfill('0') << setw(2) << schedDate.tm_hour << ":" << schedDate.tm_min << setfill(' ') << " ";
             } else if (sched->date != 0) {
-                printf("--:-- ");
+                cout << "--:-- ";
             }
+
+            cout << getColor(BRIGHT_BLUE);
+            if (sched->date != 0) {
+                if (sched->timeEstimate == 0) cout << " 0h ";
+                else if (sched->timeEstimate / 60.0 < 1.0) cout << "<1h ";
+                else cout << setprecision(0) << fixed << setw(2) << sched->timeEstimate / 60.0 << "h ";
+
+            }
+
+            cout << getColor(BRIGHT_WHITE);
 
             string todoName = sched->todo->task->code;
             todoName += " > ";
             todoName += sched->todo->name;
-
-            if (sched->date != 0) {
-                if (sched->timeEstimate == 0) printf(" 0h ");
-                else if (sched->timeEstimate / 60.0 < 1.0) printf("<1h ");
-                else printf("%2.0fh ", sched->timeEstimate / 60.0);
-            }
             
-            cout << todoName;
             if (sched->date == 0) {
                 if (!sched->todo->periods.empty()) {
                     time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
-                    cout << " (last " << formatDur(timeSince) << ")";
+                    cout << getColor(CYAN) << setw(9) << formatDur(timeSince) << getColor(BRIGHT_WHITE) << " ";
                 }
             }
+            cout << todoName;
+
             cout << endl;
 
             totalEstimated += sched->timeEstimate;
@@ -443,11 +456,12 @@ void printScheduled() {
             it++;
             if (printTotalLast && (it == calendar->schedules.rend() || (*it)->date < curDayStart)) {
                 printTotalLast = false;
-                printf("        Total %2.0fh\n", totalEstimated / 60.0);
+                cout << getColor(BRIGHT_BLUE) << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor(BRIGHT_WHITE);
             }
         } while (it != calendar->schedules.rend());
     }
-    printf(" ___________________________________________________\n\n");
+    cout << endl;
+    printLine(MAIN_LEVEL);
 }
 
 /*
@@ -478,7 +492,7 @@ void calendarMenu() {
     updateCalendar();
     printScheduled();
     while (true) {
-        printf(" _________________________  Calendar  _________________________\n\n");
+        // printf(" _________________________  Calendar  _________________________\n\n");
         periodWarning();
         commandName = getCommandName();
         if (strcmp(commandName, "sched") == 0) {
@@ -486,14 +500,14 @@ void calendarMenu() {
                 scheduleTodoCalendar();
                 printScheduled();
             } else {
-                printf("Invalid number of arguments.\n\n");
+                printf("Número inválido de argumentos.\n\n");
             }
         } else if (strcmp(commandName, "edit") == 0) {
             if (getNComms() == 3 || getNComms() == 4) {
                 editSchedule();
                 printScheduled();
             } else {
-                printf("Invalid number of arguments.\n\n");
+                printf("Número inválido de argumentos.\n\n");
             }
         } else if (strcmp(commandName, "delay") == 0) {
             if (validArgs(2)) {
@@ -555,7 +569,7 @@ void calendarMenu() {
                     curMenu = lastMenu;
                     return;
                 } else {
-                    printf("Type 'cd ..' to go back\n\n");
+                    printf("Digite 'cd ..' para voltar\n\n");
                 }
             }
         } else if (generalCommands(commandName)) return;
