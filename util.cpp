@@ -545,3 +545,44 @@ string getTodoPath(Todo *todo) {
 bool todoCompleted(Todo *todo) {
     return todo->status == TODO_COMPLETED || todo->status == TODO_COMPLETED_HIDDEN;
 }
+
+/*
+    Add 'color' to string 'text'
+*/
+string colorString(string text, Color color) {
+    stringstream colored;
+    colored << "\033[" << color << "m" << text << "\033[0m";
+    return colored.str();
+}
+
+string getColor(Color color) {
+    return "\033[" + to_string(color) + "m";
+}
+
+void printLine(string symbol, bool extraSpace) {
+    string line = "";
+    for (int i = 0; i < LINE_LEN; i++) {
+        line += symbol;
+    }
+    line += "\n";
+    if (extraSpace) line += "\n";
+    cout << colorString(line, CYAN);
+}
+
+void printTitle(string text, string symbol, bool extraSpace) {
+    int totalSymbol = (LINE_LEN - text.size() - 4);
+    int halfSymbol = totalSymbol / 2;
+    string title = "";
+    for (int i = 0; i < totalSymbol - halfSymbol; i++) {
+        title += symbol;
+    }
+    title += "  ";
+    title += text;
+    title += "  ";
+    for (int i = 0; i < halfSymbol; i++) {
+        title += symbol;
+    }
+    title += "\n";
+    if (extraSpace) title += "\n";
+    cout << colorString(title, CYAN);
+}
