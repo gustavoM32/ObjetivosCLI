@@ -447,6 +447,12 @@ void getPeriodsFromTask(list<Period *> &periods, Task *task) {
     }
 }
 
+time_t periodIntersect(time_t start1, time_t end1, time_t start2, time_t end2) {
+    if (end1 <= start2) return 0;
+    if (end2 <= start1) return 0;
+    return min(end1, end2) - max(start1, start2);
+}
+
 /*
     Returns the time spent in to-do.
 */
