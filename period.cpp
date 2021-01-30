@@ -71,6 +71,29 @@ void removePeriod(Task *task, list<Period *> &periods) {
 }
 
 /*
+    Ask user for a period an amount of minutes and remove them from the last period.
+*/
+void reducePeriod(Task *task, list<Period *> &periods) {
+    long int minutes = atol(getToken(1));
+
+    Period *period = periods.back();
+
+    if (periods.empty()) {
+        cout << "Não há períodos\n\n";
+        return;
+    }
+
+    if (period->end - period->start < 60 * minutes) {
+        cout << "Período possui menos minutos restantes\n\n";
+        return;
+    }
+
+    period->end -= 60 * minutes;
+
+    cout << minutes << " minutos removidos do último período\n\n";
+}
+
+/*
     Lists task periods.
 */
 void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
@@ -145,6 +168,13 @@ void periodsMenu(Task *task) {
                 listPeriods(task, periods, false);
                 saveAll();
             }
+        } else if (strcmp(commandName, "reduce") == 0) {
+            if (validArgs(1)) {
+                reducePeriod(task, periods);
+                listPeriods(task, periods, false);
+                saveAll();
+            }
+        
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
