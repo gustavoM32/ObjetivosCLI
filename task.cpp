@@ -374,12 +374,12 @@ void displayObjectiveStats(Task *task) {
         endTime = periods.back()->end;
     }
 
-    cout << " - " << task->name << "\n\n";
-    cout << "  Primeiro período: " << formatDate(startTime, true) << "\n";
-    cout << "  Último período: " << formatDate(endTime, true) << "\n";
-    cout << "  Tempo total: " << formatDur(totalTime) << "\n";
-    cout << "  Tempo na última semana: " << formatDur(lastWeekTime) << "\n";
-    cout << "  Tempo na semana atual: " << formatDur(currentWeekTime) << "\n\n";
+    cout << colorString("  - " + task->name, BRIGHT_BLUE) << "\n\n";
+    cout << "    ";
+    cout << colorString("Atividade: ", BRIGHT_BLUE) << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), BRIGHT_CYAN) << "        ";
+    cout << colorString("Tempo total: ", BRIGHT_BLUE) << colorString(formatDur(totalTime), BRIGHT_CYAN) << "        ";
+    cout << colorString("Última semana: ", BRIGHT_BLUE) << colorString(formatDur(lastWeekTime), BRIGHT_CYAN) << "        ";
+    cout << colorString("Semana atual: ", BRIGHT_BLUE) << colorString(formatDur(currentWeekTime), BRIGHT_CYAN) << "\n\n";
 }
 
 /*
