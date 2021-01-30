@@ -206,8 +206,15 @@ void startPeriod() {
     string todoName;
 
     if (calendar->periodSched != nullptr) {
-        printf("Há um período em execução.\n\n");
-        return;
+        Schedule *sched = calendar->periodSched;
+        todo = sched->todo;
+        period = todo->periods.back();
+
+        period->end = getCurrentTime();
+        time_t taskDur = period->end - period->start;
+
+        string formatedDur = formatDur(taskDur);
+        printf("Período \"%s > %s\" encerrado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
     }
 
     id = calendar->schedules.size() - atoi(getToken(1));
