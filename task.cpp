@@ -297,7 +297,7 @@ void printDescription(Task *task) {
             cout << "\033[0m";
         }
     }
-    cout << "\n\n";
+    cout << "\n";
 }
 
 /*
