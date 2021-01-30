@@ -343,6 +343,45 @@ void subtasksMenu(Task* task) {
     }
 }
 
+void displayObjectiveStats(Task *task) {
+    list<Period *> periods;
+    getPeriodsFromTask(periods, task);
+    periods.sort(periodComp);
+
+    time_t startTime = 0;
+    time_t endTime = 0;
+    time_t totalTime = 0;
+    time_t lastWeekTime = 0;
+    time_t currentWeekTime = 0;
+
+    time_t curTime = getCurrentTime();
+    time_t objStart = getTime(25, 8, 2019, 0, 0, 0);
+
+    time_t lastWeekEnd = curTime - (curTime - objStart) % SECS_IN_A_WEEK;
+    time_t lastWeekStart = lastWeekEnd - SECS_IN_A_WEEK;
+    time_t curWeekStart = curTime - (curTime - objStart) % SECS_IN_A_WEEK;
+    time_t curWeekEnd = curWeekStart + SECS_IN_A_WEEK;
+
+    for (auto it = periods.begin(); it != periods.end(); it++) {
+        Period *period = *it;
+        totalTime += period->end - period->start;
+        lastWeekTime += periodIntersect(period->start, period->end, lastWeekStart, lastWeekEnd);
+        currentWeekTime += periodIntersect(period->start, period->end, curWeekStart, curWeekEnd);
+    }
+
+    if (!periods.empty()) {
+        startTime = periods.front()->start;
+        endTime = periods.back()->end;
+    }
+
+    cout << " - " << task->name << "\n\n";
+    cout << "  Primeiro período: " << formatDate(startTime, true) << "\n";
+    cout << "  Último período: " << formatDate(endTime, true) << "\n";
+    cout << "  Tempo total: " << formatDur(totalTime) << "\n";
+    cout << "  Tempo na última semana: " << formatDur(lastWeekTime) << "\n";
+    cout << "  Tempo na semana atual: " << formatDur(currentWeekTime) << "\n\n";
+}
+
 /*
     Enters in task menu of task pointed by 'task'.
 */
@@ -352,14 +391,7 @@ void taskMenu(Task* task) {
     while (true) {
         if (showHead) {
             printTitle("Objetivo - " + task->code, MAIN_LEVEL);
-            time_t totalTime = getTaskTotalTime(task);
-            time_t lastWeekTime = getTaskTotalTime(task, TIME_OPTION_LAST_WEEK);
-            time_t currentWeekTime = getTaskTotalTime(task, TIME_OPTION_CURRENT_WEEK);
-            printf(" - %s\n\n", task->name.c_str());
-            printf("  Tempo total: %s\n", formatDur(totalTime).c_str());
-            printf("  Tempo na última semana: %s\n", formatDur(lastWeekTime).c_str());
-            printf("  Tempo na semana atual: %s\n\n", formatDur(currentWeekTime).c_str());
-            
+            displayObjectiveStats(task);
             printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
             listSubtasks(task);
             printLine(SECONDARY_LEVEL);

@@ -456,30 +456,11 @@ time_t periodIntersect(time_t start1, time_t end1, time_t start2, time_t end2) {
 /*
     Returns the time spent in to-do.
 */
-time_t getTodoTime(Todo *todo, int option) {
-    time_t curTime;
-    time_t objStart;
-    time_t weekStart;
-    time_t weekEnd;
-
-    curTime = getCurrentTime();
-    objStart = getTime(25, 8, 2019, 0, 0, 0);
-    if (option == TIME_OPTION_LAST_WEEK) {
-        weekEnd = curTime - (curTime - objStart) % SECS_IN_A_WEEK;
-        weekStart = weekEnd - SECS_IN_A_WEEK;
-    } else if (option == TIME_OPTION_CURRENT_WEEK) {
-        weekStart = curTime - (curTime - objStart) % SECS_IN_A_WEEK;
-        weekEnd = weekStart + SECS_IN_A_WEEK;
-    } else {
-        weekStart = 0;
-        weekEnd = numeric_limits<long int>::max();
-    }
-    
+time_t getTodoTime(Todo *todo) {
     time_t time = 0;
     for (auto it = todo->periods.begin(); it != todo->periods.end(); it++) {
         Period *period = *it;
-        long int periodtime = min(period->end, weekEnd) - max(period->start, weekStart);
-        if (periodtime > 0) time += periodtime;
+        time += period->end - period->start;
     }
     return time;
 }
@@ -487,10 +468,10 @@ time_t getTodoTime(Todo *todo, int option) {
 /*
     Returns the time spent in to-do and its descendants.
 */
-time_t getTodoTotalTime(Todo *todo, int option) {
-    time_t time = getTodoTime(todo, option);
+time_t getTodoTotalTime(Todo *todo) {
+    time_t time = getTodoTime(todo);
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-        time += getTodoTotalTime(*it, option);
+        time += getTodoTotalTime(*it);
     }
     return time;
 }
