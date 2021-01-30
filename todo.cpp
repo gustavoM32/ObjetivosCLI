@@ -418,7 +418,7 @@ void scheduleTodo(Task *task) {
 /*
     Print to-do tree of to-do pointed by 'todo'.
 */
-void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
+void printTodoTree(Todo* todo, list<int> &path, bool showHidden) {
     int i;
     string status;
 
@@ -461,7 +461,7 @@ void printTodoTree(Todo* todo, list<int> &path, int showHidden) {
 /*
     Print list of to-dos of task pointed by 'task'.
 */
-void listTodos(Task* task, int showHidden) {
+void listTodos(Task* task, bool showHidden) {
     if (task->rootTodo->subtodos.size() == 0) {
         printf("    Não há to-dos.\n");
     } else {
@@ -531,12 +531,12 @@ void todosMenu(Task* task) {
             }
         } else if (strcmp(commandName, "tds") == 0) {
             if (getNComms() == 1) {
-                listTodos(task, 0);
+                listTodos(task, false);
             } else if (getNComms() == 2) {
                 if (strcmp(getToken(1), "all") == 0) {
-                    listTodos(task, 1);
+                    listTodos(task, true);
                 } else {
-                    printf("Invalid argument.\n\n");
+                    printf("Argumento inválido.\n\n");
                 }
             } else {
                 printf("Número inválido de argumentos.\n");

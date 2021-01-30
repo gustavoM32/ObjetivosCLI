@@ -17,7 +17,7 @@ void createSchedule(Todo *todo, int timeSet, time_t date, int estimate);
 
 void removeTodo(Task* task);
 
-void listTodos(Task* task, int showHidden);
+void listTodos(Task* task, bool showHidden);
 
 void todosMenu(Task* task);
 /*************************************/

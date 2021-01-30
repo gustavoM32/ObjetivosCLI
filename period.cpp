@@ -73,7 +73,7 @@ void removePeriod(Task *task, list<Period *> &periods) {
 /*
     Lists task periods.
 */
-void listPeriods(Task *task, list<Period *> &periods) {
+void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
     int i = 1;
     string formatedStartTime;
     string formatedEndTime;
@@ -83,6 +83,12 @@ void listPeriods(Task *task, list<Period *> &periods) {
     periods.clear();
     getPeriodsFromTodo(periods, task->rootTodo);
     periods.sort(periodComp);
+
+    if (!showAll) {
+        while (periods.size() > 10) {
+            periods.pop_front();
+        }
+    }
 
     if (periods.size() == 0) {
         printf("    Não há períodos.\n");
@@ -108,7 +114,7 @@ void periodsMenu(Task *task) {
     char *commandName;
     list<Period *> periods;
     printTitle("Períodos - " + task->code, MAIN_LEVEL);
-    listPeriods(task, periods);
+    listPeriods(task, periods, false);
         
     while (true) {
         periodWarning();
@@ -116,17 +122,27 @@ void periodsMenu(Task *task) {
         printTitle("Períodos - " + task->code, MAIN_LEVEL);
 
         if (strcmp(commandName, "pds") == 0) {
-            if (validArgs(0)) listPeriods(task, periods);
+            if (getNComms() == 1) {
+                listPeriods(task, periods, false);
+            } else if (getNComms() == 2) {
+                if (strcmp(getToken(1), "all") == 0) {
+                    listPeriods(task, periods, true);
+                } else {
+                    printf("Argumento inválido.\n\n");
+                }
+            } else {
+                printf("Número inválido de argumentos.\n");
+            }
         } else if (strcmp(commandName, "edit") == 0) {
             if (validArgs(4)) {
                 editPeriod(task, periods);
-                listPeriods(task, periods);
+                listPeriods(task, periods, false);
                 saveAll();
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removePeriod(task, periods);
-                listPeriods(task, periods);
+                listPeriods(task, periods, false);
                 saveAll();
             }
         } else if (strcmp(commandName, "cd") == 0) {
