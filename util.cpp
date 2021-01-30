@@ -97,13 +97,14 @@ string formatTime(long int time) {
 /*
     This function returns 'time' formated as 'dd/mm'.
 */
-string formatDate(long int time) {
+string formatDate(long int time, bool showYear) {
     struct tm *structTime;
     stringstream s;
     structTime = localtime(&time);
-    s << setfill('0')
-        << setw(2) << structTime->tm_mday << "/"
-        << setw(2) << structTime->tm_mon + 1;
+    s << setfill('0');
+    s << setw(2) << structTime->tm_mday;
+    s << "/" << setw(2) << structTime->tm_mon + 1;
+    if (showYear) s << "/" << setw(2) << structTime->tm_year % 100;
     return s.str();
 }
 

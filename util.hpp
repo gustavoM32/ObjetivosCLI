@@ -35,7 +35,7 @@ std::string formatDur(long int totalTime);
 
 std::string formatTime(long int time);
 
-std::string formatDate(long int time);
+std::string formatDate(long int time, bool showYear = false);
 
 long int getTime(int day, int month, int year, int hour, int min, int sec);
 
