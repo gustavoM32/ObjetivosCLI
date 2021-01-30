@@ -419,7 +419,7 @@ void printScheduled() {
                         totalEstimated = 0;
                     }
                     stringstream dateString;
-                    dateString << wDayShort[date.tm_wday] << " (" << date.tm_mday << "/" << date.tm_mon + 1 << ")";
+                    dateString << wDayShort[date.tm_wday] << " (" << setfill('0') << setw(2) << date.tm_mday << "/" << setw(2) << date.tm_mon + 1 << ")";
                     cout << endl;
                     printTitle(dateString.str(), SECONDARY_LEVEL);
                 }
