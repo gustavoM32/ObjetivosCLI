@@ -422,7 +422,7 @@ void printScheduled() {
 
             cout << getColor(CYAN);
             if (sched->timeSet) {
-                cout << setfill('0') << setw(2) << schedDate.tm_hour << ":" << schedDate.tm_min << setfill(' ') << " ";
+                cout << setfill('0') << setw(2) << schedDate.tm_hour << ":"  << setw(2) << schedDate.tm_min << setfill(' ') << " ";
             } else if (sched->date != 0) {
                 cout << "--:-- ";
             }
@@ -445,7 +445,7 @@ void printScheduled() {
                 if (!sched->todo->periods.empty()) {
                     time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
                     cout << getColor(CYAN) << setw(9) << formatDur(timeSince) << getColor(BRIGHT_WHITE) << " ";
-                }
+                } else cout << "          ";
             }
             cout << todoName;
 
