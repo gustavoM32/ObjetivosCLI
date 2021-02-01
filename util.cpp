@@ -282,7 +282,11 @@ int countTodosTodo(Todo *todo) {
     
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
         Todo *subtodo = *it;
-        if (!todoCompleted(subtodo)) res += 1 + countTodosTodo(subtodo);
+        if (!todoCompleted(subtodo)) {
+            int subTodosCount = countTodosTodo(subtodo);
+            if (subTodosCount == 0) res += 1;
+            else res += subTodosCount;
+        }
     }
 
     return res;
