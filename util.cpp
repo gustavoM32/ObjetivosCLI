@@ -63,6 +63,12 @@ time_t getDayStart(time_t time) {
     return mktime(stm);
 }
 
+time_t getPersonalDayStart(time_t time) {
+    time_t personalDayStart = getDayStart(time) + 60 * PERSONAL_DAY_START;
+    if (personalDayStart > time) personalDayStart -= SECS_IN_A_DAY;
+    return personalDayStart;
+}
+
 /*
     This function returns in 'timeString' the 'totalTime' formated as 'h:mm:ss'.
 */

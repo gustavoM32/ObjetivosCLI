@@ -11,6 +11,8 @@
 #define SECS_IN_A_DAY 86400
 #define SECS_IN_A_WEEK 604800
 
+#define PERSONAL_DAY_START 360 // 6 * 60 + 0
+
 #define PROGRAM_LEVEL "█"
 #define MAIN_LEVEL "▄"
 #define SECONDARY_LEVEL "─"
