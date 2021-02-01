@@ -43,37 +43,38 @@ void printHelp(int page) {
         helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
         helpItems.push_back("tds [all] - lista to-dos");
         helpItems.push_back("set <id> [<esp> <idPai> <inicio-fim>] - prioriza um to-do");
-        helpItems.push_back("unset <id> [<esp> <idPai> <inicio-fim>] - desprioriza um to-do");
+        helpItems.push_back("clear <id> [<esp> <idPai> <inicio-fim>] - desprioriza um to-do");
         helpItems.push_back("complete <id> [<esp> <idPai> <inicio-fim>] - completa um to-do");
         helpItems.push_back("hide <id> [<esp> <idPai> <inicio-fim>] - completa e esconde um to-do");
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == PERIODS_MENU) {
         cout << colorString("    # Comandos do menu de períodos\n\n", CYAN);
-        helpItems.push_back("pds - lista períodos");
+        helpItems.push_back("pds [all] - lista períodos");
         helpItems.push_back("edit start|end <hora> <id> <hh:mm:ss> ou");
         helpItems.push_back("edit start|end <data> <id> <dd/mm/yy> - edita período");
         helpItems.push_back("rem <id> - remove período");
+        helpItems.push_back("reduce <minutos> - remove tempo do último período");
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == CALENDAR_MENU) {
         cout << colorString("    # Comandos do calendário\n\n", CYAN);
-        helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
-        helpItems.push_back("edit time|date|estimate|notime <id> [hora|data|estimativa|vazio] - edita um agendamento");
+        // helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
+        helpItems.push_back("edit time|date|estimate|notime|nodate <id> [hora|data|estimativa|vazio] - edita um agendamento");
         helpItems.push_back("delay <id> <dias> - adia um agendamento");
         helpItems.push_back("rem <id> - remove um agendamento");
         helpItems.push_back("complete <id> - completa o to-do relacionado a um agendamento");
         helpItems.push_back("start <id> - inicia um período");
-        helpItems.push_back("touch <id> - cria um período vazio");
+        helpItems.push_back("habit <id> - adiciona atividade em um hábito");
+        helpItems.push_back("habits - mostra todos os hábitos");
         helpItems.push_back("stop - para período");
         helpItems.push_back("cancel - cancela período");
         helpItems.push_back("time - mostra tempo gasto no período atual");
-        // helpItems.push_back("todo - mostra tempo gasto no período atual");
         helpItems.push_back("cal - mostra calendário");
         helpItems.push_back("cd .. - go back to previous menu");
     }
 
     helpItems.push_back("goto <código> - vai para objetivo");
     helpItems.push_back("cal - vai para o calendário");
-    helpItems.push_back("week - mostra resumo semanal");
+    helpItems.push_back("week [all] - mostra resumo semanal");
     helpItems.push_back("tree [incomplete|all] - mostra árvore de objetivos");
     helpItems.push_back("help - mostra esse menu");
     helpItems.push_back("save - salva todos os dados");
