@@ -25,11 +25,6 @@ enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIODS_MENU, CALENDAR_MENU};
 typedef struct task Task;
 typedef struct todo Todo;
 
-typedef union {
-    Task *task;
-    Todo *todo;
-} TodoParent;
-
 typedef struct {
     long int start;
     long int end;
