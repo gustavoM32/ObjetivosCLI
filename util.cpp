@@ -415,7 +415,6 @@ Note *ithNote(list<Note *> &notes, size_t i) {
 */
 bool periodComp(const Period *p1, const Period *p2) {
     if (p1->start < p2->start) return true;
-    if (p1->start > p2->start) return false;
     return false;
 }
 

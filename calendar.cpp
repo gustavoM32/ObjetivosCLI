@@ -85,7 +85,8 @@ void editSchedule() {
             printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
         } else if (strcmp(getToken(1), "date") == 0) {
             if (sscanf(getToken(3), "%d/%d/%d", &day, &mon, &year) == 2) {
-                sched->date = changeDate(sched->date, day, mon, 0);
+
+                sched->date = changeDate(sched->date, day, mon, getYear(getCurrentTime()));
                 printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
             } else {
                 sched->date = changeDate(sched->date, day, mon, year);
@@ -103,7 +104,11 @@ void editSchedule() {
         if (strcmp(getToken(1), "notime") == 0) {
             sched->timeSet = 0;
             sched->date = changeTime(sched->date, 0, 0, 0);
-            printf("Removed time estimate.\n\n");
+            cout << "Hora removida.\n\n";
+        } else if (strcmp(getToken(1), "nodate") == 0) {
+            sched->timeSet = 0;
+            sched->date = 0;
+            cout << "Data removida.\n\n";
         } else {
             printf("Invalid edit option.\n\n");
         }
@@ -120,6 +125,7 @@ void delaySchedule() {
     if (sched == nullptr) return;
 
     int delay = atoi(getToken(2));
+    if (sched->date == 0) sched->date = getCurrentTime() - SECS_IN_A_DAY;
     sched->date += SECS_IN_A_DAY * delay;
     printf("Delayed scheduled for %d day(s).\n\n", delay);
     sched->timeSet = 0;
@@ -156,15 +162,9 @@ void completeTodo() {
 
     Todo *todo = sched->todo;
 
-    printf("Todo \"%s > %s\" completed.\n\n", todo->task->code.c_str(), todo->name.c_str());
+    if (!changeTodoStatus(todo, TODO_COMPLETED)) return;
 
-    for (auto it = todo->schedules.begin(); it != todo->schedules.end(); it++) {
-        delete *it;
-    }
-
-    todo->schedules.clear();
-
-    todo->status = TODO_COMPLETED;
+    cout << "To-do \"" << todo->task << " > " << todo->name << "\" completed.\n\n";
 
     updateCalendar();
 }
