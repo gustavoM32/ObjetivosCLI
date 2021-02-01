@@ -18,7 +18,7 @@
 #define SECONDARY_LEVEL "─"
 
 enum TaskStatus {TASK_ACTIVE, TASK_INACTIVE, TASK_COMPLETED, TASK_CANCELED};
-enum TodoStatus {TODO_PENDING, TODO_PRIORITY, TODO_COMPLETED, TODO_COMPLETED_HIDDEN};
+enum TodoStatus {TODO_PENDING, TODO_COMPLETED, TODO_COMPLETED_HIDDEN, TODO_HABIT};
 enum TodoType {ROOT, NODE};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIODS_MENU, CALENDAR_MENU};
 
@@ -66,7 +66,7 @@ struct task {
 };
 
 typedef struct {
-    std::list<Todo *> todos;
+    std::list<Todo *> habits;
     std::list<Schedule *> schedules;
     Schedule *periodSched;
 } Calendar;

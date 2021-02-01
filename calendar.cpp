@@ -20,51 +20,51 @@ using namespace std;
 /*
     Creates a schedule for a todo.
 */
-void scheduleTodoCalendar() {
-    int id, day, mon, hour, min;
-    Todo *todo;
-    time_t date;
-    struct tm *structTime;
-    int args;
-    int estimate;
+// void scheduleTodoCalendar() {
+//     int id, day, mon, hour, min;
+//     Todo *todo;
+//     time_t date;
+//     struct tm *structTime;
+//     int args;
+//     int estimate;
     
-    id = atoi(getToken(1)) - 1;
-    todo = ithTodo(calendar->todos, id);
+//     id = atoi(getToken(1)) - 1;
+//     todo = ithTodo(calendar->habits, id);
 
-    if (todo == nullptr) return;
+//     if (todo == nullptr) return;
 
-    args = getNComms();
+//     args = getNComms();
 
-    if (args != 2) {
-        sscanf(getToken(2), "%d/%d", &day, &mon);
+//     if (args != 2) {
+//         sscanf(getToken(2), "%d/%d", &day, &mon);
 
-        date = getCurrentTime();
-        structTime = localtime(&date);
+//         date = getCurrentTime();
+//         structTime = localtime(&date);
 
-        if (structTime->tm_mon > mon) structTime->tm_year++;
-        structTime->tm_sec = 0;
-        structTime->tm_mon = mon - 1;
-        structTime->tm_mday = day;
-        if (args == 5) {
-            sscanf(getToken(3), "%d:%d", &hour, &min);
-        } else if (args == 4) {
-            hour = min = 0;
-        }
-        structTime->tm_hour = hour;
-        structTime->tm_min = min;
-        estimate = 60 * atof(getToken(args - 1));
-        date = mktime(structTime);
-        printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
-    } else {
-        estimate = 0;
-        date = 0;
-        printf("Todo added to calendar.\n\n");
-    }
+//         if (structTime->tm_mon > mon) structTime->tm_year++;
+//         structTime->tm_sec = 0;
+//         structTime->tm_mon = mon - 1;
+//         structTime->tm_mday = day;
+//         if (args == 5) {
+//             sscanf(getToken(3), "%d:%d", &hour, &min);
+//         } else if (args == 4) {
+//             hour = min = 0;
+//         }
+//         structTime->tm_hour = hour;
+//         structTime->tm_min = min;
+//         estimate = 60 * atof(getToken(args - 1));
+//         date = mktime(structTime);
+//         printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
+//     } else {
+//         estimate = 0;
+//         date = 0;
+//         printf("Todo added to calendar.\n\n");
+//     }
 
-    createSchedule(todo, args == 5, date, estimate);
+//     createSchedule(todo, args == 5, date, estimate);
 
-    updateCalendar();
-}
+//     updateCalendar();
+// }
 
 /*
     Edits schedule attributes.
@@ -177,22 +177,19 @@ void touchTodo() {
     int id;
     Todo *todo;
     string todoName;
-    Schedule *sched;
 
-    id = calendar->schedules.size() - atoi(getToken(1));
-    sched = ithSchedule(calendar->schedules, id);
+    id = atoi(getToken(1)) - 1;
+    todo = ithTodo(calendar->habits, id);
 
-    if (sched == nullptr) return;
+    if (todo == nullptr) return;
     
-    todo = sched->todo;
-
     period = new Period;
     period->todo = todo;
     todo->periods.push_back(period);
 
     period->start = period->end = getCurrentTime();
 
-    printf("To-do \"%s > %s\" atualizado.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+    printf("Hábito \"%s > %s\" cumprido!\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
 }
 
 
@@ -346,10 +343,10 @@ void periodWarning() {
     Changes status of prioritized to-do.
 */
 void changePrioritizedStatus() {
-    int status;
+    TodoStatus status;
     int id = atoi(getToken(1)) - 1;
 
-    Todo *todo = ithTodo(calendar->todos, id);
+    Todo *todo = ithTodo(calendar->habits, id);
 
     if (todo == nullptr) return;
 
@@ -369,6 +366,29 @@ void changePrioritizedStatus() {
     printf("Estado do to-do \"%s\" foi alterado para \"%s\".\n\n", todo->name.c_str(), getTodoStatusName(status).c_str());
 }
 
+void printHabits(bool printAll) {
+    int i = 0;
+    int printed = 0;
+    for (auto it = calendar->habits.begin(); it != calendar->habits.end(); it++) {
+        Todo *todo = *it;
+        i++;
+        if (!printAll && habitToday(todo)) continue;
+        string todoName = todo->task->code;
+        todoName += " > ";
+        todoName += todo->name;
+        cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
+        cout << todoName << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", BRIGHT_CYAN);
+        printed++;
+    }
+
+    cout << "    ";
+    if (printed == 0) {
+        if (printAll) cout << "Não há hábitos\n";
+        else cout << "Nenhum hábito pendente!\n";
+    }
+
+    cout << "\n";
+}
 
 /*
     Prints scheduled to-dos.
@@ -401,13 +421,13 @@ void printScheduled() {
             if (sched->date == 0) {
                 if (printCommon) {
                     printCommon = false;
-                    cout << endl;
-                    printTitle("Periódicos", SECONDARY_LEVEL);
+                    cout << "\n";
+                    printTitle("Priorizados", SECONDARY_LEVEL);
                 }
             } else if (sched->date < curDayStart) {
                 if (printLate) {
                     printLate = false;
-                    cout << endl;
+                    cout << "\n";
                     printTitle("Atrasados", SECONDARY_LEVEL);
                 }
             } else {
@@ -420,27 +440,26 @@ void printScheduled() {
                     }
                     stringstream dateString;
                     dateString << wDayShort[date.tm_wday] << " (" << setfill('0') << setw(2) << date.tm_mday << "/" << setw(2) << date.tm_mon + 1 << ")";
-                    cout << endl;
+                    cout << "\n";
                     printTitle(dateString.str(), SECONDARY_LEVEL);
                 }
             }
 
-            cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ": " << getColor(BRIGHT_WHITE);
+            cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
 
             cout << getColor(CYAN);
             if (sched->timeSet) {
                 cout << setfill('0') << setw(2) << schedDate.tm_hour << ":"  << setw(2) << schedDate.tm_min << setfill(' ') << " ";
             } else if (sched->date != 0) {
                 cout << "--:-- ";
+            } else {
+                cout << "..... ";
             }
 
-            cout << getColor(BRIGHT_BLUE);
-            if (sched->date != 0) {
-                if (sched->timeEstimate == 0) cout << " 0h ";
-                else if (sched->timeEstimate / 60.0 < 1.0) cout << "<1h ";
-                else cout << setprecision(0) << fixed << setw(2) << sched->timeEstimate / 60.0 << "h ";
-
-            }
+            cout << getColor(BRIGHT_CYAN);
+            if (sched->timeEstimate == 0) cout << " 0h ";
+            else if (sched->timeEstimate / 60.0 < 1.0) cout << "<1h ";
+            else cout << setprecision(0) << fixed << setw(2) << sched->timeEstimate / 60.0 << "h ";
 
             cout << getColor(BRIGHT_WHITE);
 
@@ -448,15 +467,15 @@ void printScheduled() {
             todoName += " > ";
             todoName += sched->todo->name;
             
-            if (sched->date == 0) {
-                if (!sched->todo->periods.empty()) {
-                    time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
-                    cout << getColor(CYAN) << setw(9) << formatDur(timeSince) << getColor(BRIGHT_WHITE) << " ";
-                } else cout << "          ";
-            }
+            // if (sched->date == 0) {
+            //     if (!sched->todo->periods.empty()) {
+            //         time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
+            //         cout << getColor(CYAN) << setw(9) << formatDur(timeSince) << getColor(BRIGHT_WHITE) << " ";
+            //     } else cout << "          ";
+            // }
             cout << todoName;
 
-            cout << endl;
+            cout << "\n";
 
             totalEstimated += sched->timeEstimate;
             i++;
@@ -467,28 +486,13 @@ void printScheduled() {
             }
         } while (it != calendar->schedules.rend());
     }
-    cout << endl;
+
+    cout << "\n";
+
+    printTitle("Hábitos", SECONDARY_LEVEL);
+    printHabits(false);
+
     printLine(MAIN_LEVEL);
-}
-
-/*
-    Prints prioritized to-dos.
-*/
-void printPrioritized() {
-    printf(" __________________  Prioritized  __________________\n\n");
-
-    printf("         Spent   Sched   Todo name\n");
-    int i = 1;
-    for (auto it = calendar->todos.begin(); it != calendar->todos.end(); it++) {
-        Todo *todo = *it;
-        string todoName;
-        todoName = getTodoFullName(todo);
-        long int timeSpent = getTodoTime(todo);
-        printf("    %2d: %5.1fh  %5ld     %s\n", i + 1, timeSpent / 3600.0, todo->schedules.size(), todoName.c_str());
-        i++;
-    }
-
-    printf(" ___________________________________________________\n\n");
 }
 
 /*
@@ -502,14 +506,14 @@ void calendarMenu() {
         // printf(" _________________________  Calendar  _________________________\n\n");
         periodWarning();
         commandName = getCommandName();
-        if (strcmp(commandName, "sched") == 0) {
+        /*if (strcmp(commandName, "sched") == 0) {
             if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodoCalendar();
                 printScheduled();
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
-        } else if (strcmp(commandName, "edit") == 0) {
+        } else */if (strcmp(commandName, "edit") == 0) {
             if (getNComms() == 3 || getNComms() == 4) {
                 editSchedule();
                 printScheduled();
@@ -536,10 +540,16 @@ void calendarMenu() {
                 startPeriod();
                 saveAll();
             }
-        } else if (strcmp(commandName, "touch") == 0) {
+        } else if (strcmp(commandName, "habit") == 0) {
             if (validArgs(1)) {
                 touchTodo();
                 saveAll();
+            }
+        } else if (strcmp(commandName, "habits") == 0) {
+            if (validArgs(0)) {
+                printTitle("Hábitos", MAIN_LEVEL);
+                printHabits(true);
+                printLine(MAIN_LEVEL);
             }
         } else if (strcmp(commandName, "stop") == 0) {
             if (validArgs(0)) {
@@ -555,16 +565,6 @@ void calendarMenu() {
             if (validArgs(0)) {
                 showTaskPeriodTime();
                 saveAll();
-            }
-        } else if (strcmp(commandName, "todo") == 0) {
-            if (validArgs(2)) {
-                changePrioritizedStatus();
-                printPrioritized();
-                saveAll();
-            }
-        } else if (strcmp(commandName, "pri") == 0) {
-            if (validArgs(0)) {
-                printPrioritized();
             }
         } else if (strcmp(commandName, "cal") == 0) {
             if (validArgs(0)) {

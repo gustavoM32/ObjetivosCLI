@@ -39,8 +39,8 @@ void updateCalendarSchedules(Calendar *calendar, Todo *todo) {
 void updateCalendarTodo(Calendar *calendar, Todo *todo) {
     for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
         Todo *subtodo = *it;
-        if (subtodo->status == TODO_PRIORITY) {
-            calendar->todos.push_back(subtodo);
+        if (subtodo->status == TODO_HABIT) {
+            calendar->habits.push_back(subtodo);
         }
         updateCalendarSchedules(calendar, subtodo);
         updateCalendarTodo(calendar, subtodo);
@@ -62,7 +62,7 @@ void updateCalendarTask(Calendar *calendar, Task *task) {
     Updates the calendar.
 */
 void updateCalendar() {
-    calendar->todos.clear();
+    calendar->habits.clear();
     calendar->schedules.clear();
 
     updateCalendarTask(calendar, rootTask);

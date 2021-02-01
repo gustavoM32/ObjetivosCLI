@@ -69,12 +69,48 @@ Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
 /*
     Return the status name given the status enun id.
 */
-string getTodoStatusName(int status) {
+string getTodoStatusName(TodoStatus status) {
     if (status == TODO_PENDING) return "pending";
-    if (status == TODO_PRIORITY) return "prioritized";
     if (status == TODO_COMPLETED) return "completed";
     if (status == TODO_COMPLETED_HIDDEN) return "completed hidden";
     return "invalid status";
+}
+
+bool habitToday(Todo *todo) {
+    time_t curDayStart = getPersonalDayStart(getCurrentTime());
+    todo->periods.sort(periodComp);
+    if (!todo->periods.empty() && todo->periods.back()->start >= curDayStart) return true;
+    return false;
+}
+
+int countHabitRecord(Todo *todo) {
+    int count = habitToday(todo); // this functions also sorts the periods 
+    time_t curDayStart = getPersonalDayStart(getCurrentTime());
+    Period *period;
+
+    auto it = todo->periods.rbegin();
+
+    while (it != todo->periods.rend()) {
+        period = *it;
+        if (period->start < curDayStart) break;
+        it++;
+    }
+
+    while (it != todo->periods.rend()) {
+        curDayStart -= SECS_IN_A_DAY;
+        period = *it;
+        if (period->start >= curDayStart) {
+            count++;
+            while (it != todo->periods.rend()) {
+                period = *it;
+                if (period->start < curDayStart) break;
+                it++;
+            }
+        } else {
+            break;
+        }
+    }
+    return count;
 }
 
 /*
@@ -284,25 +320,21 @@ bool changeTodoStatus(Todo *todo, int status) {
 
     if (toComplete) {
         if (!todoCompleted(todo) && !descendentsCompleted(todo)) {
-            printf("All sub to-dos must be completed before to-do can be set as completed.\n\n");
+            cout << "Para completar um to-do, todos seus filhos precisam estar completos.\n\n";
             return false;
         }
-    } else if (status == TODO_PENDING) {
+        for (auto it = todo->schedules.begin(); it != todo->schedules.end(); it++) {
+            delete *it;
+        }
+        todo->schedules.clear();
+    } else {
         Todo *parent = todo;
         while (parent->parent != nullptr) {
             if (todoCompleted(parent)) parent->status = TODO_PENDING;
             parent = parent->parent;
         }
         if (todoCompleted(parent)) parent->status = TODO_PENDING;
-        for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-            Todo *todo = *it;
-            if (todo->status == TODO_PRIORITY) todo->status = TODO_PENDING;
-        }
-    } else if (status == TODO_PRIORITY) {
-        for (auto it = todo->subtodos.begin(); it != todo->subtodos.end(); it++) {
-            Todo *todo = *it;
-            if (todo->status == TODO_PENDING) todo->status = TODO_PRIORITY;
-        }
+        if (status == TODO_PENDING) todo->schedules.clear();
     }
 
     todo->status = status;
@@ -313,7 +345,7 @@ bool changeTodoStatus(Todo *todo, int status) {
     Changes status of to-do.
 */
 void setTodoStatus(Task *task) {
-    int status;
+    TodoStatus status;
     Todo *todo;
     size_t start, end;
     int mult = strcmp(getToken(1), "esp") == 0;
@@ -323,10 +355,10 @@ void setTodoStatus(Task *task) {
     
     if (todo == nullptr) return;
 
-    if (strcmp(getToken(0), "unset") == 0) status = TODO_PENDING;
-    else if (strcmp(getToken(0), "set") == 0) status = TODO_PRIORITY;
+    if (strcmp(getToken(0), "clear") == 0) status = TODO_PENDING;
     else if (strcmp(getToken(0), "complete") == 0) status = TODO_COMPLETED;
-    else status = TODO_COMPLETED_HIDDEN;
+    else if (strcmp(getToken(0), "hide") == 0) status = TODO_COMPLETED_HIDDEN;
+    else status = TODO_HABIT; // because of the menu condition, getToken(0) must be "habit"
 
     if (mult) {
         sscanf(getToken(getNComms() - 1), "%ld-%ld", &start, &end);
@@ -422,10 +454,11 @@ void printTodoTree(Todo* todo, list<int> &path, bool showHidden) {
     int i;
     string status;
 
-    if (todo->status == TODO_PENDING) status = " ";
-    else if (todo->status == TODO_PRIORITY) status = "*";
+    if (todo->status == TODO_HABIT) status = "h";
+    else if (todo->schedules.size() != 0) status = "*";
+    else if (todo->status == TODO_PENDING) status = " ";
     else if (todo->status == TODO_COMPLETED) status = "x";
-    else if (showHidden) status = "h";
+    else if (showHidden) status = "X";
     else return;
 
     stringstream todoLine;
@@ -446,7 +479,6 @@ void printTodoTree(Todo* todo, list<int> &path, bool showHidden) {
     if (timeSpentThisTodo == timeSpentTotal) todoLine << ")";
     else todoLine << " | " << setprecision(1) << fixed << timeSpentTotal / 3600.0 << "h)";
     
-    if (todo->schedules.size() != 0) todoLine << "    " << todo->schedules.size() << " agendamento(s)";
     cout << todoLine.str() << "\n";
 
     i = 1;
@@ -482,7 +514,7 @@ void listTodos(Task* task, bool showHidden) {
 */
 void todosMenu(Task* task) {
     char *commandName;
-    list<string> todoStatusCommands = {"set", "unset", "complete", "hide"};
+    list<string> todoStatusCommands = {"clear", "complete", "hide", "habit"};
     
     printTitle("To-dos - " + task->code, MAIN_LEVEL);
     listTodos(task, 0);
