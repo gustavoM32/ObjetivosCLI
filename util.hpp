@@ -31,6 +31,8 @@ FILE* fopenSafe(char* fileName, char* mode);
 
 long int getCurrentTime();
 
+int getYear(time_t time);
+
 std::string formatDur(long int totalTime);
 
 std::string formatTime(long int time);

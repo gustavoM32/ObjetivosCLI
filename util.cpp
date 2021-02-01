@@ -47,6 +47,11 @@ long int getCurrentTime() {
     return curTime;
 }
 
+int getYear(time_t time) {
+    struct tm *stm = localtime(&time);
+    return stm->tm_year + 1900;
+}
+
 /*
     Returns the start of the day of supplied date in local time.
 */
