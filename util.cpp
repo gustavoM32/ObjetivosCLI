@@ -295,7 +295,7 @@ int countTodosTodo(Todo *todo) {
         Todo *subtodo = *it;
         if (!todoCompleted(subtodo)) {
             int subTodosCount = countTodosTodo(subtodo);
-            if (subTodosCount == 0) res += 1;
+            if (subTodosCount == 0 && subtodo->status != TODO_HABIT) res += 1;
             else res += subTodosCount;
         }
     }
