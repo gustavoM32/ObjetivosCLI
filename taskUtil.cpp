@@ -151,7 +151,7 @@ bool allCompleted(Task* task) {
     bool res = true;
     for (auto it = task->subtasks.begin(); it != task->subtasks.end() && res; it++) {
         Task *subtask = *it;
-        res = subtask->status == TASK_COMPLETED && allCompleted(subtask);
+        res = (subtask->status == TASK_COMPLETED || subtask->status == TASK_CANCELED) && allCompleted(subtask);
     }
     return res;
 }
