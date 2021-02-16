@@ -1,8 +1,8 @@
 #ifndef CALENDARUTIL_HPP
 #define CALENDARUTIL_HPP
 
-extern char *wDayName[];
-extern char *wDayShort[];
+extern std::string wDayName[];
+extern std::string wDayShort[];
 
 // Calendar *createCalendar();
 
@@ -16,6 +16,6 @@ void sortCalendar();
 
 // void updateCalendarTask(Calendar *calendar, Task *task);
 
-// void printWeekSummary();
+void printWeekSummary(bool showAll);
 
 #endif

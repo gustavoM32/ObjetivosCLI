@@ -544,6 +544,7 @@ void calendarMenu() {
             if (validArgs(1)) {
                 touchTodo();
                 saveAll();
+                printScheduled();
             }
         } else if (strcmp(commandName, "habits") == 0) {
             if (validArgs(0)) {

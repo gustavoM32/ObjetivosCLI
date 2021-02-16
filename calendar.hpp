@@ -5,8 +5,6 @@
 
 // void printNoDateTodos(Calendar *calendar, Task *root);
 
-void printWeekSummary();
-
 void periodWarning();
 
 Calendar *createCalendar();

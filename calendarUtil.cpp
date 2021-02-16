@@ -1,12 +1,16 @@
+#include <iostream>
+#include <iomanip>
+#include <map>
 #include <string>
 #include "calendarUtil.hpp"
 #include "objectives.hpp"
+#include "taskUtil.hpp"
 #include "util.hpp"
 
-char *wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
-char *wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
-
 using namespace std;
+
+string wDayName[] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
+string wDayShort[] = {"Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"};
 
 /*
     Creates the calendar.
@@ -71,75 +75,87 @@ void updateCalendar() {
 /*
     Prints all to-dos with no specified dates.
 */
-void printWeekSummary() {
-    int i;
+void printWeekSummary(bool showAll) {
     long int curWeek[2];
-    long int curTime;
-    long int weekProgress;
     long int charInterval = 900;
-    long int objStart;
-    long int weekTime = 0;
-    long int dayTime = 0;
-    string formatText;
+    long int curTime = getCurrentTime();
+    long int objStart = getTime(25, 8, 2019, 0, 0, 0);
+    long int weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
+
     list<Period *> periodList;
     getPeriodsFromTask(periodList, rootTask);
     sortPeriods(periodList);
-    curTime = getCurrentTime();
-    objStart = getTime(25, 8, 2019, 0, 0, 0);
-    weekProgress = (curTime - objStart) % SECS_IN_A_WEEK;
+
+    auto pit = periodList.begin();
 
     curWeek[0] = curTime - weekProgress;
     curWeek[1] = curWeek[0] + SECS_IN_A_WEEK;
 
-    auto pit = periodList.begin();
-    for (i = 0; objStart + i < curWeek[1]; i += charInterval) {
-        long int charStart = objStart + i;
-        long int charEnd = charStart + charInterval;
-        long int prodTime = 0;
-    int h;
-        if (i == SECS_IN_A_WEEK) {
-            printf("\n");
-        }
-        if (i % SECS_IN_A_WEEK == 0) {
-            weekTime = 0;
-            printf("\n                         %ldth objective week\n\n", 1 + (charEnd - objStart) / SECS_IN_A_WEEK);
-      printf("    Horas    ");
-      for (h = 0; h < 24; h++) {
-        printf("|%02d ", h);
-      }
-      printf("\n");
-        }
-        if (i % 86400 == 0) {
-            formatText = formatDate(charStart);
-            dayTime = 0;
-            printf("  %s %s [", wDayShort[(i / 86400) % 7], formatText.c_str());
-        }
-        if (charStart > curTime) printf(" ");
-        else {
-            while (pit != periodList.end() && (*pit)->end <= charStart) pit++;
-            if (pit == periodList.end() || (*pit)->start >= charEnd) {
-                printf(".");
-            } else {
-                while (pit != periodList.end() && (*pit)->start < charEnd) {
-                    prodTime += min((*pit)->end, charEnd) - max((*pit)->start, charStart);
-                    pit++;
-                }
-                pit--;
-                dayTime += prodTime;
-                if ((double) prodTime / charInterval > 0.5) printf("#");
-                else printf(".");
-            }
-        }
-        if ((i + charInterval) % 86400 == 0) {
-            weekTime += dayTime;
-            formatText = formatDur(dayTime);
-            printf("] %s\n", formatText.c_str());
-        }
+    long int weekStart;
+
+    if (showAll) weekStart = objStart;
+    else weekStart = curWeek[0] - SECS_IN_A_WEEK;
+
+    while (weekStart < curWeek[1]) {
+        long int weekTime = 0;
+        int weekN = 1 + (weekStart - objStart) / SECS_IN_A_WEEK;
+
+        printTitle(to_string(weekN) + "ª semana de objetivos", SECONDARY_LEVEL);
         
-        if ((i + charInterval) % SECS_IN_A_WEEK == 0) {
-            formatText = formatDur(weekTime);
-            printf("\n  Total time: %s\n", formatText.c_str());
+        cout << colorString("    Horas    ", BRIGHT_BLUE);
+        for (int h = 0; h < 24; h++) {
+            cout << colorString("|", BRIGHT_BLUE) << setfill('0') << getColor(BRIGHT_CYAN) << setw(2) << h << getColor(BRIGHT_WHITE) << " ";
         }
+        cout << "\n";
+
+        for (int d = 0; d < 7; d++) {
+            long int dayStart = weekStart + d * SECS_IN_A_DAY;
+            long int dayTime = 0;
+
+            cout << "  " << colorString(wDayShort[d] + " " + formatDate(dayStart), BRIGHT_CYAN) << colorString(" [", BRIGHT_BLUE);
+
+            for (int t = dayStart; t < dayStart + SECS_IN_A_DAY; t += charInterval) {
+                long int prodTime = 0;
+                map<Task *, long int> taskProd;
+                if (t > curTime) cout << " ";
+                else {
+                    while (pit != periodList.end() && (*pit)->end <= t) pit++;
+                    if (pit == periodList.end() || (*pit)->start >= t + charInterval) {
+                        cout << colorString("-", BRIGHT_BLACK);
+                    } else {
+                        while (pit != periodList.end() && (*pit)->start < t + charInterval) {
+                            long int inter = periodIntersect((*pit)->start, (*pit)->end, t, t + charInterval);
+                            prodTime += inter;
+                            Task *task = (*pit)->todo->task;
+                            if (taskProd.find(task) == taskProd.end()) {
+                                taskProd[task] = inter;
+                            } else {
+                                taskProd[task] += inter;
+                            }
+                            pit++;
+                        }
+                        Task *maxTime = taskProd.begin()->first;
+                        for (auto it = taskProd.begin(); it != taskProd.end(); it++) {
+                            if (it->second > taskProd[maxTime]) maxTime = it->first;
+                        }
+                        pit--;
+                        dayTime += prodTime;
+
+                        int color = getTaskColor(maxTime);
+                        double percentCharInterval = (double) prodTime / charInterval > 0.5;
+
+                        if (percentCharInterval >= 0.5) cout << colorString("▓", (Color) color);
+                        else if (percentCharInterval > 0) cout << colorString("▒", (Color) color);
+                        else cout << colorString("░", (Color) color);
+                    }
+                }
+            }
+
+            weekTime += dayTime;
+            cout << colorString("] ", BRIGHT_BLUE) << colorString(formatDur(dayTime), BRIGHT_CYAN) << "\n";
+        }
+
+        cout << "\n  " << colorString("Total time: ", BRIGHT_BLUE) << colorString(formatDur(weekTime), BRIGHT_CYAN) << "\n\n";
+        weekStart += SECS_IN_A_WEEK;
     }
-    printf("\n");
 }

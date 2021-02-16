@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include "taskUtil.hpp"
 #include "io.hpp"
 #include "calendar.hpp"
+#include "calendarUtil.hpp"
 #include "help.hpp"
 
 using namespace std;
@@ -40,7 +42,9 @@ bool generalCommands(char *commandName) {
             return true;
         }
     } else if (strcmp(commandName, "week") == 0) {
-        if (validArgs(0)) printWeekSummary();
+        if (getNComms() == 1) printWeekSummary(false);
+        else if (getNComms() == 2 && strcmp(getToken(1), "all") == 0) printWeekSummary(true);
+        else cout << "Opção inválida\n\n";
     } else if (strcmp(commandName, "tree") == 0) {
         if (getNComms() == 1 || getNComms() == 2) {
             printTaskTree();
