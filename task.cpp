@@ -382,6 +382,15 @@ void displayObjectiveStats(Task *task) {
     cout << colorString("Semana atual: ", BRIGHT_BLUE) << colorString(formatDur(currentWeekTime), BRIGHT_CYAN) << "\n\n";
 }
 
+void showTaskInfo(Task *task) {
+    printTitle("Objetivo - " + task->code, MAIN_LEVEL);
+    displayObjectiveStats(task);
+    printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
+    listSubtasks(task);
+    printLine(SECONDARY_LEVEL);
+    printDescription(task);
+}
+
 /*
     Enters in task menu of task pointed by 'task'.
 */
@@ -390,12 +399,7 @@ void taskMenu(Task* task) {
     bool showHead = true;
     while (true) {
         if (showHead) {
-            printTitle("Objetivo - " + task->code, MAIN_LEVEL);
-            displayObjectiveStats(task);
-            printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
-            listSubtasks(task);
-            printLine(SECONDARY_LEVEL);
-            printDescription(task);
+            showTaskInfo(task);
             showHead = false;
         }
         printLine(MAIN_LEVEL);
@@ -405,16 +409,19 @@ void taskMenu(Task* task) {
             if (validArgs(1)) {
                 renameTask(task);
                 saveAll();
+                showHead = true;
             }
         } else if (strcmp(commandName, "code") == 0) {
             if (validArgs(1)) {
                 changeCode(task);
                 saveAll();
+                showHead = true;
             }
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(2)) {
                 setSubtaskStatus(task);
                 saveAll();
+                showHead = true;
             }
         } else if (strcmp(commandName, "noteadd") == 0) {
             if (validArgs(1)) {
@@ -452,11 +459,10 @@ void taskMenu(Task* task) {
                 editDescription(task);
                 showHead = true;
             }
-        // } else if (strcmp(commandName, "ls") == 0) {
-        //     if (validArgs(0)) {
-        //         listSubtasks(task);
-        //         listTodos(task, 0);
-        //     }
+        } else if (strcmp(commandName, "ls") == 0) {
+            if (validArgs(0)) {
+                showTaskInfo(task);
+            }
         } else if (strcmp(commandName, "cd") == 0) {
             if (validArgs(1)) {
                 if (strcmp("..", getToken(1)) == 0) {
