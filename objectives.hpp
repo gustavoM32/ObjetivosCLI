@@ -58,6 +58,7 @@ struct task {
     std::string name;
     std::string code;
     std::string description;
+    int color;
     int status;
 	std::list<Note *> notes;
     Todo *rootTodo;

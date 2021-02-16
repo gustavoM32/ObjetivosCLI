@@ -161,7 +161,7 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
 */
 void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
-    fprintf(output, "\"%s\" %s %d\n", task->name.c_str(), task->code.c_str(), task->status);
+    fprintf(output, "\"%s\" %s %d %d\n", task->name.c_str(), task->code.c_str(), task->status, task->color);
     fpfInd(output, depth);
     fprintf(output, "\"%s\"\n", escapeNewLines(task->description).c_str());
     fpfInd(output, depth);
@@ -258,6 +258,7 @@ Task* loadTask(FILE* input) {
     taskCode = getToken(1);
     task = createTask(taskName, taskCode);
     task->status = atoi(getToken(2));
+    task->color = atoi(getToken(3));
 
     getLine(input);
     task->description = unescapeNewLines(getToken(0));

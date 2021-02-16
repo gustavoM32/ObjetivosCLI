@@ -14,6 +14,7 @@ void printHelp(int page) {
         cout << colorString("    # Comandos do menu do objetivo\n\n", CYAN);
         helpItems.push_back("rename \"nome\" - renomeia objetivo");
         helpItems.push_back("code <código> - muda código do objetivo");
+        helpItems.push_back("color <cor> - muda cor do objetivo");
         helpItems.push_back("set <código> <estado> - muda estado do objetivo (active, inactive, completed, canceled)");
         helpItems.push_back("noteadd \"texto\" - adiciona anotação");
         helpItems.push_back("noterem <id> - remove anotação");

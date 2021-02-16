@@ -172,6 +172,30 @@ void changeCode(Task* task) {
 }
 
 /*
+    Changes color of task pointed by 'task' to code inputed by user.
+*/
+void changeColor(Task* task) {
+    string color;
+    color = toUppercase(getToken(1));
+    int colorCode;
+    if (color == "NONE") colorCode = NONE;
+    else if (color == "BLACK") colorCode = BLACK;
+    else if (color == "RED") colorCode = RED;
+    else if (color == "GREEN") colorCode = GREEN;
+    else if (color == "YELLOW") colorCode = YELLOW;
+    else if (color == "BLUE") colorCode = BLUE;
+    else if (color == "MAGENTA") colorCode = MAGENTA;
+    else if (color == "CYAN") colorCode = CYAN;
+    else {
+        cout << "Invalid color\n\n";
+        return;
+    }
+
+    cout << "\"" << task->code << "\" color changed to \"" << color << "\"\n\n";
+    task->color = colorCode;
+}
+
+/*
     Changes status of a subtask of task pointed by 'task' to status inputed by
     user.
 */
@@ -374,7 +398,7 @@ void displayObjectiveStats(Task *task) {
         endTime = periods.back()->end;
     }
 
-    cout << colorString("  - " + task->name, BRIGHT_BLUE) << "\n\n";
+    cout << colorString("  - " + task->name, (Color) getTaskColor(task)) << "\n\n";
     cout << "    ";
     cout << colorString("Atividade: ", BRIGHT_BLUE) << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), BRIGHT_CYAN) << "        ";
     cout << colorString("Tempo total: ", BRIGHT_BLUE) << colorString(formatDur(totalTime), BRIGHT_CYAN) << "        ";
@@ -414,6 +438,12 @@ void taskMenu(Task* task) {
         } else if (strcmp(commandName, "code") == 0) {
             if (validArgs(1)) {
                 changeCode(task);
+                saveAll();
+                showHead = true;
+            }
+        } else if (strcmp(commandName, "color") == 0) {
+            if (validArgs(1)) {
+                changeColor(task);
                 saveAll();
                 showHead = true;
             }

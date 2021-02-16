@@ -30,4 +30,6 @@ void printTaskTree();
 
 bool codeUsed(Task *task, std::string &code);
 
+int getTaskColor(Task *task);
+
 #endif

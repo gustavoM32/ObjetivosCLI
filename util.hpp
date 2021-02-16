@@ -7,6 +7,7 @@
 #include "objectives.hpp"
 
 enum Color {
+	NONE = 0,
 	BLACK = 30,
 	RED = 31,
 	GREEN = 32,

@@ -10,7 +10,7 @@ using namespace std;
 
 /*
     Returns index of pointer to subtask named 'name' in subtask vector of task
-    'parent'. Returns -1 if there's no such subtask.
+    'parent'. Returns nullptr if there's no such subtask.
 */
 Task *findTaskByName(Task* parent, string &name) {
     for (auto it = parent->subtasks.begin(); it != parent->subtasks.end(); it++) {
@@ -24,7 +24,7 @@ Task *findTaskByName(Task* parent, string &name) {
 
 /*
     Returns index of pointer to subtask with code 'code' in subtask vector of task
-    'parent'. Returns -1 if there's no such subtask.
+    'parent'. Returns nullptr if there's no such subtask.
 */
 Task *findTaskByCode(Task* parent, string &code) {
     for (auto it = parent->subtasks.begin(); it != parent->subtasks.end(); it++) {
@@ -61,6 +61,7 @@ Task* createTask(string name, string code) {
     newTask->code = code;
     newTask->description = "";
     newTask->status = TASK_ACTIVE;
+    newTask->color = NONE;
     newTask->rootTodo = createTodo("To-dos", newTask, nullptr);
     newTask->parent = nullptr;
     return newTask;
@@ -234,4 +235,12 @@ bool codeUsed(Task *task, string &code) {
     }
 
     return false;
+}
+
+int getTaskColor(Task *task) {
+    while (task != nullptr) {
+        if (task->color != NONE) return task->color;
+        task = task->parent;
+    }
+    return BRIGHT_WHITE;
 }
