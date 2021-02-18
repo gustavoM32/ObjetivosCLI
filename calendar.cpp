@@ -373,11 +373,8 @@ void printHabits(bool printAll) {
         Todo *todo = *it;
         i++;
         if (!printAll && habitToday(todo)) continue;
-        string todoName = todo->task->code;
-        todoName += " > ";
-        todoName += todo->name;
         cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
-        cout << todoName << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", BRIGHT_CYAN);
+        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", BRIGHT_CYAN);
         printed++;
     }
 
@@ -463,19 +460,7 @@ void printScheduled() {
 
             cout << getColor(BRIGHT_WHITE);
 
-            string todoName = sched->todo->task->code;
-            todoName += " > ";
-            todoName += sched->todo->name;
-            
-            // if (sched->date == 0) {
-            //     if (!sched->todo->periods.empty()) {
-            //         time_t timeSince = getCurrentTime() - sched->todo->periods.back()->end;
-            //         cout << getColor(CYAN) << setw(9) << formatDur(timeSince) << getColor(BRIGHT_WHITE) << " ";
-            //     } else cout << "          ";
-            // }
-            cout << todoName;
-
-            cout << "\n";
+            cout << getTodoFullName(sched->todo) << "\n";
 
             totalEstimated += sched->timeEstimate;
             i++;

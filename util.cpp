@@ -515,12 +515,12 @@ string getTodoFullName(Todo *todo) {
     string name = "";
 
     if (todo->parent->parent == nullptr) {
-        name += todo->task->code;
+        name += colorString(todo->task->code, CYAN);
     } else {
         name += getTodoFullName(todo->parent);
     }
 
-    name += " > ";
+    name += colorString(" > ", BRIGHT_BLUE);
     name += todo->name;
     return name;
 }
@@ -553,7 +553,7 @@ bool todoCompleted(Todo *todo) {
 */
 string colorString(string text, Color color) {
     stringstream colored;
-    colored << "\033[" << color << "m" << text << "\033[0m";
+    colored << getColor(color) << text << getColor(BRIGHT_WHITE);
     return colored.str();
 }
 
