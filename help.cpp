@@ -22,7 +22,7 @@ void printHelp(int page) {
         helpItems.push_back("sts - abre menu de sub-objetivos");
         helpItems.push_back("tds - abre menu de to-dos");
         helpItems.push_back("nts - mostra lista de anotações");
-        helpItems.push_back("desc - edita descrição do objetivo");
+        helpItems.push_back("plan - edita plano do objetivo");
         // helpItems.push_back("ls - lista to-dos");
         helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
         helpItems.push_back("cd .. - vai para o objetivo pai");

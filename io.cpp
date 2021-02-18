@@ -163,7 +163,7 @@ void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
     fprintf(output, "\"%s\" %s %d %d\n", task->name.c_str(), task->code.c_str(), task->status, task->color);
     fpfInd(output, depth);
-    fprintf(output, "\"%s\"\n", escapeNewLines(task->description).c_str());
+    fprintf(output, "\"%s\"\n", escapeNewLines(task->plan).c_str());
     fpfInd(output, depth);
     fprintf(output, "%ld\n", task->notes.size());
     for (auto it = task->notes.begin(); it != task->notes.end(); it++) {
@@ -261,7 +261,7 @@ Task* loadTask(FILE* input) {
     task->color = atoi(getToken(3));
 
     getLine(input);
-    task->description = unescapeNewLines(getToken(0));
+    task->plan = unescapeNewLines(getToken(0));
 
     getLine(input);
     count = atoi(getToken(0));

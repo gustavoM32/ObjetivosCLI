@@ -282,37 +282,37 @@ void listNotes(Task* task) {
 #include <unistd.h>
 
 /*
-    Opens a text editor to edit the description of 'task'.
+    Opens a text editor to edit the plan of 'task'.
 */
-void editDescription(Task* task) {
+void editPlan(Task* task) {
     fstream file;
     stringstream stream;
     file.open("temp.txt", fstream::out);
-    file << task->description;
+    file << task->plan;
     file.close();
     system("nvim temp.txt");
     file.open("temp.txt", fstream::in);
     
     stream << file.rdbuf();
-    task->description = stream.str();
-    int end = task->description.size() - 1;
+    task->plan = stream.str();
+    int end = task->plan.size() - 1;
     if (end >= 0) {
-        if (task->description[end] != '\n') {
-            task->description += '\n';
+        if (task->plan[end] != '\n') {
+            task->plan += '\n';
         } else {
-            while (end > 0 && task->description[end - 1] == '\n') end--;
-            task->description = task->description.substr(0, end + 1);
+            while (end > 0 && task->plan[end - 1] == '\n') end--;
+            task->plan = task->plan.substr(0, end + 1);
         }
     }
     system("rm temp.txt");
 }
 
-void printDescription(Task *task) {
-    uint size = task->description.size();
+void printPlan(Task *task) {
+    uint size = task->plan.size();
     if (size == 0) return;
     cout << "  ";
     for (uint i = 0; i < size; i++) {
-        char c = task->description[i];
+        char c = task->plan[i];
         if (c == '#') cout << "\033[94m";
         if (c == '*') cout << colorString("*", BRIGHT_BLUE);
         else cout << c;
@@ -412,7 +412,7 @@ void showTaskInfo(Task *task) {
     printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
     listSubtasks(task);
     printLine(SECONDARY_LEVEL);
-    printDescription(task);
+    printPlan(task);
 }
 
 /*
@@ -484,9 +484,9 @@ void taskMenu(Task* task) {
             if (validArgs(0)) {
                 listNotes(task);
             }
-        } else if (strcmp(commandName, "desc") == 0) {
+        } else if (strcmp(commandName, "plan") == 0) {
             if (validArgs(0)) {
-                editDescription(task);
+                editPlan(task);
                 showHead = true;
             }
         } else if (strcmp(commandName, "ls") == 0) {

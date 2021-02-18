@@ -59,7 +59,7 @@ Task* createTask(string name, string code) {
     Task* newTask = new Task;
     newTask->name = name;
     newTask->code = code;
-    newTask->description = "";
+    newTask->plan = "";
     newTask->status = TASK_ACTIVE;
     newTask->color = NONE;
     newTask->rootTodo = createTodo("To-dos", newTask, nullptr);
