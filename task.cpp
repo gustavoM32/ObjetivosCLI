@@ -6,6 +6,7 @@
 #include <queue>
 #include <cstring>
 #include <stdlib.h>
+#include <unistd.h>
 #include "calendar.hpp"
 #include "help.hpp"
 #include "io.hpp"
@@ -24,13 +25,17 @@ static Task *selectedTask;
 void addSubtask(Task* parent) {
     string subtaskName;
     string subtaskCode;
+    string subtaskMotivation;
     subtaskCode = toUppercase(getToken(1));
     subtaskName = getToken(2);
+    subtaskMotivation = getToken(3);
 
     if (subtaskCode.size() < 1 || subtaskCode.size() > 5) {
         printf("Subtask code must be 1-5 characters long.\n\n");
         return;
-    } else if (codeUsed(rootTask, subtaskCode)) {
+    }
+    
+    if (codeUsed(rootTask, subtaskCode)) {
         printf("Code \"%s\" is not available.\n\n", subtaskCode.c_str());
         return;
     }
@@ -38,13 +43,27 @@ void addSubtask(Task* parent) {
     if (subtaskName.size() == 0) {
         printf("Subtask name must not be empty.\n\n");
         return;
-    } else if (findTaskByName(parent, subtaskName) != nullptr) {
+    }
+    
+    if (findTaskByName(parent, subtaskName) != nullptr) {
         printf("\"%s\" already has subtask named \"%s\".\n\n", parent->name.c_str(), subtaskName.c_str());
+        return;
+    }
+
+    if (subtaskMotivation.size() == 0) {
+        cout << "Motivação não pode ser vazia\n\n";
         return;
     }
 
     Task *task = createTask(subtaskName.c_str(), subtaskCode.c_str());
     task->parent = parent;
+
+    Note *note = new Note;
+    note->date = getCurrentTime();
+    note->text = subtaskMotivation;
+    note->motivation = true;
+    task->history.push_back(note);
+
     parent->subtasks.push_back(task);
 
     printf("Added task \"%s\".\n\n", subtaskName.c_str());
@@ -227,11 +246,11 @@ void setSubtaskStatus(Task *task) {
 }
 
 /*
-    Ask user for note content and add it in task pointed by 'task' notes.
+    Ask user for history point content and add it in task pointed by 'task' history.
 */
-void addNote(Task *task) {
+void addNote(Task *task, bool motivation = false) {
     string noteText;
-    noteText = getToken(1);
+    noteText = getToken(getNComms() - 1);
     if (noteText.size() == 0) {
         printf("Note text must not be empty.\n\n");
         return;
@@ -239,7 +258,8 @@ void addNote(Task *task) {
     Note *note = new Note;
     note->date = getCurrentTime();
     note->text = noteText;
-    task->notes.push_back(note);
+    note->motivation = motivation;
+    task->history.push_back(note);
     printf("Added note\n\n");
 }
 
@@ -247,39 +267,38 @@ void addNote(Task *task) {
     Ask user for note ID and remove it from task pointed by 'task'.
 */
 void removeNote(Task* task) {
-    int id = atoi(getToken(1)) - 1;
+    int id = atoi(getToken(getNComms() - 1)) - 1;
 
-    Note *note = ithNote(task->notes, id);
+    Note *note = ithNote(task->history, id);
 
     if (note == nullptr) return;
 
     printf("Note %d removed.\n\n", id + 1);
 
-    task->notes.remove(note);
+    task->history.remove(note);
 }
 
 /*
-    Print list of notes of task pointed by 'task'.
+    Print history of task pointed by 'task'.
 */
-void listNotes(Task* task) {
+void printHistory(Task* task) {
     int i = 1;
-    struct tm *stm;
-    printTitle("Notes", MAIN_LEVEL);
-    if (task->notes.size() == 0) {
-        printf("  |   No notes\n");
+    printTitle("Histórico", MAIN_LEVEL);
+    if (task->history.size() == 0) {
+        printf("  Sem histórico\n\n");
+        return;
     }
-    for (auto it = task->notes.begin(); it != task->notes.end(); it++) {
+    for (auto it = task->history.begin(); it != task->history.end(); it++) {
         Note *note = *it;
-        stm = localtime(&(note->date));
-        cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << "." << getColor(BRIGHT_WHITE);
-        cout << getColor(BRIGHT_CYAN) << " (" << setw(2) << stm->tm_mday << "/" << setw(2) << stm->tm_mon + 1 << "/" << setw(4) << stm->tm_year + 1900 << ") " << getColor(BRIGHT_WHITE);
-        cout << note->text << "\n" << endl;
+        cout << setfill(' ') << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
+        cout << colorString("(" + formatDate(note->date, true) + ") ", BRIGHT_CYAN);
+        if (note->motivation) cout << "(Motivação) ";
+        cout << note->text << "\n";
         i++;
     }
+    cout << "\n";
     printLine(MAIN_LEVEL);
 }
-
-#include <unistd.h>
 
 /*
     Opens a text editor to edit the plan of 'task'.
@@ -313,12 +332,12 @@ void printPlan(Task *task) {
     cout << "  ";
     for (uint i = 0; i < size; i++) {
         char c = task->plan[i];
-        if (c == '#') cout << "\033[94m";
+        if (c == '#') cout << getColor(BRIGHT_BLUE);
         if (c == '*') cout << colorString("*", BRIGHT_BLUE);
         else cout << c;
         if (i != size - 1 && c == '\n') {
             cout << "  ";
-            cout << "\033[0m";
+            cout << getColor(BRIGHT_WHITE);
         }
     }
     cout << "\n";
@@ -336,7 +355,7 @@ void subtasksMenu(Task* task) {
     while (true) {
         commandName = getCommandName();
         if (strcmp(commandName, "add") == 0) {
-            if (validArgs(2)) {
+            if (validArgs(3)) {
                 addSubtask(task);
                 saveAll();
             }
@@ -393,14 +412,19 @@ void displayObjectiveStats(Task *task) {
         currentWeekTime += periodIntersect(period->start, period->end, curWeekStart, curWeekEnd);
     }
 
+    cout << colorString("  - " + task->name, (Color) getTaskColor(task)) << "\n\n";
+    cout << colorString("  Motivação: ", BRIGHT_BLUE) << getMotivation(task) << "\n\n";
+    printRecentHistory(task);
+    cout << "  " << colorString("Atividade: ", BRIGHT_BLUE);
+
     if (!periods.empty()) {
         startTime = periods.front()->start;
         endTime = periods.back()->end;
+        cout << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), BRIGHT_CYAN);
+    } else {
+        cout << colorString("Não iniciado", BRIGHT_CYAN);
     }
-
-    cout << colorString("  - " + task->name, (Color) getTaskColor(task)) << "\n\n";
-    cout << "    ";
-    cout << colorString("Atividade: ", BRIGHT_BLUE) << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), BRIGHT_CYAN) << "        ";
+    cout << "        ";
     cout << colorString("Tempo total: ", BRIGHT_BLUE) << colorString(formatDur(totalTime), BRIGHT_CYAN) << "        ";
     cout << colorString("Última semana: ", BRIGHT_BLUE) << colorString(formatDur(lastWeekTime), BRIGHT_CYAN) << "        ";
     cout << colorString("Semana atual: ", BRIGHT_BLUE) << colorString(formatDur(currentWeekTime), BRIGHT_CYAN) << "\n\n";
@@ -453,13 +477,27 @@ void taskMenu(Task* task) {
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "noteadd") == 0) {
-            if (validArgs(1)) {
-                addNote(task);
+        } else if (strcmp(commandName, "history") == 0) {
+            if (getNComms() == 1) {
+                if (validArgs(0)) {
+                   printHistory(task);
+                }
             }
-        } else if (strcmp(commandName, "noterem") == 0) {
+            else if (strcmp(getToken(1), "add") == 0) {
+                if (validArgs(2)) {
+                    addNote(task);
+                    showHead = true;
+                }
+            } else if (strcmp(getToken(1), "remove") == 0) {
+                if (validArgs(2)) {
+                    removeNote(task);
+                    showHead = true;
+                }
+            } else cout << "Opção inválida\n\n";
+        } else if (strcmp(commandName, "motivation") == 0) {
             if (validArgs(1)) {
-                removeNote(task);
+                addNote(task, true);
+                showHead = true;
             }
         } else if (strcmp(commandName, "pds") == 0) {
             if (task == rootTask) {
@@ -479,10 +517,6 @@ void taskMenu(Task* task) {
             if (validArgs(0)) {
                 curMenu = TODOS_MENU;
                 return;
-            }
-        } else if (strcmp(commandName, "nts") == 0) {
-            if (validArgs(0)) {
-                listNotes(task);
             }
         } else if (strcmp(commandName, "plan") == 0) {
             if (validArgs(0)) {

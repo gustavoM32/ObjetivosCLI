@@ -552,9 +552,7 @@ bool todoCompleted(Todo *todo) {
     Add 'color' to string 'text'
 */
 string colorString(string text, Color color) {
-    stringstream colored;
-    colored << getColor(color) << text << getColor(BRIGHT_WHITE);
-    return colored.str();
+    return getColor(color) + text + getColor(BRIGHT_WHITE);
 }
 
 string getColor(Color color) {

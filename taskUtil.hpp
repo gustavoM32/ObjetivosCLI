@@ -32,4 +32,8 @@ bool codeUsed(Task *task, std::string &code);
 
 int getTaskColor(Task *task);
 
+std::string getMotivation(Task *task);
+
+void printRecentHistory(Task* task);
+
 #endif

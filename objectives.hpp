@@ -52,6 +52,7 @@ struct todo {
 typedef struct {
 	long int date;
 	std::string text;
+    bool motivation;
 } Note;
 
 struct task {
@@ -60,7 +61,7 @@ struct task {
     std::string plan;
     int color;
     int status;
-	std::list<Note *> notes;
+	std::list<Note *> history;
     Todo *rootTodo;
     std::list<Task *> subtasks;
     Task *parent;

@@ -165,11 +165,11 @@ void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
     fprintf(output, "\"%s\"\n", escapeNewLines(task->plan).c_str());
     fpfInd(output, depth);
-    fprintf(output, "%ld\n", task->notes.size());
-    for (auto it = task->notes.begin(); it != task->notes.end(); it++) {
+    fprintf(output, "%ld\n", task->history.size());
+    for (auto it = task->history.begin(); it != task->history.end(); it++) {
         Note *note = *it;
         fpfInd(output, depth);
-        fprintf(output, "\"%s\" %ld\n", note->text.c_str(), note->date);
+        fprintf(output, "\"%s\" %ld %d\n", note->text.c_str(), note->date, (int) note->motivation);
     }
 
     saveTodo(task->rootTodo, output, depth + 1);
@@ -270,7 +270,8 @@ Task* loadTask(FILE* input) {
         getLine(input);
         note->text = getToken(0);
         note->date = atol(getToken(1));
-        task->notes.push_back(note);
+        note->motivation = atoi(getToken(2));
+        task->history.push_back(note);
     }
 
     loadTodo(input, task, nullptr);

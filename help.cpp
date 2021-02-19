@@ -16,19 +16,19 @@ void printHelp(int page) {
         helpItems.push_back("code <código> - muda código do objetivo");
         helpItems.push_back("color <cor> - muda cor do objetivo");
         helpItems.push_back("set <código> <estado> - muda estado do objetivo (active, inactive, completed, canceled)");
-        helpItems.push_back("noteadd \"texto\" - adiciona anotação");
-        helpItems.push_back("noterem <id> - remove anotação");
+        helpItems.push_back("history add \"texto\" - adiciona anotação");
+        helpItems.push_back("history remove <id> - remove anotação");
         helpItems.push_back("pds - abre menu de períodos");
         helpItems.push_back("sts - abre menu de sub-objetivos");
         helpItems.push_back("tds - abre menu de to-dos");
-        helpItems.push_back("nts - mostra lista de anotações");
+        helpItems.push_back("history - mostra histórico");
         helpItems.push_back("plan - edita plano do objetivo");
-        // helpItems.push_back("ls - lista to-dos");
+        helpItems.push_back("ls - lista to-dos");
         helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
         helpItems.push_back("cd .. - vai para o objetivo pai");
     } else if (page == SUBTASKS_MENU) {
         cout << colorString("    # Comandos do menu de sub-objetivos\n\n", CYAN);
-        helpItems.push_back("add <código> \"nome\" - adiciona sub-objetivo");
+        helpItems.push_back("add <código> \"nome\" \"motivação\" - adiciona sub-objetivo");
         helpItems.push_back("rem <código> - remove um sub-objetivo");
         helpItems.push_back("select <código> - seleciona um sub-objetivo");
         helpItems.push_back("move - torna o objetivo selecionado filho do objetivo atual");

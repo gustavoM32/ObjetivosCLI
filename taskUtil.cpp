@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cstring>
 #include "io.hpp"
@@ -243,4 +244,36 @@ int getTaskColor(Task *task) {
         task = task->parent;
     }
     return BRIGHT_WHITE;
+}
+
+string getMotivation(Task *task) {
+    for (auto it = task->history.rbegin(); it != task->history.rend(); it++) {
+        if ((*it)->motivation) return (*it)->text + colorString(" (" + formatDate((*it)->date, true) + ")", BRIGHT_CYAN);
+    }
+    return "Indefinida";
+}
+
+void printRecentHistory(Task* task) {
+    cout << colorString("  Histórico recente: ", BRIGHT_BLUE);
+    if (task->history.size() == 0) {
+        printf("Sem histórico\n\n");
+        return;
+    }
+
+    cout << "\n";
+
+    auto it = task->history.begin();
+
+    for (int i = 0; i < (int) task->history.size() - 3; i++) {
+        it++;
+    }
+
+    while (it != task->history.end()) {
+        Note *note = *it;
+        cout << colorString("  * ", BRIGHT_BLUE) << colorString("(" + formatDate(note->date, true) + ") ", BRIGHT_CYAN);
+        if (note->motivation) cout << "(Motivação) ";
+        cout << note->text << "\n";
+        it++;
+    }
+    cout << "\n";
 }
