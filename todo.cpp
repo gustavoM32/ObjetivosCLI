@@ -188,12 +188,17 @@ void removeTodo(Task* task) {
 
     if (todo == nullptr) return;
 
-    printf("Periods from to-do and their descendants will be moved to parent. Are you sure? ");
+    list<Period *> periods;
+    getPeriodsFromTodo(periods, todo);
 
-    string op;
-    cin >> op;
+    if (periods.size() > 0) {
+        printf("Periods from to-do and their descendants will be moved to parent. Are you sure? ");
 
-    if (op != "y") return;
+        string op;
+        cin >> op;
+
+        if (op != "y") return;
+    }
 
     printf("To-do \"%s\" removed.\n\n", todo->name.c_str());
 
