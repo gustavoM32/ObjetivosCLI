@@ -502,6 +502,7 @@ void calendarMenu() {
             if (getNComms() == 3 || getNComms() == 4) {
                 editSchedule();
                 printScheduled();
+                saveAll();
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
@@ -509,16 +510,19 @@ void calendarMenu() {
             if (validArgs(2)) {
                 delaySchedule();
                 printScheduled();
+                saveAll();
             }
         } else if (strcmp(commandName, "rem") == 0) {
             if (validArgs(1)) {
                 removeSchedule();
                 printScheduled();
+                saveAll();
             }
         } else if (strcmp(commandName, "complete") == 0) {
             if (validArgs(1)) {
                 completeTodo();
                 printScheduled();
+                saveAll();
             }
         } else if (strcmp(commandName, "start") == 0) {
             if (validArgs(1)) {

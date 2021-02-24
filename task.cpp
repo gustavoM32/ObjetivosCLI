@@ -512,6 +512,7 @@ void taskMenu(Task* task) {
             else if (strcmp(getToken(1), "add") == 0) {
                 if (validArgs(2)) {
                     addNote(task);
+                    saveAll();
                     showHead = true;
                 }
             } else if (strcmp(getToken(1), "remove") == 0) {
@@ -547,6 +548,7 @@ void taskMenu(Task* task) {
         } else if (strcmp(commandName, "plan") == 0) {
             if (validArgs(0)) {
                 editPlan(task);
+                saveAll();
                 showHead = true;
             }
         } else if (strcmp(commandName, "ls") == 0) {

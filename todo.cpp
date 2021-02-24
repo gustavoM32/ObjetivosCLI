@@ -563,6 +563,7 @@ void todosMenu(Task* task) {
             if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodo(task);
                 listTodos(task, 0);
+                saveAll();
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
