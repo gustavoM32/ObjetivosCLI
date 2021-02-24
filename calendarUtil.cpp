@@ -100,6 +100,9 @@ void printWeekSummary(bool showAll) {
         long int weekTime = 0;
         int weekN = 1 + (weekStart - objStart) / SECS_IN_A_WEEK;
 
+        long int otherProd = 0;
+        map<Task *, long int> coloredProd;
+
         printTitle(to_string(weekN) + "ª semana de objetivos", SECONDARY_LEVEL);
         
         cout << colorString("    Horas    ", BRIGHT_BLUE);
@@ -126,16 +129,23 @@ void printWeekSummary(bool showAll) {
                         while (pit != periodList.end() && (*pit)->start < t + charInterval) {
                             long int inter = periodIntersect((*pit)->start, (*pit)->end, t, t + charInterval);
                             prodTime += inter;
-                            Task *task = (*pit)->todo->task;
-                            if (taskProd.find(task) == taskProd.end()) {
-                                taskProd[task] = inter;
+                            Task *colorRoot = getColorRoot((*pit)->todo->task);
+                            if (taskProd.find(colorRoot) == taskProd.end()) {
+                                taskProd[colorRoot] = inter;
                             } else {
-                                taskProd[task] += inter;
+                                taskProd[colorRoot] += inter;
                             }
                             pit++;
                         }
                         Task *maxTime = taskProd.begin()->first;
                         for (auto it = taskProd.begin(); it != taskProd.end(); it++) {
+                            Task *colorRoot = getColorRoot(it->first);
+                            if (colorRoot == nullptr) otherProd += it->second;
+                            else if (coloredProd.find(colorRoot) == coloredProd.end()) {
+                                coloredProd[colorRoot] = it->second;
+                            } else {
+                                coloredProd[colorRoot] += it->second;
+                            }
                             if (it->second > taskProd[maxTime]) maxTime = it->first;
                         }
                         pit--;
@@ -155,7 +165,12 @@ void printWeekSummary(bool showAll) {
             cout << colorString("] ", BRIGHT_BLUE) << colorString(formatDur(dayTime), BRIGHT_CYAN) << "\n";
         }
 
-        cout << "\n  " << colorString("Total time: ", BRIGHT_BLUE) << colorString(formatDur(weekTime), BRIGHT_CYAN) << "\n\n";
+        cout << "\n  " << colorString("Total " + formatDur(weekTime), BRIGHT_BLUE) << "    ";
+        for (auto it = coloredProd.begin(); it != coloredProd.end(); it++) {
+            cout << colorString(it->first->code + " " + formatDur(it->second), (Color) it->first->color) << "    ";
+        }
+        cout << "Outros " << formatDur(otherProd) << "\n\n";
+        
         weekStart += SECS_IN_A_WEEK;
     }
 }

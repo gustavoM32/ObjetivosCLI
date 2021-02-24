@@ -238,11 +238,17 @@ bool codeUsed(Task *task, string &code) {
     return false;
 }
 
-int getTaskColor(Task *task) {
+Task *getColorRoot(Task *task) {
     while (task != nullptr) {
-        if (task->color != NONE) return task->color;
+        if (task->color != NONE) return task;
         task = task->parent;
     }
+    return nullptr;
+}
+
+int getTaskColor(Task *task) {
+    task = getColorRoot(task);
+    if (task != nullptr) return task->color;
     return BRIGHT_WHITE;
 }
 
