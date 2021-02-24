@@ -330,14 +330,40 @@ void printPlan(Task *task) {
     uint size = task->plan.size();
     if (size == 0) return;
     cout << "  ";
+    int lineLen = 2;
+    string palavra;
     for (uint i = 0; i < size; i++) {
         char c = task->plan[i];
+
         if (c == '#') cout << getColor(BRIGHT_BLUE);
-        if (c == '*') cout << colorString("*", BRIGHT_BLUE);
-        else cout << c;
-        if (i != size - 1 && c == '\n') {
-            cout << "  ";
-            cout << getColor(BRIGHT_WHITE);
+
+        if (c == '*') {
+            cout << colorString("*", BRIGHT_BLUE);
+            lineLen++;
+        } else if (c == '\n') {
+            if (lineLen + palavra.size() > LINE_LEN) {
+                cout << "\n" << palavra << "\n";
+            } else {
+                cout << palavra << "\n";
+            }
+            lineLen = 0;
+            palavra.clear();
+            if (i != size - 1) {
+                cout << "  ";
+                lineLen = 2;
+                cout << getColor(BRIGHT_WHITE);
+            }
+        } else if (c == ' ') {
+            if (lineLen + palavra.size() > LINE_LEN) {
+                cout << "\n" << palavra << " ";
+                lineLen = palavra.size() + 1;
+            } else {
+                cout << palavra << " ";
+                lineLen += palavra.size() + 1;
+            }
+            palavra.clear();
+        } else {
+            palavra += c;
         }
     }
     cout << "\n";
