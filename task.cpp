@@ -279,6 +279,21 @@ void removeNote(Task* task) {
 }
 
 /*
+    Ask user for note ID and toggle it between motivation or not.
+*/
+void toggleNote(Task* task) {
+    int id = atoi(getToken(getNComms() - 1)) - 1;
+
+    Note *note = ithNote(task->history, id);
+
+    if (note == nullptr) return;
+
+    note->motivation = !note->motivation;
+
+    if (note->motivation) cout << "Note " << id + 1 << " is now a motivation.\n";
+    else cout << "Note " << id + 1 << " is now normal.\n";
+}
+/*
     Print history of task pointed by 'task'.
 */
 void printHistory(Task* task) {
@@ -508,8 +523,7 @@ void taskMenu(Task* task) {
                 if (validArgs(0)) {
                    printHistory(task);
                 }
-            }
-            else if (strcmp(getToken(1), "add") == 0) {
+            } else if (strcmp(getToken(1), "add") == 0) {
                 if (validArgs(2)) {
                     addNote(task);
                     saveAll();
@@ -518,6 +532,11 @@ void taskMenu(Task* task) {
             } else if (strcmp(getToken(1), "remove") == 0) {
                 if (validArgs(2)) {
                     removeNote(task);
+                    showHead = true;
+                }
+            } else if (strcmp(getToken(1), "toggle") == 0) {
+                if (validArgs(2)) {
+                    toggleNote(task);
                     showHead = true;
                 }
             } else cout << "Opção inválida\n\n";

@@ -18,6 +18,8 @@ void printHelp(int page) {
         helpItems.push_back("set <código> <estado> - muda estado do objetivo (active, inactive, completed, canceled)");
         helpItems.push_back("history add \"texto\" - adiciona anotação");
         helpItems.push_back("history remove <id> - remove anotação");
+        helpItems.push_back("history toggle <id> - alterna entre anotação ser motivação ou não");
+        helpItems.push_back("motivation \"texto\" - adiciona anotação");
         helpItems.push_back("pds - abre menu de períodos");
         helpItems.push_back("sts - abre menu de sub-objetivos");
         helpItems.push_back("tds - abre menu de to-dos");
