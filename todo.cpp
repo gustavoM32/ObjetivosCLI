@@ -188,6 +188,11 @@ void removeTodo(Task* task) {
 
     if (todo == nullptr) return;
 
+    if (calendar->periodSched != nullptr) {
+        cout << "Não é possível remover tarefa enquanto um período está rodando\n\n";
+        return;
+    }
+
     list<Period *> periods;
     getPeriodsFromTodo(periods, todo);
 

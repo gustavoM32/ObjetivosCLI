@@ -140,6 +140,11 @@ void removeSchedule() {
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
+    
+    if (sched == calendar->periodSched) {
+        cout << "Não é possível remover agendamento enquanto seu período está rodando\n\n";
+        return;
+    }
 
     Todo *todo = sched->todo;
 

@@ -83,6 +83,11 @@ void removeSubtask(Task *parent) {
         return;
     }
 
+    if (calendar->periodSched != nullptr) {
+        cout << "Não é possível remover objetivo enquanto um período está rodando\n\n";
+        return;
+    }
+
     printf("Removed task (%s) %s.\n\n", task->code.c_str(), task->name.c_str());
     
     freeTask(task);

@@ -86,6 +86,20 @@ void printWeekSummary(bool showAll) {
     getPeriodsFromTask(periodList, rootTask);
     sortPeriods(periodList);
 
+    // bug check
+    Period *maxp = periodList.front();
+    for (auto it = periodList.begin(); it != periodList.end(); it++) {
+        Period *p = *it;
+        if (maxp->end - maxp->start < p->end - p->start) maxp = p;
+    }
+
+    long int maxDur = maxp->end - maxp->start;
+    if (maxDur > 36000) {
+        cout << "Período com duração anormal!\n";
+        cout << maxp->todo->task->code << ": " << formatDur(maxDur) << "\n";
+        return;
+    }
+
     auto pit = periodList.begin();
 
     curWeek[0] = curTime - weekProgress;
