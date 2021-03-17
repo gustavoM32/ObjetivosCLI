@@ -326,11 +326,11 @@ void printHistory(Task* task) {
 void editPlan(Task* task) {
     fstream file;
     stringstream stream;
-    file.open("temp.txt", fstream::out);
+    file.open("temp.md", fstream::out);
     file << task->plan;
     file.close();
-    system("nvim temp.txt");
-    file.open("temp.txt", fstream::in);
+    system("nvim temp.md");
+    file.open("temp.md", fstream::in);
     
     stream << file.rdbuf();
     task->plan = stream.str();
@@ -343,7 +343,7 @@ void editPlan(Task* task) {
             task->plan = task->plan.substr(0, end + 1);
         }
     }
-    system("rm temp.txt");
+    system("rm temp.md");
 }
 
 void printPlan(Task *task) {
