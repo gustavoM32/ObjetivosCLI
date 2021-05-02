@@ -66,53 +66,80 @@ using namespace std;
 //     updateCalendar();
 // }
 
-/*
-    Edits schedule attributes.
-*/
-void editSchedule() {
-    int id, hour, min, day, mon, year;
+void editScheduleTime() {
+    int id, hour, min;
     
-    id = calendar->schedules.size() - atoi(getToken(2));
+    id = calendar->schedules.size() - atoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
 
-    if (getNComms() == 4) {
-        if (strcmp(getToken(1), "time") == 0) {
-            sscanf(getToken(3), "%d:%d", &hour, &min);
-            sched->timeSet = 1;
-            sched->date = changeTime(sched->date, hour, min, 0);
-            printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
-        } else if (strcmp(getToken(1), "date") == 0) {
-            if (sscanf(getToken(3), "%d/%d/%d", &day, &mon, &year) == 2) {
-
-                sched->date = changeDate(sched->date, day, mon, getYear(getCurrentTime()));
-                printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
-            } else {
-                sched->date = changeDate(sched->date, day, mon, year);
-                printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
-            }
-            sched->timeSet = 0;
-            sched->date = changeTime(sched->date, 0, 0, 0);
-        } else if (strcmp(getToken(1), "estimate") == 0) {
-            sched->timeEstimate = 60 * atof(getToken(3));
-            printf("Changed time estimate to %.1f\n\n", atof(getToken(3)));
-        } else {
-            printf("Invalid edit option.\n\n");
-        }
+    if (getNComms() == 2) {
+        sched->timeSet = 0;
+        sched->date = changeTime(sched->date, 0, 0, 0);
+        cout << "Hora removida.\n\n";
     } else {
-        if (strcmp(getToken(1), "notime") == 0) {
-            sched->timeSet = 0;
-            sched->date = changeTime(sched->date, 0, 0, 0);
-            cout << "Hora removida.\n\n";
-        } else if (strcmp(getToken(1), "nodate") == 0) {
-            sched->timeSet = 0;
-            sched->date = 0;
-            cout << "Data removida.\n\n";
-        } else {
-            printf("Invalid edit option.\n\n");
+        if (sscanf(getToken(2), "%d:%d", &hour, &min) == 1) {
+            min = 0;
         }
+        sched->timeSet = 1;
+        sched->date = changeTime(sched->date, hour, min, 0);
+        printf("Changed scheduled time to %02d:%02d.\n\n", hour, min);
     }
+
+}
+
+void editScheduleDate() {
+    int id, day, mon, year;
+    
+    id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
+
+    if (sched == nullptr) return;
+
+    if (getNComms() == 2) {
+        sched->timeSet = 0;
+        sched->date = 0;
+        cout << "Data removida.\n\n";
+    } else {
+        if (sscanf(getToken(2), "%d/%d/%d", &day, &mon, &year) == 2) {
+            sched->date = changeDate(sched->date, day, mon, getYear(getCurrentTime()));
+            printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
+        } else {
+            sched->date = changeDate(sched->date, day, mon, year);
+            printf("Changed scheduled date to %02d/%02d/%04d.\n\n", day, mon, year);
+        }
+        sched->timeSet = 0;
+        sched->date = changeTime(sched->date, 0, 0, 0);
+    }
+}
+
+void editScheduleEstimate() {
+    int id;
+    
+    id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
+
+    if (sched == nullptr) return;
+
+    sched->timeEstimate = 60 * atof(getToken(2));
+    printf("Changed time estimate to %.1f\n\n", atof(getToken(2)));
+}
+
+void postponeSchedule() {
+    int id = calendar->schedules.size() - atoi(getToken(1));
+    Schedule *sched = ithSchedule(calendar->schedules, id);
+
+    if (sched == nullptr) return;
+
+    int delay = atoi(getToken(2));
+    if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
+    sched->date += SECS_IN_A_DAY * delay;
+    if (getNComms() != 4 || strcmp(getToken(3), "keep") != 0) {
+        sched->timeSet = 0;
+        sched->date = changeTime(sched->date, 0, 0, 0);
+    }
+    printf("Postponed schedule for %d day(s).\n\n", delay);
 }
 
 /*
@@ -125,11 +152,10 @@ void delaySchedule() {
     if (sched == nullptr) return;
 
     int delay = atoi(getToken(2));
-    if (sched->date == 0) sched->date = getCurrentTime() - SECS_IN_A_DAY;
-    sched->date += SECS_IN_A_DAY * delay;
-    printf("Delayed scheduled for %d day(s).\n\n", delay);
-    sched->timeSet = 0;
-    sched->date = changeTime(sched->date, 0, 0, 0);
+    if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
+    sched->date += 3600 * delay;
+    sched->timeSet = 1;
+    printf("Delayed schedule for %d hour(s).\n\n", delay);
 }
 
 /*
@@ -503,13 +529,35 @@ void calendarMenu() {
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
-        } else */if (strcmp(commandName, "edit") == 0) {
-            if (getNComms() == 3 || getNComms() == 4) {
-                editSchedule();
+        } else */if (strcmp(commandName, "time") == 0) {
+            if (getNComms() == 2 || getNComms() == 3) {
+                editScheduleTime();
                 printScheduled();
                 saveAll();
             } else {
-                printf("Número inválido de argumentos.\n\n");
+                printf("Número inválido de argumentos.\n");
+            }
+        } else if (strcmp(commandName, "date") == 0) {
+            if (getNComms() == 2 || getNComms() == 3) {
+                editScheduleDate();
+                printScheduled();
+                saveAll();
+            } else {
+                printf("Número inválido de argumentos.\n");
+            }
+        } else if (strcmp(commandName, "est") == 0) {
+            if (validArgs(2)) {
+                editScheduleEstimate();
+                printScheduled();
+                saveAll();
+            }
+        } else if (strcmp(commandName, "post") == 0) {
+            if (getNComms() == 3 || getNComms() == 4) {
+                postponeSchedule();
+                printScheduled();
+                saveAll();
+            } else {
+                printf("Número inválido de argumentos.\n");
             }
         } else if (strcmp(commandName, "delay") == 0) {
             if (validArgs(2)) {
@@ -517,7 +565,7 @@ void calendarMenu() {
                 printScheduled();
                 saveAll();
             }
-        } else if (strcmp(commandName, "rem") == 0) {
+        } else if (strcmp(commandName, "clear") == 0) {
             if (validArgs(1)) {
                 removeSchedule();
                 printScheduled();
@@ -556,7 +604,7 @@ void calendarMenu() {
                 cancelPeriod();
                 saveAll();
             }
-        } else if (strcmp(commandName, "time") == 0) {
+        } else if (strcmp(commandName, "status") == 0) {
             if (validArgs(0)) {
                 showTaskPeriodTime();
                 saveAll();

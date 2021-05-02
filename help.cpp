@@ -43,7 +43,7 @@ void printHelp(int page) {
         helpItems.push_back("rem <id> - remove um to-do");
         helpItems.push_back("edit name <id> \"nome\" - edita o nome de um to-do");
         helpItems.push_back("move inside|before <idOrigem> <idDestino> - move um to-do");
-        helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
+        helpItems.push_back("sched <id> [<estimativa> [<data> [<hora>]]] - agenda um to-do");
         helpItems.push_back("tds [all] - lista to-dos");
         helpItems.push_back("set <id> [<esp> <idPai> <inicio-fim>] - prioriza um to-do");
         helpItems.push_back("clear <id> [<esp> <idPai> <inicio-fim>] - desprioriza um to-do");
@@ -60,17 +60,19 @@ void printHelp(int page) {
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == CALENDAR_MENU) {
         cout << colorString("    # Comandos do calendário\n\n", CYAN);
-        // helpItems.push_back("sched <id> [<data> [<hora>] <estimativa> - agenda um to-do");
-        helpItems.push_back("edit time|date|estimate|notime|nodate <id> [hora|data|estimativa|vazio] - edita um agendamento");
-        helpItems.push_back("delay <id> <dias> - adia um agendamento");
-        helpItems.push_back("rem <id> - remove um agendamento");
+        helpItems.push_back("time <id> [hora] - edita horário de um agendamento");
+        helpItems.push_back("date <id> [data] - edita data de um agendamento");
+        helpItems.push_back("est <id> estimativa - estima tempo para um agendamento");
+        helpItems.push_back("post <id> <dias> [keep] - adia um agendamento em dias");
+        helpItems.push_back("delay <id> <horas> - adia um agendamento em horas");
+        helpItems.push_back("clear <id> - remove um agendamento");
         helpItems.push_back("complete <id> - completa o to-do relacionado a um agendamento");
         helpItems.push_back("start <id> - inicia um período");
-        helpItems.push_back("habit <id> - adiciona atividade em um hábito");
-        helpItems.push_back("habits - mostra todos os hábitos");
         helpItems.push_back("stop - para período");
         helpItems.push_back("cancel - cancela período");
-        helpItems.push_back("time - mostra tempo gasto no período atual");
+        helpItems.push_back("status - mostra tempo gasto no período atual");
+        helpItems.push_back("habit <id> - adiciona atividade em um hábito");
+        helpItems.push_back("habits - mostra todos os hábitos");
         helpItems.push_back("cal - mostra calendário");
         helpItems.push_back("cd .. - go back to previous menu");
     }

@@ -413,21 +413,26 @@ void createSchedule(Todo *todo, int timeSet, time_t date, int estimate) {
 }
 
 void scheduleTodo(Task *task) {
+    int args;
     int day, mon, hour, min;
     Todo *todo;
-    time_t date;
     struct tm *structTime;
-    int args;
-    int estimate;
+    time_t date = 0;
+    int estimate = 60;
     
     todo = getTodoFromPath(task, getToken(1), nullptr);
 
     if (todo == nullptr) return;
 
     args = getNComms();
+    // sched id estimate date time
 
-    if (args != 2) {
-        sscanf(getToken(2), "%d/%d", &day, &mon);
+    if (args >= 3) {
+        estimate = 60 * atof(getToken(2));
+    }
+
+    if (args >= 4) {
+        sscanf(getToken(3), "%d/%d", &day, &mon);
 
         date = getCurrentTime();
         structTime = localtime(&date);
@@ -436,25 +441,24 @@ void scheduleTodo(Task *task) {
         structTime->tm_sec = 0;
         structTime->tm_mon = mon - 1;
         structTime->tm_mday = day;
+
         if (args == 5) {
-            sscanf(getToken(3), "%d:%d", &hour, &min);
+            sscanf(getToken(4), "%d:%d", &hour, &min);
         } else if (args == 4) {
             hour = min = 0;
         }
+
         structTime->tm_hour = hour;
         structTime->tm_min = min;
-        estimate = 60 * atof(getToken(args - 1));
+
         date = mktime(structTime);
+
         printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
     } else {
-        estimate = 0;
-        date = 0;
         printf("Todo added to calendar.\n\n");
     }
 
     createSchedule(todo, args == 5, date, estimate);
-
-
 }
 
 /*
@@ -565,7 +569,7 @@ void todosMenu(Task* task) {
                 saveAll();
             }
         } else if (strcmp(commandName, "sched") == 0) {
-            if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
+            if (getNComms() >= 2 && getNComms() <= 5) {
                 scheduleTodo(task);
                 listTodos(task, 0);
                 saveAll();
