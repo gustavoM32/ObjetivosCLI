@@ -15,6 +15,7 @@ void printHelp(int page) {
         helpItems.push_back("rename \"nome\" - renomeia objetivo");
         helpItems.push_back("code <código> - muda código do objetivo");
         helpItems.push_back("color <cor> - muda cor do objetivo");
+        helpItems.push_back("colors - lista cores disponíveis");
         helpItems.push_back("set <código> <estado> - muda estado do objetivo (active, inactive, completed, canceled)");
         helpItems.push_back("history add \"texto\" - adiciona anotação");
         helpItems.push_back("history remove <id> - remove anotação");

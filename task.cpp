@@ -210,6 +210,13 @@ void changeColor(Task* task) {
     task->color = color;
 }
 
+void listColors() {
+    for (auto color : colors) {
+        cout << colorString("  * ", "BLUE") << colorString(color.first, color.first) << "\n";
+    }
+    cout << "\n";
+}
+
 /*
     Changes status of a subtask of task pointed by 'task' to status inputed by
     user.
@@ -507,6 +514,10 @@ void taskMenu(Task* task) {
                 changeColor(task);
                 saveAll();
                 showHead = true;
+            }
+        } else if (strcmp(commandName, "colors") == 0) {
+            if (validArgs(0)) {
+                listColors();
             }
         } else if (strcmp(commandName, "set") == 0) {
             if (validArgs(2)) {
