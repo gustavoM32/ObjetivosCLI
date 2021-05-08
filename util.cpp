@@ -7,6 +7,7 @@
 #include <limits>
 #include <stdlib.h>
 #include "util.hpp"
+#include "taskUtil.hpp"
 #include "objectives.hpp"
 
 using namespace std;
@@ -535,7 +536,7 @@ string getTodoFullName(Todo *todo) {
     string name = "";
 
     if (todo->parent->parent == nullptr) {
-        name += colorString(todo->task->code, "CYAN");
+        name += colorString(todo->task->code, getTaskColor(todo->task));
     } else {
         name += getTodoFullName(todo->parent);
     }

@@ -249,7 +249,7 @@ Task *getColorRoot(Task *task) {
 string getTaskColor(Task *task) {
     task = getColorRoot(task);
     if (task != nullptr) return task->color;
-    return "BRIGHT_WHITE";
+    return DEFAULT_TASK_COLOR;
 }
 
 string getMotivation(Task *task) {

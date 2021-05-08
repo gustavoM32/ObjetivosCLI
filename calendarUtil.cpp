@@ -183,7 +183,7 @@ void printWeekSummary(bool showAll) {
         for (auto it = coloredProd.begin(); it != coloredProd.end(); it++) {
             cout << colorString(it->first->code + " " + formatDur(it->second), it->first->color) << "    ";
         }
-        cout << "Outros " << formatDur(otherProd) << "\n\n";
+        cout << colorString("Outros " + formatDur(otherProd), DEFAULT_TASK_COLOR) << "\n\n";
         
         weekStart += SECS_IN_A_WEEK;
     }
