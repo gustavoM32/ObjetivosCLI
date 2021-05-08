@@ -11,6 +11,26 @@
 
 using namespace std;
 
+map<string, int> colors = {
+	{"NONE", 0},
+	{"BLACK", 30},
+	{"RED", 31},
+	{"GREEN", 32},
+	{"YELLOW", 33},
+	{"BLUE", 34},
+	{"MAGENTA", 35},
+	{"CYAN", 36},
+	{"WHITE", 37},
+	{"BRIGHT_BLACK", 90},
+	{"BRIGHT_RED", 91},
+	{"BRIGHT_GREEN", 92},
+	{"BRIGHT_YELLOW", 93},
+	{"BRIGHT_BLUE", 94},
+	{"BRIGHT_MAGENTA", 95},
+	{"BRIGHT_CYAN", 96},
+	{"BRIGHT_WHITE", 97}
+};
+
 /*
     This function does the same thing as malloc but exits the program if it
     can't allocate memory.
@@ -515,12 +535,12 @@ string getTodoFullName(Todo *todo) {
     string name = "";
 
     if (todo->parent->parent == nullptr) {
-        name += colorString(todo->task->code, CYAN);
+        name += colorString(todo->task->code, "CYAN");
     } else {
         name += getTodoFullName(todo->parent);
     }
 
-    name += colorString(" > ", BRIGHT_BLUE);
+    name += colorString(" > ", "BRIGHT_BLUE");
     name += todo->name;
     return name;
 }
@@ -551,12 +571,12 @@ bool todoCompleted(Todo *todo) {
 /*
     Add 'color' to string 'text'
 */
-string colorString(string text, Color color) {
-    return getColor(color) + text + getColor(BRIGHT_WHITE);
+string colorString(string text, string color) {
+    return getColor(color) + text + getColor("BRIGHT_WHITE");
 }
 
-string getColor(Color color) {
-    return "\033[" + to_string(color) + "m";
+string getColor(string color) {
+    return "\033[" + to_string(colors[color]) + "m";
 }
 
 void printLine(string symbol, bool extraSpace) {
@@ -566,7 +586,7 @@ void printLine(string symbol, bool extraSpace) {
     }
     line += "\n";
     if (extraSpace) line += "\n";
-    cout << colorString(line, CYAN);
+    cout << colorString(line, "CYAN");
 }
 
 void printTitle(string text, string symbol, bool extraSpace) {
@@ -584,5 +604,5 @@ void printTitle(string text, string symbol, bool extraSpace) {
     }
     title += "\n";
     if (extraSpace) title += "\n";
-    cout << colorString(title, CYAN);
+    cout << colorString(title, "CYAN");
 }

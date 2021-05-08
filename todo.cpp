@@ -486,8 +486,8 @@ void printTodoTree(Todo* todo, list<int> &path, bool showHidden) {
     time_t timeSpentThisTodo = getTodoTime(todo);
     time_t timeSpentTotal = getTodoTotalTime(todo);
 
-    todoLine << getColor(BRIGHT_BLUE) << setw(2) << path.back() << getColor(BRIGHT_WHITE);
-    todoLine << colorString(" [", BRIGHT_CYAN) << colorString(status, YELLOW) << colorString("] ", BRIGHT_CYAN);
+    todoLine << getColor("BRIGHT_BLUE") << setw(2) << path.back() << getColor("BRIGHT_WHITE");
+    todoLine << colorString(" [", "BRIGHT_CYAN") << colorString(status, "YELLOW") << colorString("] ", "BRIGHT_CYAN");
     todoLine << todo->name;
     todoLine << " (" << setprecision(1) << fixed << timeSpentThisTodo / 3600.0 << "h";
     if (timeSpentThisTodo == timeSpentTotal) todoLine << ")";

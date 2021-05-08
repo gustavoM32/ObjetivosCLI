@@ -146,7 +146,7 @@ void listSubtasks(Task* task) {
     }
     cout << "    ";
     if ((lists[0].size() + lists[1].size() + lists[2].size() + lists[3].size()) == 0) {
-        cout << colorString("Não há sub-objetivos.\n", CYAN);
+        cout << colorString("Não há sub-objetivos.\n", "CYAN");
     } else {
         for (i = 0; i < 4; i++) {
             listStatusTasks(lists[i], statusNames[i]);
@@ -201,22 +201,13 @@ void changeCode(Task* task) {
 void changeColor(Task* task) {
     string color;
     color = toUppercase(getToken(1));
-    int colorCode;
-    if (color == "NONE") colorCode = NONE;
-    else if (color == "BLACK") colorCode = BLACK;
-    else if (color == "RED") colorCode = RED;
-    else if (color == "GREEN") colorCode = GREEN;
-    else if (color == "YELLOW") colorCode = YELLOW;
-    else if (color == "BLUE") colorCode = BLUE;
-    else if (color == "MAGENTA") colorCode = MAGENTA;
-    else if (color == "CYAN") colorCode = CYAN;
-    else {
-        cout << "Invalid color\n\n";
+    if (colors.find(color) == colors.end()) {
+        cout << "Cor inválida, digite 'colors' para ver cores disponíveis.\n\n";
         return;
     }
 
     cout << "\"" << task->code << "\" color changed to \"" << color << "\"\n\n";
-    task->color = colorCode;
+    task->color = color;
 }
 
 /*
@@ -310,8 +301,8 @@ void printHistory(Task* task) {
     }
     for (auto it = task->history.begin(); it != task->history.end(); it++) {
         Note *note = *it;
-        cout << setfill(' ') << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
-        cout << colorString("(" + formatDate(note->date, true) + ") ", BRIGHT_CYAN);
+        cout << setfill(' ') << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
+        cout << colorString("(" + formatDate(note->date, true) + ") ", "BRIGHT_CYAN");
         if (note->motivation) cout << "(Motivação) ";
         cout << note->text << "\n";
         i++;
@@ -355,10 +346,10 @@ void printPlan(Task *task) {
     for (uint i = 0; i < size; i++) {
         char c = task->plan[i];
 
-        if (c == '#') cout << getColor(BRIGHT_BLUE);
+        if (c == '#') cout << getColor("BRIGHT_BLUE");
 
         if (c == '*') {
-            cout << colorString("*", BRIGHT_BLUE);
+            cout << colorString("*", "BRIGHT_BLUE");
             lineLen++;
         } else if (c == '\n') {
             if (lineLen + palavra.size() > LINE_LEN) {
@@ -371,7 +362,7 @@ void printPlan(Task *task) {
             if (i != size - 1) {
                 cout << "  ";
                 lineLen = 2;
-                cout << getColor(BRIGHT_WHITE);
+                cout << getColor("BRIGHT_WHITE");
             }
         } else if (c == ' ') {
             if (lineLen + palavra.size() > LINE_LEN) {
@@ -458,22 +449,22 @@ void displayObjectiveStats(Task *task) {
         currentWeekTime += periodIntersect(period->start, period->end, curWeekStart, curWeekEnd);
     }
 
-    cout << colorString("  - " + task->name, (Color) getTaskColor(task)) << "\n\n";
-    cout << colorString("  Motivação: ", BRIGHT_BLUE) << getMotivation(task) << "\n\n";
+    cout << colorString("  - " + task->name, getTaskColor(task)) << "\n\n";
+    cout << colorString("  Motivação: ", "BRIGHT_BLUE") << getMotivation(task) << "\n\n";
     printRecentHistory(task);
-    cout << "  " << colorString("Atividade: ", BRIGHT_BLUE);
+    cout << "  " << colorString("Atividade: ", "BRIGHT_BLUE");
 
     if (!periods.empty()) {
         startTime = periods.front()->start;
         endTime = periods.back()->end;
-        cout << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), BRIGHT_CYAN);
+        cout << colorString(formatDate(startTime, true) + " - " + formatDate(endTime, true), "BRIGHT_CYAN");
     } else {
-        cout << colorString("Não iniciado", BRIGHT_CYAN);
+        cout << colorString("Não iniciado", "BRIGHT_CYAN");
     }
     cout << "        ";
-    cout << colorString("Tempo total: ", BRIGHT_BLUE) << colorString(formatDur(totalTime), BRIGHT_CYAN) << "        ";
-    cout << colorString("Última semana: ", BRIGHT_BLUE) << colorString(formatDur(lastWeekTime), BRIGHT_CYAN) << "        ";
-    cout << colorString("Semana atual: ", BRIGHT_BLUE) << colorString(formatDur(currentWeekTime), BRIGHT_CYAN) << "\n\n";
+    cout << colorString("Tempo total: ", "BRIGHT_BLUE") << colorString(formatDur(totalTime), "BRIGHT_CYAN") << "        ";
+    cout << colorString("Última semana: ", "BRIGHT_BLUE") << colorString(formatDur(lastWeekTime), "BRIGHT_CYAN") << "        ";
+    cout << colorString("Semana atual: ", "BRIGHT_BLUE") << colorString(formatDur(currentWeekTime), "BRIGHT_CYAN") << "\n\n";
 }
 
 void showTaskInfo(Task *task) {

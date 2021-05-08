@@ -122,7 +122,7 @@ void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
         formatedEndTime = formatTime(period->end);
         formatedDur = formatDur(period->end - period->start);
         periodName = getTodoPath(period->todo);
-        cout << "    " << getColor(CYAN) << setw(3) << i << "." << getColor(BRIGHT_WHITE);
+        cout << "    " << getColor("CYAN") << setw(3) << i << "." << getColor("BRIGHT_WHITE");
         cout << " [" << formatedStartTime << " ... " << formatedEndTime << "]   " << formatedDur << "   \"" << periodName << "\"\n";
         i++;
     }

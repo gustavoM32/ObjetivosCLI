@@ -119,9 +119,9 @@ void printWeekSummary(bool showAll) {
 
         printTitle(to_string(weekN) + "ª semana de objetivos", SECONDARY_LEVEL);
         
-        cout << colorString("    Horas    ", BRIGHT_BLUE);
+        cout << colorString("    Horas    ", "BRIGHT_BLUE");
         for (int h = 0; h < 24; h++) {
-            cout << colorString("|", BRIGHT_BLUE) << setfill('0') << getColor(BRIGHT_CYAN) << setw(2) << h << getColor(BRIGHT_WHITE) << " ";
+            cout << colorString("|", "BRIGHT_BLUE") << setfill('0') << getColor("BRIGHT_CYAN") << setw(2) << h << getColor("BRIGHT_WHITE") << " ";
         }
         cout << "\n";
 
@@ -129,7 +129,7 @@ void printWeekSummary(bool showAll) {
             long int dayStart = weekStart + d * SECS_IN_A_DAY;
             long int dayTime = 0;
 
-            cout << "  " << colorString(wDayShort[d] + " " + formatDate(dayStart), BRIGHT_CYAN) << colorString(" [", BRIGHT_BLUE);
+            cout << "  " << colorString(wDayShort[d] + " " + formatDate(dayStart), "BRIGHT_CYAN") << colorString(" [", "BRIGHT_BLUE");
 
             for (int t = dayStart; t < dayStart + SECS_IN_A_DAY; t += charInterval) {
                 long int prodTime = 0;
@@ -138,7 +138,7 @@ void printWeekSummary(bool showAll) {
                 else {
                     while (pit != periodList.end() && (*pit)->end <= t) pit++;
                     if (pit == periodList.end() || (*pit)->start >= t + charInterval) {
-                        cout << colorString("-", BRIGHT_BLACK);
+                        cout << colorString("-", "BRIGHT_BLACK");
                     } else {
                         while (pit != periodList.end() && (*pit)->start < t + charInterval) {
                             long int inter = periodIntersect((*pit)->start, (*pit)->end, t, t + charInterval);
@@ -165,23 +165,23 @@ void printWeekSummary(bool showAll) {
                         pit--;
                         dayTime += prodTime;
 
-                        int color = getTaskColor(maxTime);
+                        string color = getTaskColor(maxTime);
                         double percentCharInterval = (double) prodTime / charInterval > 0.5;
 
-                        if (percentCharInterval >= 0.5) cout << colorString("▓", (Color) color);
-                        else if (percentCharInterval > 0) cout << colorString("▒", (Color) color);
-                        else cout << colorString("░", (Color) color);
+                        if (percentCharInterval >= 0.5) cout << colorString("▓", color);
+                        else if (percentCharInterval > 0) cout << colorString("▒", color);
+                        else cout << colorString("░", color);
                     }
                 }
             }
 
             weekTime += dayTime;
-            cout << colorString("] ", BRIGHT_BLUE) << colorString(formatDur(dayTime), BRIGHT_CYAN) << "\n";
+            cout << colorString("] ", "BRIGHT_BLUE") << colorString(formatDur(dayTime), "BRIGHT_CYAN") << "\n";
         }
 
-        cout << "\n  " << colorString("Total " + formatDur(weekTime), BRIGHT_BLUE) << "    ";
+        cout << "\n  " << colorString("Total " + formatDur(weekTime), "BRIGHT_BLUE") << "    ";
         for (auto it = coloredProd.begin(); it != coloredProd.end(); it++) {
-            cout << colorString(it->first->code + " " + formatDur(it->second), (Color) it->first->color) << "    ";
+            cout << colorString(it->first->code + " " + formatDur(it->second), it->first->color) << "    ";
         }
         cout << "Outros " << formatDur(otherProd) << "\n\n";
         

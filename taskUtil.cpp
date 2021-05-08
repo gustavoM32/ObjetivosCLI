@@ -62,7 +62,7 @@ Task* createTask(string name, string code) {
     newTask->code = code;
     newTask->plan = "";
     newTask->status = TASK_ACTIVE;
-    newTask->color = NONE;
+    newTask->color = "NONE";
     newTask->rootTodo = createTodo("To-dos", newTask, nullptr);
     newTask->parent = nullptr;
     return newTask;
@@ -84,11 +84,11 @@ void freeTask(Task *task) {
 
 void listStatusTasks(list<Task *> tasks, string statusName) {
     if (tasks.size() > 0) {
-        Color color;
-        if (statusName == "active") color = CYAN;
-        else if (statusName == "inactive") color = BRIGHT_BLACK;
-        else if (statusName == "completed") color = GREEN;
-        else if (statusName == "canceled") color = RED;
+        string color;
+        if (statusName == "active") color = "CYAN";
+        else if (statusName == "inactive") color = "BRIGHT_BLACK";
+        else if (statusName == "completed") color = "GREEN";
+        else if (statusName == "canceled") color = "RED";
 
         for (auto it = tasks.begin(); it != tasks.end(); it++) {
             Task *subtask = *it;
@@ -240,27 +240,27 @@ bool codeUsed(Task *task, string &code) {
 
 Task *getColorRoot(Task *task) {
     while (task != nullptr) {
-        if (task->color != NONE) return task;
+        if (task->color != "NONE") return task;
         task = task->parent;
     }
     return nullptr;
 }
 
-int getTaskColor(Task *task) {
+string getTaskColor(Task *task) {
     task = getColorRoot(task);
     if (task != nullptr) return task->color;
-    return BRIGHT_WHITE;
+    return "BRIGHT_WHITE";
 }
 
 string getMotivation(Task *task) {
     for (auto it = task->history.rbegin(); it != task->history.rend(); it++) {
-        if ((*it)->motivation) return (*it)->text + colorString(" (" + formatDate((*it)->date, true) + ")", BRIGHT_CYAN);
+        if ((*it)->motivation) return (*it)->text + colorString(" (" + formatDate((*it)->date, true) + ")", "BRIGHT_CYAN");
     }
     return "Indefinida";
 }
 
 void printRecentHistory(Task* task) {
-    cout << colorString("  Histórico recente: ", BRIGHT_BLUE);
+    cout << colorString("  Histórico recente: ", "BRIGHT_BLUE");
     if (task->history.size() == 0) {
         printf("Sem histórico\n\n");
         return;
@@ -276,7 +276,7 @@ void printRecentHistory(Task* task) {
 
     while (it != task->history.end()) {
         Note *note = *it;
-        cout << colorString("  * ", BRIGHT_BLUE) << colorString("(" + formatDate(note->date, true) + ") ", BRIGHT_CYAN);
+        cout << colorString("  * ", "BRIGHT_BLUE") << colorString("(" + formatDate(note->date, true) + ") ", "BRIGHT_CYAN");
         if (note->motivation) cout << "(Motivação) ";
         cout << note->text << "\n";
         it++;

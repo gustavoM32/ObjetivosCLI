@@ -59,7 +59,7 @@ struct task {
     std::string name;
     std::string code;
     std::string plan;
-    int color;
+    std::string color;
     int status;
 	std::list<Note *> history;
     Todo *rootTodo;

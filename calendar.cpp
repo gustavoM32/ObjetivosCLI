@@ -404,8 +404,8 @@ void printHabits(bool printAll) {
         Todo *todo = *it;
         i++;
         if (!printAll && habitToday(todo)) continue;
-        cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
-        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", BRIGHT_CYAN);
+        cout << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
+        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", "BRIGHT_CYAN");
         printed++;
     }
 
@@ -463,7 +463,7 @@ void printScheduled() {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
                     if (totalEstimated != 0) {
-                        cout << getColor(BRIGHT_BLUE) << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor(BRIGHT_WHITE);
+                        cout << getColor("BRIGHT_BLUE") << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
                         totalEstimated = 0;
                     }
                     stringstream dateString;
@@ -473,9 +473,9 @@ void printScheduled() {
                 }
             }
 
-            cout << "    " << getColor(BRIGHT_BLUE) << setw(2) << i << ". " << getColor(BRIGHT_WHITE);
+            cout << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
 
-            cout << getColor(CYAN);
+            cout << getColor("CYAN");
             if (sched->timeSet) {
                 cout << setfill('0') << setw(2) << schedDate.tm_hour << ":"  << setw(2) << schedDate.tm_min << setfill(' ') << " ";
             } else if (sched->date != 0) {
@@ -484,12 +484,12 @@ void printScheduled() {
                 cout << "..... ";
             }
 
-            cout << getColor(BRIGHT_CYAN);
+            cout << getColor("BRIGHT_CYAN");
             if (sched->timeEstimate == 0) cout << " 0h ";
             else if (sched->timeEstimate / 60.0 < 1.0) cout << "<1h ";
             else cout << setprecision(0) << fixed << setw(2) << sched->timeEstimate / 60.0 << "h ";
 
-            cout << getColor(BRIGHT_WHITE);
+            cout << getColor("BRIGHT_WHITE");
 
             cout << getTodoFullName(sched->todo) << "\n";
 
@@ -498,7 +498,7 @@ void printScheduled() {
             it++;
             if (printTotalLast && (it == calendar->schedules.rend() || (*it)->date < curDayStart)) {
                 printTotalLast = false;
-                cout << getColor(BRIGHT_BLUE) << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor(BRIGHT_WHITE);
+                cout << getColor("BRIGHT_BLUE") << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
             }
         } while (it != calendar->schedules.rend());
     }

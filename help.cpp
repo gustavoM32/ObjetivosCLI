@@ -11,7 +11,7 @@ void printHelp(int page) {
 
     printTitle("Ajuda", SECONDARY_LEVEL);
     if (page == TASK_MENU) {
-        cout << colorString("    # Comandos do menu do objetivo\n\n", CYAN);
+        cout << colorString("    # Comandos do menu do objetivo\n\n", "CYAN");
         helpItems.push_back("rename \"nome\" - renomeia objetivo");
         helpItems.push_back("code <código> - muda código do objetivo");
         helpItems.push_back("color <cor> - muda cor do objetivo");
@@ -29,7 +29,7 @@ void printHelp(int page) {
         helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
         helpItems.push_back("cd .. - vai para o objetivo pai");
     } else if (page == SUBTASKS_MENU) {
-        cout << colorString("    # Comandos do menu de sub-objetivos\n\n", CYAN);
+        cout << colorString("    # Comandos do menu de sub-objetivos\n\n", "CYAN");
         helpItems.push_back("add <código> \"nome\" \"motivação\" - adiciona sub-objetivo");
         helpItems.push_back("rem <código> - remove um sub-objetivo");
         helpItems.push_back("select <código> - seleciona um sub-objetivo");
@@ -37,7 +37,7 @@ void printHelp(int page) {
         helpItems.push_back("sts - lista sub-objetivos");
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == TODOS_MENU) {
-        cout << colorString("    # Comandos do menu de to-dos\n\n", CYAN);
+        cout << colorString("    # Comandos do menu de to-dos\n\n", "CYAN");
         helpItems.push_back("add \"name\" - adiciona um to-do");
         // helpItems.push_back("addesp <start-end> \"name\" - add to-dos with numbers");
         helpItems.push_back("rem <id> - remove um to-do");
@@ -51,7 +51,7 @@ void printHelp(int page) {
         helpItems.push_back("hide <id> [<esp> <idPai> <inicio-fim>] - completa e esconde um to-do");
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == PERIODS_MENU) {
-        cout << colorString("    # Comandos do menu de períodos\n\n", CYAN);
+        cout << colorString("    # Comandos do menu de períodos\n\n", "CYAN");
         helpItems.push_back("pds [all] - lista períodos");
         helpItems.push_back("edit start|end <hora> <id> <hh:mm:ss> ou");
         helpItems.push_back("edit start|end <data> <id> <dd/mm/yy> - edita período");
@@ -59,7 +59,7 @@ void printHelp(int page) {
         helpItems.push_back("reduce <minutos> - remove tempo do último período");
         helpItems.push_back("cd .. - volta para o menu do objetivo");
     } else if (page == CALENDAR_MENU) {
-        cout << colorString("    # Comandos do calendário\n\n", CYAN);
+        cout << colorString("    # Comandos do calendário\n\n", "CYAN");
         helpItems.push_back("time <id> [hora] - edita horário de um agendamento");
         helpItems.push_back("date <id> [data] - edita data de um agendamento");
         helpItems.push_back("est <id> estimativa - estima tempo para um agendamento");
@@ -86,7 +86,7 @@ void printHelp(int page) {
     helpItems.push_back("exit - sai do programa");
     
     for (auto it = helpItems.begin(); it != helpItems.end(); it++) {
-        cout << colorString("    * ", BRIGHT_BLUE) << *it << endl;
+        cout << colorString("    * ", "BRIGHT_BLUE") << *it << endl;
     }
     cout << "\n";
     printLine(SECONDARY_LEVEL);
