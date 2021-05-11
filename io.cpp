@@ -88,7 +88,7 @@ int validArgs(int nArgs) {
     Returns a string from buffer given its ID.
 */
 string getToken(int id) {
-    if (id >= (int) buffer.size()) return nullptr;
+    if (id >= (int) buffer.size()) return "";
     return buffer[id];
 }
 
