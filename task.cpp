@@ -222,21 +222,21 @@ void listColors() {
     user.
 */
 void setSubtaskStatus(Task *task) {
-    char *statusName;
+    string statusName;
     Task *subtask;
     int status;
     subtask = getSubtask(task);
     statusName = toLowercase(getToken(2));
-    if (strcmp(statusName, "active") == 0) {
+    if (statusName == "active") {
         status = TASK_ACTIVE;
-    } else if (strcmp(statusName, "inactive") == 0) {
+    } else if (statusName == "inactive") {
         status = TASK_INACTIVE;
-    } else if (strcmp(statusName, "completed") == 0) {
+    } else if (statusName == "completed") {
         status = TASK_COMPLETED;
-    } else if (strcmp(statusName, "canceled") == 0) {
+    } else if (statusName == "canceled") {
         status = TASK_CANCELED;
     } else {
-        printf("\"%s\" is not a valid status.\n\n", statusName);
+        printf("\"%s\" is not a valid status.\n\n", statusName.c_str());
         return;
     }
     if (subtask == nullptr) return;
@@ -245,7 +245,7 @@ void setSubtaskStatus(Task *task) {
         return;
     }
     subtask->status = status;
-    printf("\"%s\" is set to \"%s\"\n\n", subtask->name.c_str(), statusName);
+    printf("\"%s\" is set to \"%s\"\n\n", subtask->name.c_str(), statusName.c_str());
 }
 
 /*
@@ -270,7 +270,7 @@ void addNote(Task *task, bool motivation = false) {
     Ask user for note ID and remove it from task pointed by 'task'.
 */
 void removeNote(Task* task) {
-    int id = atoi(getToken(getNComms() - 1)) - 1;
+    int id = stoi(getToken(getNComms() - 1)) - 1;
 
     Note *note = ithNote(task->history, id);
 
@@ -285,7 +285,7 @@ void removeNote(Task* task) {
     Ask user for note ID and toggle it between motivation or not.
 */
 void toggleNote(Task* task) {
-    int id = atoi(getToken(getNComms() - 1)) - 1;
+    int id = stoi(getToken(getNComms() - 1)) - 1;
 
     Note *note = ithNote(task->history, id);
 
@@ -391,35 +391,35 @@ void printPlan(Task *task) {
     Enters in subtask menu of task pointed by 'task'.
 */
 void subtasksMenu(Task* task) {
-    char *commandName;
+    string commandName;
     printTitle("Sub-objetivos - " + task->code, MAIN_LEVEL);
     listSubtasks(task);
     cout << "\n";
     printLine(MAIN_LEVEL);
     while (true) {
         commandName = getCommandName();
-        if (strcmp(commandName, "add") == 0) {
+        if (commandName == "add") {
             if (validArgs(3)) {
                 addSubtask(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "rem") == 0) {
+        } else if (commandName == "rem") {
             if (validArgs(1)) {
                 removeSubtask(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "select") == 0) {
+        } else if (commandName == "select") {
             if (validArgs(1)) selectSubtask(task);
-        } else if (strcmp(commandName, "move") == 0) {
+        } else if (commandName == "move") {
             if (validArgs(0)) {
                 moveTask(task);
                 saveAll();
             }
-        } else if (strcmp(commandName, "sts") == 0) {
+        } else if (commandName == "sts") {
             if (validArgs(0)) listSubtasks(task);
-        } else if (strcmp(commandName, "cd") == 0) {
+        } else if (commandName == "cd") {
             if (validArgs(1)) {
-                if (strcmp("..", getToken(1)) == 0) {
+                if (getToken(1) == "..") {
                     curMenu = TASK_MENU;
                     return;
                 } else {
@@ -487,7 +487,7 @@ void showTaskInfo(Task *task) {
     Enters in task menu of task pointed by 'task'.
 */
 void taskMenu(Task* task) {
-    char *commandName;
+    string commandName;
     bool showHead = true;
     while (true) {
         if (showHead) {
@@ -497,62 +497,62 @@ void taskMenu(Task* task) {
         printLine(MAIN_LEVEL);
         periodWarning();
         commandName = getCommandName();
-        if (strcmp(commandName, "rename") == 0) {
+        if (commandName == "rename") {
             if (validArgs(1)) {
                 renameTask(task);
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "code") == 0) {
+        } else if (commandName == "code") {
             if (validArgs(1)) {
                 changeCode(task);
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "color") == 0) {
+        } else if (commandName == "color") {
             if (validArgs(1)) {
                 changeColor(task);
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "colors") == 0) {
+        } else if (commandName == "colors") {
             if (validArgs(0)) {
                 listColors();
             }
-        } else if (strcmp(commandName, "set") == 0) {
+        } else if (commandName == "set") {
             if (validArgs(2)) {
                 setSubtaskStatus(task);
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "history") == 0) {
+        } else if (commandName == "history") {
             if (getNComms() == 1) {
                 if (validArgs(0)) {
                    printHistory(task);
                 }
-            } else if (strcmp(getToken(1), "add") == 0) {
+            } else if (getToken(1) == "add") {
                 if (validArgs(2)) {
                     addNote(task);
                     saveAll();
                     showHead = true;
                 }
-            } else if (strcmp(getToken(1), "remove") == 0) {
+            } else if (getToken(1) == "remove") {
                 if (validArgs(2)) {
                     removeNote(task);
                     showHead = true;
                 }
-            } else if (strcmp(getToken(1), "toggle") == 0) {
+            } else if (getToken(1) == "toggle") {
                 if (validArgs(2)) {
                     toggleNote(task);
                     showHead = true;
                 }
             } else cout << "Opção inválida\n\n";
-        } else if (strcmp(commandName, "motivation") == 0) {
+        } else if (commandName == "motivation") {
             if (validArgs(1)) {
                 addNote(task, true);
                 showHead = true;
             }
-        } else if (strcmp(commandName, "pds") == 0) {
+        } else if (commandName == "pds") {
             if (task == rootTask) {
                 printf("Main task doesn't have periods.\n\n");
             } else {
@@ -561,29 +561,29 @@ void taskMenu(Task* task) {
                     return;
                 }
             }
-        } else if (strcmp(commandName, "sts") == 0) {
+        } else if (commandName == "sts") {
             if (validArgs(0)) {
                 curMenu = SUBTASKS_MENU;
                 return;
             }
-        } else if (strcmp(commandName, "tds") == 0) {
+        } else if (commandName == "tds") {
             if (validArgs(0)) {
                 curMenu = TODOS_MENU;
                 return;
             }
-        } else if (strcmp(commandName, "plan") == 0) {
+        } else if (commandName == "plan") {
             if (validArgs(0)) {
                 editPlan(task);
                 saveAll();
                 showHead = true;
             }
-        } else if (strcmp(commandName, "ls") == 0) {
+        } else if (commandName == "ls") {
             if (validArgs(0)) {
                 showTaskInfo(task);
             }
-        } else if (strcmp(commandName, "cd") == 0) {
+        } else if (commandName == "cd") {
             if (validArgs(1)) {
-                if (strcmp("..", getToken(1)) == 0) {
+                if (getToken(1) == "..") {
                     if (task == rootTask) {
                         printf("Can't go to main task parent.\n\n");
                     } else {

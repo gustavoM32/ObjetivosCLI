@@ -16,8 +16,8 @@ using namespace std;
     Edit period from task pointed by 'task' according to user input.
 */
 void editPeriod(Task* task, list<Period *> &periods) {
-    char *ext;
-    char *type;
+    string ext;
+    string type;
     long int old;
     long int *timestamp;
     int a, b, c;
@@ -25,14 +25,14 @@ void editPeriod(Task* task, list<Period *> &periods) {
     string newFormatedTime;
     ext = toLowercase(getToken(1));
     type = toLowercase(getToken(2));
-    int id = atoi(getToken(3)) - 1;
+    int id = stoi(getToken(3)) - 1;
 
     Period *period = ithPeriod(periods, id);
     if (period == nullptr) return;
 
-    if (strcmp(ext, "start") == 0) {
+    if (ext == "start") {
         timestamp = &(period->start);
-    } else if (strcmp(ext, "end") == 0) {
+    } else if (ext == "end") {
         timestamp = &(period->end);
     } else {
         printf("You can edit period 'start' or 'end'\n\n");
@@ -40,11 +40,11 @@ void editPeriod(Task* task, list<Period *> &periods) {
     }
 
     old = *timestamp;
-    if (strcmp(type, "time") == 0) {
-        sscanf(getToken(4), "%d:%d:%d", &a, &b, &c);
+    if (type == "time") {
+        sscanf(getToken(4).c_str(), "%d:%d:%d", &a, &b, &c);
         *timestamp = changeTime(*timestamp, a, b, c);
-    } else if (strcmp(type, "date") == 0) {
-        sscanf(getToken(4), "%d/%d/%d", &a, &b, &c);
+    } else if (type == "date") {
+        sscanf(getToken(4).c_str(), "%d/%d/%d", &a, &b, &c);
         *timestamp = changeDate(*timestamp, a, b, 2000 + c);
     } else {
         printf("You can edit period 'time' or 'date'\n\n");
@@ -52,14 +52,14 @@ void editPeriod(Task* task, list<Period *> &periods) {
     }
     newFormatedTime = formatTime(*timestamp);
     oldFormatedTime = formatTime(old);
-    printf("Period %s %s changed from %s to %s\n\n", ext, type, oldFormatedTime.c_str(), newFormatedTime.c_str());
+    printf("Period %s %s changed from %s to %s\n\n", ext.c_str(), type.c_str(), oldFormatedTime.c_str(), newFormatedTime.c_str());
 }
 
 /*
     Ask user for a period Id of task pointed by 'task and remove if it exists.
 */
 void removePeriod(Task *task, list<Period *> &periods) {
-    int id = atoi(getToken(1)) - 1;
+    int id = stoi(getToken(1)) - 1;
 
     Period *period = ithPeriod(periods, id);
     if (period == nullptr) return;
@@ -74,7 +74,7 @@ void removePeriod(Task *task, list<Period *> &periods) {
     Ask user for a period an amount of minutes and remove them from the last period.
 */
 void reducePeriod(Task *task, list<Period *> &periods) {
-    long int minutes = atol(getToken(1));
+    long int minutes = stol(getToken(1));
 
     Period *period = periods.back();
 
@@ -134,7 +134,7 @@ void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
     Enters periods menu.
 */
 void periodsMenu(Task *task) {
-    char *commandName;
+    string commandName;
     list<Period *> periods;
     printTitle("Períodos - " + task->code, MAIN_LEVEL);
     listPeriods(task, periods, false);
@@ -144,11 +144,11 @@ void periodsMenu(Task *task) {
         commandName = getCommandName();
         printTitle("Períodos - " + task->code, MAIN_LEVEL);
 
-        if (strcmp(commandName, "pds") == 0) {
+        if (commandName == "pds") {
             if (getNComms() == 1) {
                 listPeriods(task, periods, false);
             } else if (getNComms() == 2) {
-                if (strcmp(getToken(1), "all") == 0) {
+                if (getToken(1) == "all") {
                     listPeriods(task, periods, true);
                 } else {
                     printf("Argumento inválido.\n\n");
@@ -156,28 +156,28 @@ void periodsMenu(Task *task) {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        } else if (strcmp(commandName, "edit") == 0) {
+        } else if (commandName == "edit") {
             if (validArgs(4)) {
                 editPeriod(task, periods);
                 listPeriods(task, periods, false);
                 saveAll();
             }
-        } else if (strcmp(commandName, "rem") == 0) {
+        } else if (commandName == "rem") {
             if (validArgs(1)) {
                 removePeriod(task, periods);
                 listPeriods(task, periods, false);
                 saveAll();
             }
-        } else if (strcmp(commandName, "reduce") == 0) {
+        } else if (commandName == "reduce") {
             if (validArgs(1)) {
                 reducePeriod(task, periods);
                 listPeriods(task, periods, false);
                 saveAll();
             }
         
-        } else if (strcmp(commandName, "cd") == 0) {
+        } else if (commandName == "cd") {
             if (validArgs(1)) {
-                if (strcmp("..", getToken(1)) == 0) {
+                if (getToken(1) == "..") {
                     curMenu = TASK_MENU;
                     return;
                 } else {

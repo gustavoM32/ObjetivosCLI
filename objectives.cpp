@@ -25,8 +25,8 @@ void freeAll() {
     delete calendar;
 }
 
-bool generalCommands(char *commandName) {
-    if (strcmp(commandName, "goto") == 0) {
+bool generalCommands(string commandName) {
+    if (commandName == "goto") {
         if (validArgs(1)) {
             Task *nextTask = searchTask();
             if (nextTask != nullptr) {
@@ -35,27 +35,27 @@ bool generalCommands(char *commandName) {
                 return true;
             }
         }
-    } else if (strcmp(commandName, "cal") == 0) {
+    } else if (commandName == "cal") {
         if (validArgs(0)) {
             lastMenu = curMenu;
             curMenu = CALENDAR_MENU;
             return true;
         }
-    } else if (strcmp(commandName, "week") == 0) {
+    } else if (commandName == "week") {
         if (getNComms() == 1) printWeekSummary(false);
-        else if (getNComms() == 2 && strcmp(getToken(1), "all") == 0) printWeekSummary(true);
+        else if (getNComms() == 2 && getToken(1) == "all") printWeekSummary(true);
         else cout << "Opção inválida\n\n";
-    } else if (strcmp(commandName, "tree") == 0) {
+    } else if (commandName == "tree") {
         if (getNComms() == 1 || getNComms() == 2) {
             printTaskTree();
         } else {
             printf("Número inválido de argumentos.\n\n");
         }
-    } else if (strcmp(commandName, "help") == 0) {
+    } else if (commandName == "help") {
         if (validArgs(0)) printHelp(curMenu);
-    } else if (strcmp(commandName, "save") == 0) {
+    } else if (commandName == "save") {
         if (validArgs(0)) saveAll();
-    } else if (strcmp(commandName, "exit") == 0) {
+    } else if (commandName == "exit") {
         if (validArgs(0)) {
             freeAll();
             printf("Exiting...\n\n");

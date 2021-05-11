@@ -10,9 +10,9 @@ int getLine(FILE *);
 
 int validArgs(int nArgs);
 
-char *getToken(int i);
+std::string getToken(int i);
 
-char *getCommandName();
+std::string getCommandName();
 
 void fpfInd(FILE *, int);
 

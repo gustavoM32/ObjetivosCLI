@@ -218,8 +218,8 @@ void printTaskTreeRec(Task *task, int depth, bool onlyActive, bool onlyIncomplet
 */
 void printTaskTree() {
     if (getNComms() == 1) printTaskTreeRec(rootTask, 0, true, false);
-    else if (strcmp(getToken(1), "incomplete") == 0) printTaskTreeRec(rootTask, 0, false, true);
-    else if (strcmp(getToken(1), "all") == 0) printTaskTreeRec(rootTask, 0, false, false);
+    else if (getToken(1) == "incomplete") printTaskTreeRec(rootTask, 0, false, true);
+    else if (getToken(1) == "all") printTaskTreeRec(rootTask, 0, false, false);
     else printf("Invalid option.\n");
 
     printf("\n");

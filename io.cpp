@@ -88,7 +88,7 @@ int validArgs(int nArgs) {
 /*
     Returns a string from buffer given its ID.
 */
-char *getToken(int id) {
+string getToken(int id) {
     if (id >= nComms) return nullptr;
     return buffer[id];
 }
@@ -96,11 +96,11 @@ char *getToken(int id) {
 /*
     Prompts user for a command until its name is not empty.
 */
-char *getCommandName() {
-    char *commandName = nullptr;
+string getCommandName() {
+    string commandName = "";
     char *line;
     FILE *stream;
-    while (commandName == nullptr) {
+    while (commandName == "") {
         line = readline("> ");
         add_history(line);
         int size = strlen(line);
@@ -161,7 +161,7 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
 */
 void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
-    fprintf(output, "\"%s\" %s %d %s\n", task->name.c_str(), task->code.c_str(), task->status, task->color.c_str());
+    fprintf(output, "\"%s\" \"%s\" %d \"%s\"\n", task->name.c_str(), task->code.c_str(), task->status, task->color.c_str());
     fpfInd(output, depth);
     fprintf(output, "\"%s\"\n", escapeNewLines(task->plan).c_str());
     fpfInd(output, depth);
@@ -209,33 +209,33 @@ void loadTodo(FILE* input, Task *task, Todo *parent) {
     getLine(input);
     todoName = getToken(0);
     todo = createTodo(todoName, task, parent);
-    todo->status = atoi(getToken(1));
+    todo->status = stoi(getToken(1));
 
 	getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         Schedule *sched = new Schedule;
         sched->todo = todo;
         getLine(input);
-        sched->timeEstimate = atoi(getToken(0));
-        sched->timeSet = atoi(getToken(1));
-        sched->date = atol(getToken(2));
+        sched->timeEstimate = stoi(getToken(0));
+        sched->timeSet = stoi(getToken(1));
+        sched->date = stol(getToken(2));
         todo->schedules.push_back(sched);
     }
 
     getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         Period *period = new Period;
         getLine(input);
-        period->start = atol(getToken(0));
-        period->end = atol(getToken(1));
+        period->start = stol(getToken(0));
+        period->end = stol(getToken(1));
         period->todo = todo;
         todo->periods.push_back(period);
     }
 
 	getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         loadTodo(input, task, todo);
     }
@@ -257,27 +257,27 @@ Task* loadTask(FILE* input) {
     taskName = getToken(0);
     taskCode = getToken(1);
     task = createTask(taskName, taskCode);
-    task->status = atoi(getToken(2));
+    task->status = stoi(getToken(2));
     task->color = getToken(3);
 
     getLine(input);
     task->plan = unescapeNewLines(getToken(0));
 
     getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         Note *note = new Note;
         getLine(input);
         note->text = getToken(0);
-        note->date = atol(getToken(1));
-        note->motivation = atoi(getToken(2));
+        note->date = stol(getToken(1));
+        note->motivation = stoi(getToken(2));
         task->history.push_back(note);
     }
 
     loadTodo(input, task, nullptr);
     
     getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         Task *subtask = loadTask(input);
         subtask->parent = task;
@@ -295,7 +295,7 @@ void loadAll() {
     input = fopenSafe("data/tasks.txt", "r");
 
     getLine(input);
-    count = atoi(getToken(0));
+    count = stoi(getToken(0));
     while (count--) {
         Task *subtask = loadTask(input);
         rootTask->subtasks.push_back(subtask);

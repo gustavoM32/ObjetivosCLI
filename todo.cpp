@@ -43,10 +43,12 @@ void freeTodo(Todo *todo) {
 /*
     Get todo from path in text.
 */
-Todo *getTodoFromPath(Task *task, char *text, int *lastId) {
+Todo *getTodoFromPath(Task *task, string texts, int *lastId) {
     char *token;
     int id;
     Todo *todo = nullptr;
+    char *text = new char[texts.size() + 1];
+    strcpy(text, texts.c_str());
 
     token = strtok(text, ".");
     id = atoi(token) - 1;
@@ -223,7 +225,7 @@ void editTodo(Task* task) {
     
     if (todo == nullptr) return;
 
-    if (strcmp(getToken(1), "name") == 0) {
+    if (getToken(1) == "name") {
         name = getToken(3);
         if (name[0] == '\0') {
             printf("To-do name must not be empty.\n\n");
@@ -358,20 +360,20 @@ void setTodoStatus(Task *task) {
     TodoStatus status;
     Todo *todo;
     size_t start, end;
-    int mult = strcmp(getToken(1), "esp") == 0;
+    int mult = getToken(1) == "esp";
 
     if (mult && getNComms() == 3) todo = task->rootTodo;
     else todo = getTodoFromPath(task, getToken(1 + mult), nullptr);
     
     if (todo == nullptr) return;
 
-    if (strcmp(getToken(0), "clear") == 0) status = TODO_PENDING;
-    else if (strcmp(getToken(0), "complete") == 0) status = TODO_COMPLETED;
-    else if (strcmp(getToken(0), "hide") == 0) status = TODO_COMPLETED_HIDDEN;
+    if (getToken(0) == "clear") status = TODO_PENDING;
+    else if (getToken(0) == "complete") status = TODO_COMPLETED;
+    else if (getToken(0) == "hide") status = TODO_COMPLETED_HIDDEN;
     else status = TODO_HABIT; // because of the menu condition, getToken(0) must be "habit"
 
     if (mult) {
-        sscanf(getToken(getNComms() - 1), "%ld-%ld", &start, &end);
+        sscanf(getToken(getNComms() - 1).c_str(), "%ld-%ld", &start, &end);
         start--;
         end--;
         if (start > end || start < 0 || end >= todo->subtodos.size()) {
@@ -428,11 +430,11 @@ void scheduleTodo(Task *task) {
     // sched id estimate date time
 
     if (args >= 3) {
-        estimate = 60 * atof(getToken(2));
+        estimate = 60 * stof(getToken(2));
     }
 
     if (args >= 4) {
-        sscanf(getToken(3), "%d/%d", &day, &mon);
+        sscanf(getToken(3).c_str(), "%d/%d", &day, &mon);
 
         date = getCurrentTime();
         structTime = localtime(&date);
@@ -443,7 +445,7 @@ void scheduleTodo(Task *task) {
         structTime->tm_mday = day;
 
         if (args == 5) {
-            sscanf(getToken(4), "%d:%d", &hour, &min);
+            sscanf(getToken(4).c_str(), "%d:%d", &hour, &min);
         } else if (args == 4) {
             hour = min = 0;
         }
@@ -527,7 +529,7 @@ void listTodos(Task* task, bool showHidden) {
     Enters in to-do menu of task pointed by 'task'.
 */
 void todosMenu(Task* task) {
-    char *commandName;
+    string commandName;
     list<string> todoStatusCommands = {"clear", "complete", "hide", "habit"};
     
     printTitle("To-dos - " + task->code, MAIN_LEVEL);
@@ -536,7 +538,7 @@ void todosMenu(Task* task) {
         printTitle("To-dos - " + task->code, MAIN_LEVEL);
         commandName = getCommandName();
         periodWarning();
-        if (strcmp(commandName, "add") == 0) {
+        if (commandName == "add") {
             if (getNComms() == 2 || getNComms() == 3) {
                 addTodo(task);
                 listTodos(task, 0);
@@ -544,31 +546,31 @@ void todosMenu(Task* task) {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        // } else if (strcmp(commandName, "addesp") == 0) {
+        // } else if (commandName == "addesp") {
         //     if (validArgs(2)) {
         //         addTodoEsp(task);
         //      listTodos(task, 0);
         //         saveAll();
         //     }
-        } else if (strcmp(commandName, "rem") == 0) {
+        } else if (commandName == "rem") {
             if (validArgs(1)) {
                 removeTodo(task);
                 listTodos(task, 0);
                 saveAll();
             }
-        } else if (strcmp(commandName, "edit") == 0) {
+        } else if (commandName == "edit") {
             if (validArgs(3)) {
                 editTodo(task);
                 listTodos(task, 0);
                 saveAll();
             }
-        } else if (strcmp(commandName, "move") == 0) {
+        } else if (commandName == "move") {
             if (validArgs(3)) {
                 moveTodo(task);
                 listTodos(task, 0);
                 saveAll();
             }
-        } else if (strcmp(commandName, "sched") == 0) {
+        } else if (commandName == "sched") {
             if (getNComms() >= 2 && getNComms() <= 5) {
                 scheduleTodo(task);
                 listTodos(task, 0);
@@ -576,11 +578,11 @@ void todosMenu(Task* task) {
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
-        } else if (strcmp(commandName, "tds") == 0) {
+        } else if (commandName == "tds") {
             if (getNComms() == 1) {
                 listTodos(task, false);
             } else if (getNComms() == 2) {
-                if (strcmp(getToken(1), "all") == 0) {
+                if (getToken(1) == "all") {
                     listTodos(task, true);
                 } else {
                     printf("Argumento inválido.\n\n");
@@ -596,9 +598,9 @@ void todosMenu(Task* task) {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        } else if (strcmp(commandName, "cd") == 0) {
+        } else if (commandName == "cd") {
             if (validArgs(1)) {
-                if (strcmp("..", getToken(1)) == 0) {
+                if (getToken(1) == "..") {
                     curMenu = TASK_MENU;
                     return;
                 } else {

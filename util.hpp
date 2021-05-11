@@ -37,9 +37,9 @@ void formatTaskName(char* input);
 
 void readFileString(char* name, int size, FILE* input);
 
-char *toLowercase(char *);
+std::string toLowercase(std::string);
 
-char *toUppercase(char *);
+std::string toUppercase(std::string);
 
 std::string escapeNewLines(std::string s);
 
@@ -47,7 +47,7 @@ std::string unescapeNewLines(std::string s);
 
 void copyFile(char *orig, char *dest);
 
-void notAvailable(char* userCommand);
+void notAvailable(std::string userCommand);
 
 int countTasks(Task *task, std::string &code);
 

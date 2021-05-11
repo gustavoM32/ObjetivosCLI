@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 #include <list>
 #include <ctime>
 #include <limits>
@@ -220,26 +221,18 @@ void readFileString(char* name, int size, FILE* input) {
 /*
     Converts string 's' to lowercase.
 */
-char *toLowercase(char *s) {
-    int i;
-    for (i = 0; s[i] != '\0'; i++) {
-        if ('A' <= s[i] && s[i] <= 'Z') {
-            s[i] += 'a' - 'A';
-        }
-    }
+string toLowercase(string s) {
+    transform(s.begin(), s.end(), s.begin(),
+        [](unsigned char c){ return tolower(c); });
     return s;
 }
 
 /*
     Converts string 's' to uppercase.
 */
-char *toUppercase(char *s) {
-    int i;
-    for (i = 0; s[i] != '\0'; i++) {
-        if ('a' <= s[i] && s[i] <= 'z') {
-            s[i] += 'A' - 'a';
-        }
-    }
+string toUppercase(string s) {
+    transform(s.begin(), s.end(), s.begin(),
+        [](unsigned char c){ return toupper(c); });
     return s;
 }
 
@@ -290,8 +283,8 @@ void copyFile(char *orig, char *dest) {
 /*
     Warns user that the command doesn't exist in current scope.
 */
-void notAvailable(char* userCommand) {
-    printf("Command \"%s\" does not exist or is not available.\n\n", userCommand);
+void notAvailable(string userCommand) {
+    printf("Command \"%s\" does not exist or is not available.\n\n", userCommand.c_str());
 }
 
 /*

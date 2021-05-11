@@ -83,6 +83,6 @@ extern Task *curTask;
 
 void freeAll();
 
-bool generalCommands(char *commandName);
+bool generalCommands(std::string commandName);
 /*************************************/
 #endif

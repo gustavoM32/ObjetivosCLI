@@ -28,7 +28,7 @@ using namespace std;
 //     int args;
 //     int estimate;
     
-//     id = atoi(getToken(1)) - 1;
+//     id = stoi(getToken(1)) - 1;
 //     todo = ithTodo(calendar->habits, id);
 
 //     if (todo == nullptr) return;
@@ -52,7 +52,7 @@ using namespace std;
 //         }
 //         structTime->tm_hour = hour;
 //         structTime->tm_min = min;
-//         estimate = 60 * atof(getToken(args - 1));
+//         estimate = 60 * stof(getToken(args - 1));
 //         date = mktime(structTime);
 //         printf("To-do date scheduled to %02d/%02d/%04d.\n\n", day, mon, 1900 + structTime->tm_year);
 //     } else {
@@ -69,7 +69,7 @@ using namespace std;
 void editScheduleTime() {
     int id, hour, min;
     
-    id = calendar->schedules.size() - atoi(getToken(1));
+    id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
@@ -79,7 +79,7 @@ void editScheduleTime() {
         sched->date = changeTime(sched->date, 0, 0, 0);
         cout << "Hora removida.\n\n";
     } else {
-        if (sscanf(getToken(2), "%d:%d", &hour, &min) == 1) {
+        if (sscanf(getToken(2).c_str(), "%d:%d", &hour, &min) == 1) {
             min = 0;
         }
         sched->timeSet = 1;
@@ -92,7 +92,7 @@ void editScheduleTime() {
 void editScheduleDate() {
     int id, day, mon, year;
     
-    id = calendar->schedules.size() - atoi(getToken(1));
+    id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
@@ -102,7 +102,7 @@ void editScheduleDate() {
         sched->date = 0;
         cout << "Data removida.\n\n";
     } else {
-        if (sscanf(getToken(2), "%d/%d/%d", &day, &mon, &year) == 2) {
+        if (sscanf(getToken(2).c_str(), "%d/%d/%d", &day, &mon, &year) == 2) {
             sched->date = changeDate(sched->date, day, mon, getYear(getCurrentTime()));
             printf("Changed scheduled date to %02d/%02d.\n\n", day, mon);
         } else {
@@ -117,25 +117,25 @@ void editScheduleDate() {
 void editScheduleEstimate() {
     int id;
     
-    id = calendar->schedules.size() - atoi(getToken(1));
+    id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
 
-    sched->timeEstimate = 60 * atof(getToken(2));
-    printf("Changed time estimate to %.1f\n\n", atof(getToken(2)));
+    sched->timeEstimate = 60 * stof(getToken(2));
+    printf("Changed time estimate to %.1f\n\n", stof(getToken(2)));
 }
 
 void postponeSchedule() {
-    int id = calendar->schedules.size() - atoi(getToken(1));
+    int id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
 
-    int delay = atoi(getToken(2));
+    int delay = stoi(getToken(2));
     if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
     sched->date += SECS_IN_A_DAY * delay;
-    if (getNComms() != 4 || strcmp(getToken(3), "keep") != 0) {
+    if (getNComms() != 4 || getToken(3) == "keep") {
         sched->timeSet = 0;
         sched->date = changeTime(sched->date, 0, 0, 0);
     }
@@ -146,12 +146,12 @@ void postponeSchedule() {
     Edits schedule attributes.
 */
 void delaySchedule() {
-    int id = calendar->schedules.size() - atoi(getToken(1));
+    int id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
 
-    int delay = atoi(getToken(2));
+    int delay = stoi(getToken(2));
     if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
     sched->date += 3600 * delay;
     sched->timeSet = 1;
@@ -162,7 +162,7 @@ void delaySchedule() {
     Delete schedule.
 */
 void removeSchedule() {
-    int id = calendar->schedules.size() - atoi(getToken(1));
+    int id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
@@ -186,7 +186,7 @@ void removeSchedule() {
     Delete schedule and set its to-do to complete.
 */
 void completeTodo() {
-    int id = calendar->schedules.size() - atoi(getToken(1));
+    int id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
@@ -209,7 +209,7 @@ void touchTodo() {
     Todo *todo;
     string todoName;
 
-    id = atoi(getToken(1)) - 1;
+    id = stoi(getToken(1)) - 1;
     todo = ithTodo(calendar->habits, id);
 
     if (todo == nullptr) return;
@@ -245,7 +245,7 @@ void startPeriod() {
         printf("Período \"%s > %s\" encerrado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
     }
 
-    id = calendar->schedules.size() - atoi(getToken(1));
+    id = calendar->schedules.size() - stoi(getToken(1));
     calendar->periodSched = ithSchedule(calendar->schedules, id);
 
     if (calendar->periodSched == nullptr) return;
@@ -375,15 +375,15 @@ void periodWarning() {
 */
 void changePrioritizedStatus() {
     TodoStatus status;
-    int id = atoi(getToken(1)) - 1;
+    int id = stoi(getToken(1)) - 1;
 
     Todo *todo = ithTodo(calendar->habits, id);
 
     if (todo == nullptr) return;
 
-    if (strcmp(getToken(2), "remove") == 0) {
+    if (getToken(2) == "remove") {
         status = TODO_PENDING;
-    } else if (strcmp(getToken(2), "complete") == 0) {
+    } else if (getToken(2) == "complete") {
         status = TODO_COMPLETED;
     } else {
         printf("Argumento inválido.\n\n");
@@ -515,21 +515,21 @@ void printScheduled() {
     Enters calendar menu.
 */
 void calendarMenu() {
-    char *commandName;
+    string commandName;
     updateCalendar();
     printScheduled();
     while (true) {
         // printf(" _________________________  Calendar  _________________________\n\n");
         periodWarning();
         commandName = getCommandName();
-        /*if (strcmp(commandName, "sched") == 0) {
+        /*if (commandName == "sched") {
             if (getNComms() == 2 || getNComms() == 4 || getNComms() == 5) {
                 scheduleTodoCalendar();
                 printScheduled();
             } else {
                 printf("Número inválido de argumentos.\n\n");
             }
-        } else */if (strcmp(commandName, "time") == 0) {
+        } else */if (commandName == "time") {
             if (getNComms() == 2 || getNComms() == 3) {
                 editScheduleTime();
                 printScheduled();
@@ -537,7 +537,7 @@ void calendarMenu() {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        } else if (strcmp(commandName, "date") == 0) {
+        } else if (commandName == "date") {
             if (getNComms() == 2 || getNComms() == 3) {
                 editScheduleDate();
                 printScheduled();
@@ -545,13 +545,13 @@ void calendarMenu() {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        } else if (strcmp(commandName, "est") == 0) {
+        } else if (commandName == "est") {
             if (validArgs(2)) {
                 editScheduleEstimate();
                 printScheduled();
                 saveAll();
             }
-        } else if (strcmp(commandName, "post") == 0) {
+        } else if (commandName == "post") {
             if (getNComms() == 3 || getNComms() == 4) {
                 postponeSchedule();
                 printScheduled();
@@ -559,63 +559,63 @@ void calendarMenu() {
             } else {
                 printf("Número inválido de argumentos.\n");
             }
-        } else if (strcmp(commandName, "delay") == 0) {
+        } else if (commandName == "delay") {
             if (validArgs(2)) {
                 delaySchedule();
                 printScheduled();
                 saveAll();
             }
-        } else if (strcmp(commandName, "clear") == 0) {
+        } else if (commandName == "clear") {
             if (validArgs(1)) {
                 removeSchedule();
                 printScheduled();
                 saveAll();
             }
-        } else if (strcmp(commandName, "complete") == 0) {
+        } else if (commandName == "complete") {
             if (validArgs(1)) {
                 completeTodo();
                 printScheduled();
                 saveAll();
             }
-        } else if (strcmp(commandName, "start") == 0) {
+        } else if (commandName == "start") {
             if (validArgs(1)) {
                 startPeriod();
                 saveAll();
             }
-        } else if (strcmp(commandName, "habit") == 0) {
+        } else if (commandName == "habit") {
             if (validArgs(1)) {
                 touchTodo();
                 saveAll();
                 printScheduled();
             }
-        } else if (strcmp(commandName, "habits") == 0) {
+        } else if (commandName == "habits") {
             if (validArgs(0)) {
                 printTitle("Hábitos", MAIN_LEVEL);
                 printHabits(true);
                 printLine(MAIN_LEVEL);
             }
-        } else if (strcmp(commandName, "stop") == 0) {
+        } else if (commandName == "stop") {
             if (validArgs(0)) {
                 stopPeriod();
                 saveAll();
             }
-        } else if (strcmp(commandName, "cancel") == 0) {
+        } else if (commandName == "cancel") {
             if (validArgs(0)) {
                 cancelPeriod();
                 saveAll();
             }
-        } else if (strcmp(commandName, "status") == 0) {
+        } else if (commandName == "status") {
             if (validArgs(0)) {
                 showTaskPeriodTime();
                 saveAll();
             }
-        } else if (strcmp(commandName, "cal") == 0) {
+        } else if (commandName == "cal") {
             if (validArgs(0)) {
                 printScheduled();
             }
-        } else if (strcmp(commandName, "cd") == 0) {
+        } else if (commandName == "cd") {
             if (validArgs(1)) {
-                if (strcmp("..", getToken(1)) == 0) {
+                if (getToken(1) == "..") {
                     curMenu = lastMenu;
                     return;
                 } else {
