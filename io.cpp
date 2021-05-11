@@ -17,14 +17,13 @@
 
 using namespace std;
 
-static int nComms = 0;
-static char buffer[MAX_COMMANDS][COMMAND_LEN];
+static vector<string> buffer;
 
 /*
     Returns the number of read commands;
 */
 int getNComms() {
-    return nComms;
+    return buffer.size();
 }
 
 /*
@@ -35,8 +34,8 @@ int getLine(FILE *stream) {
     char c;
     int inCommand = 0;
     int inSpaced = 0;
-    int commN = 0;
-    nComms = 0;
+    buffer.clear();
+    string command = "";
     while ((c = getc(stream)) != '\n') {
         if (!inCommand) {
             if (c == SENTENCE_LIMIT) {
@@ -44,20 +43,20 @@ int getLine(FILE *stream) {
                 inSpaced = 1;
             } else if (c != ' ') {
                 inCommand = 1;
-                buffer[nComms][commN++] = c;
+                command += c;
             }
         } else {
             if (inSpaced && c == SENTENCE_LIMIT) {
                 inCommand = 0;
                 inSpaced = 0;
-                buffer[nComms++][commN] = '\0';
-                commN = 0;
+                buffer.push_back(command);
+                command = "";
             } else if (!inSpaced && c == ' ') {
                 inCommand = 0;
-                buffer[nComms++][commN] = '\0';
-                commN = 0;
+                buffer.push_back(command);
+                command = "";
             } else {
-                buffer[nComms][commN++] = c;
+                command += c;
             }
         }
     }
@@ -65,7 +64,7 @@ int getLine(FILE *stream) {
         return 1;
     }
     if (inCommand) {
-        buffer[nComms++][commN] = '\0';
+        buffer.push_back(command);
     }
     return 0;
 }
@@ -75,7 +74,7 @@ int getLine(FILE *stream) {
     Returns false otherwise and a error message.
 */
 int validArgs(int nArgs) {
-    if (nComms - 1 != nArgs) {
+    if ((int) buffer.size() - 1 != nArgs) {
         if (nArgs == 0) printf("Command accepts no arguments.\n\n");
         else if (nArgs == 1) printf("Command accepts 1 argument.\n\n");
         else printf("Command accepts %d arguments.\n\n", nArgs);
@@ -89,7 +88,7 @@ int validArgs(int nArgs) {
     Returns a string from buffer given its ID.
 */
 string getToken(int id) {
-    if (id >= nComms) return nullptr;
+    if (id >= (int) buffer.size()) return nullptr;
     return buffer[id];
 }
 

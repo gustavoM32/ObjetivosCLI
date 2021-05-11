@@ -5,8 +5,6 @@
 #include <list>
 #include <ctime>
 
-#define COMMAND_LEN 200
-#define MAX_COMMANDS 10
 #define LINE_LEN 160
 #define SECS_IN_A_DAY 86400
 #define SECS_IN_A_WEEK 604800
