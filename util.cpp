@@ -34,19 +34,6 @@ map<string, int> colors = {
 };
 
 /*
-    This function does the same thing as malloc but exits the program if it
-    can't allocate memory.
-*/
-void* mallocSafe(int nBytes) {
-    void* ptr = malloc(nBytes);
-    if (ptr == nullptr) {
-        printf("Out of memory! Exiting...\n");
-        exit(EXIT_FAILURE);
-    }
-    return ptr;
-}
-
-/*
     This function does the same thing as fopen but exits the program if is
     unable to open the file.
 */

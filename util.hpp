@@ -9,8 +9,6 @@
 
 extern std::map<std::string, int> colors;
 
-void* mallocSafe(int nBytes);
-
 FILE* fopenSafe(char* fileName, char* mode);
 
 long int getCurrentTime();

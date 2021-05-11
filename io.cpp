@@ -104,7 +104,7 @@ string getCommandName() {
         line = readline("> ");
         add_history(line);
         int size = strlen(line);
-        char *newLine = (char *) mallocSafe(size + 1);
+        char *newLine = new char[size + 1];
         strcpy(newLine, line);
         free(line);
         newLine[size] = '\n';
