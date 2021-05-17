@@ -195,22 +195,23 @@ void printTaskTreeRec(Task *task, int depth, bool onlyActive, bool onlyIncomplet
     if (onlyIncomplete && task->status == TASK_COMPLETED) return;
 
     for (int i = 0; i < depth; i++) {
-        printf("   ");
+        cout << "   ";
     }
 
-    printf("* ");
-    if (onlyIncomplete && task->status == TASK_INACTIVE) printf("(inactive) ");
+    cout << getColor(getTaskColor(task)) << "* ";
+    if (onlyIncomplete && task->status == TASK_INACTIVE) cout << "(inactive) ";
     if (!onlyActive && !onlyIncomplete) {
-        if (task->status == TASK_INACTIVE) printf("(inactive) ");
-        else if (task->status == TASK_CANCELED) printf("(canceled) ");
-        else if (task->status == TASK_COMPLETED) printf("(completed) ");
+        if (task->status == TASK_INACTIVE) cout << "(inactive) ";
+        else if (task->status == TASK_CANCELED) cout << "(canceled) ";
+        else if (task->status == TASK_COMPLETED) cout << "(completed) ";
     }
-    printf("%s - %s\n", task->code.c_str(), task->name.c_str());
+
+    cout << task->code << " - " << task->name << "\n";
 
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
         printTaskTreeRec(*it, depth + 1, onlyActive, onlyIncomplete);
     }
-
+    cout << getColor("BRIGHT_WHITE");
 }
 
 /*
