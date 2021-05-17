@@ -424,11 +424,11 @@ bool periodComp(const Period *p1, const Period *p2) {
     Schedule compare function.
 */
 bool schedComp(const Schedule *sched1, const Schedule *sched2) {
-    if (sched1->date < sched2->date) return true;
-    if (sched1->date > sched2->date) return false;
-    if (sched1->timeSet) return false;
-    if (sched2->timeSet) return true;
-    return false;
+    long long date1 = sched1->date;
+    long long date2 = sched2->date;
+    if (!sched1->timeSet) date1 += SECS_IN_A_DAY - 1; // there will never be a schedule with this exact date value
+    if (!sched2->timeSet) date2 += SECS_IN_A_DAY - 1; // the user can only set to the minute
+    return date1 < date2;
 }
 
 /*
