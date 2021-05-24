@@ -425,6 +425,7 @@ void printScheduled() {
     int i = 1;
     time_t curDayStart = getDayStart(getCurrentTime());
     int totalEstimated = 0;
+    int timeSetEstimated = 0;
     bool printLate = true;
     bool printCommon = true;
     bool printTotalLast = true;
@@ -463,8 +464,10 @@ void printScheduled() {
                     dayStart -= SECS_IN_A_DAY;
                     localtime_r(&dayStart, &date);
                     if (totalEstimated != 0) {
-                        cout << getColor("BRIGHT_BLUE") << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
+                        cout << getColor("BRIGHT_BLUE") << "    Total " << setprecision(0) << fixed << getColor("CYAN") << setw(2) << timeSetEstimated / 60.0 << "h";
+                        cout << " " << getColor("BRIGHT_CYAN") << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
                         totalEstimated = 0;
+                        timeSetEstimated = 0;
                     }
                     stringstream dateString;
                     dateString << wDayShort[date.tm_wday] << " (" << setfill('0') << setw(2) << date.tm_mday << "/" << setw(2) << date.tm_mon + 1 << ")";
@@ -494,11 +497,13 @@ void printScheduled() {
             cout << getTodoFullName(sched->todo) << "\n";
 
             totalEstimated += sched->timeEstimate;
+            if (sched->timeSet) timeSetEstimated += sched->timeEstimate;
             i++;
             it++;
             if (printTotalLast && (it == calendar->schedules.rend() || (*it)->date < curDayStart)) {
                 printTotalLast = false;
-                cout << getColor("BRIGHT_BLUE") << "        Total " << setprecision(0) << fixed << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
+                cout << getColor("BRIGHT_BLUE") << "    Total " << setprecision(0) << fixed << getColor("CYAN") << setw(2) << timeSetEstimated / 60.0 << "h";
+                cout << " " << getColor("BRIGHT_CYAN") << setw(2) << totalEstimated / 60.0 << "h\n" << getColor("BRIGHT_WHITE");
             }
         } while (it != calendar->schedules.rend());
     }
