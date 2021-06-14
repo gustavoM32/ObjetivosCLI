@@ -22,24 +22,24 @@ enum TodoStatus {TODO_PENDING, TODO_COMPLETED, TODO_COMPLETED_HIDDEN, TODO_HABIT
 enum TodoType {ROOT, NODE};
 enum Menus {TASK_MENU, SUBTASKS_MENU, TODOS_MENU, PERIODS_MENU, CALENDAR_MENU};
 
-typedef struct task Task;
-typedef struct todo Todo;
+struct Task;
+struct Todo;
 
-typedef struct {
+struct Period {
     long int start;
     long int end;
     std::string name; // remover após conversão
     Todo *todo;
-} Period;
+};
 
-typedef struct {
+struct Schedule {
     Todo *todo;
     int timeEstimate;
     int timeSet;
     time_t date;
-} Schedule;
+};
 
-struct todo {
+struct Todo {
     std::string name;
     int status;
     std::list<Schedule *> schedules;
@@ -49,13 +49,13 @@ struct todo {
     Task *task;
 };
 
-typedef struct {
+struct Note {
 	long int date;
 	std::string text;
     bool motivation;
-} Note;
+};
 
-struct task {
+struct Task {
     std::string name;
     std::string code;
     std::string plan;
@@ -67,11 +67,11 @@ struct task {
     Task *parent;
 };
 
-typedef struct {
+struct Calendar{
     std::list<Todo *> habits;
     std::list<Schedule *> schedules;
     Schedule *periodSched;
-} Calendar;
+};
 
 extern Task *rootTask;
 extern Calendar *calendar;
