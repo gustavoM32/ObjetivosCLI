@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -g -Wno-write-strings
+override CFLAGS+=-Wall -g -Wno-write-strings
 LIBS = -lreadline
 MODULES = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o todo.o util.o # ioold.o
 
@@ -7,6 +7,9 @@ MODULES = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o todo.
 
 objetivos: objectives.cpp objectives.hpp $(MODULES)
 	$(CC) $(CFLAGS) objectives.cpp $(MODULES) -o objetivos $(LIBS)
+
+recomp: clear objetivos
+	$(CC) $(CFLAGS) objectives.cpp $(MODULES) -o release/objetivos $(LIBS)
 
 calendar.o: calendar.cpp calendar.hpp
 	$(CC) $(CFLAGS) -c calendar.cpp
