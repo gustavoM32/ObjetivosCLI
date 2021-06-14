@@ -426,8 +426,16 @@ bool periodComp(const Period *p1, const Period *p2) {
 bool schedComp(const Schedule *sched1, const Schedule *sched2) {
     long long date1 = sched1->date;
     long long date2 = sched2->date;
+    Task *task1 = sched1->todo->task;
+    Task *task2 = sched2->todo->task;
     if (!sched1->timeSet) date1 += SECS_IN_A_DAY - 1; // there will never be a schedule with this exact date value
     if (!sched2->timeSet) date2 += SECS_IN_A_DAY - 1; // the user can only set to the minute
+    if (date1 == date2) {
+        string color1 = getTaskColor(task1);
+        string color2 = getTaskColor(task2);
+        if (color1 == color2) return task1->code > task2->code;
+        return color1 < color2;
+    }
     return date1 < date2;
 }
 
