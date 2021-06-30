@@ -291,7 +291,9 @@ Task* loadTask(FILE* input) {
 void loadAll() {
     FILE* input;
     int count;
-    input = fopenSafe("data/tasks.txt", "r");
+
+    input = fopen("data/tasks.txt", "r");
+    if (input == nullptr) return;
 
     getLine(input);
     count = stoi(getToken(0));
