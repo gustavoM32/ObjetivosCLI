@@ -1,15 +1,15 @@
 # Objetivos (Goals)
 
-Objetivos is a tool to increase productivity by setting Goal and the correspondent To-dos to reach them.
+Objetivos is a tool to increase productivity by setting Goals and the correspondent To-dos to reach them.
 
 ## Main features
 
 * Creation of Goals that represent something to be done in the long term;
-* Goals are structured in a hierarchical order, allowing for a Goal to be split in smaller ones;
+* Goals are structured in a hierarchical order, allowing for a Goal to be split into smaller ones;
 * Creation of To-dos that represent what must be done to reach a Goal.
 * Scheduling of To-dos to be completed;
-* Monitoring of the time spent in specific To-dos and Goal to measure productivity for each day;
-* Charts to analyse progress and to help decision-making.
+* Monitoring of the time spent in specific To-dos and Goals to measure productivity for each day;
+* Charts to analyze progress and to help decision-making.
 
 ## Detailed description
 
@@ -17,7 +17,7 @@ Below are more formal definitions of the structures in this program. They might 
 
 ### Goal
 
-A Goal represents something to be done in the long-term.
+A Goal represents something to be done in the long term.
 
 It has the following attributes:
 
@@ -29,10 +29,10 @@ It has the following attributes:
   * **Active** - When it is currently progressing;
   * **Inactive** - When it is not currently a priority;
   * **Completed** - When everything that was planned has been done;
-  * **Canceled** - When it is not long necessary;
+  * **Canceled** - When it is no longer necessary;
 * **Sub-goals** - Smaller Goals that are inside a Goal. They are related to the completion of the parent Goal.
 * **To-dos** - Actions to progress in the completion of a Goal
-* **Sessions** - Periods of time dedicated to a To-do of a Goal.
+* **Sessions** - Time dedicated to a To-do of a Goal.
 
 ### To-do
 
@@ -56,4 +56,4 @@ A Session is an interval of time to be dedicated for the completion of a To-do.
 
 ### Calendar
 
-The Calendar helps to organize the Schedules of To-dos in different days and times. It is possible to estimate the time that will be dedicated for a To-do in a specific day.
+The Calendar helps to organize the Schedules of To-dos on different days and times. It is possible to estimate the time that will be dedicated for a To-do on a specific day.
