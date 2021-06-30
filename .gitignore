@@ -1,0 +1,21 @@
+# test data folder
+data
+
+# release folder
+release
+
+# object files
+*.o
+
+# executables
+renew
+objetivos
+
+# info files
+todo.md
+mock.txt
+protótipo.md
+protótipo.pdf
+
+# graphics test folder
+graphics
