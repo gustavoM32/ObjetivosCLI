@@ -405,7 +405,7 @@ void printHabits(bool printAll) {
         i++;
         if (!printAll && habitToday(todo)) continue;
         cout << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
-        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + ")\n", "BRIGHT_CYAN");
+        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + "%)\n", "BRIGHT_CYAN");
         printed++;
     }
 

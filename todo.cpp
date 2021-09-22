@@ -78,6 +78,7 @@ string getTodoStatusName(TodoStatus status) {
     return "invalid status";
 }
 
+// this function also sorts the periods 
 bool habitToday(Todo *todo) {
     time_t curDayStart = getPersonalDayStart(getCurrentTime());
     todo->periods.sort(periodComp);
@@ -86,7 +87,7 @@ bool habitToday(Todo *todo) {
 }
 
 int countHabitRecord(Todo *todo) {
-    int count = habitToday(todo); // this functions also sorts the periods 
+    int count = 0;
     time_t curDayStart = getPersonalDayStart(getCurrentTime());
     Period *period;
 
@@ -98,21 +99,27 @@ int countHabitRecord(Todo *todo) {
         it++;
     }
 
-    while (it != todo->periods.rend()) {
+    int days = 0;
+    int lastDay = 0;
+
+    while (it != todo->periods.rend() && days < 20) {
+        days++;
         curDayStart -= SECS_IN_A_DAY;
         period = *it;
         if (period->start >= curDayStart) {
+            if (days == 20) lastDay++;
             count++;
             while (it != todo->periods.rend()) {
                 period = *it;
                 if (period->start < curDayStart) break;
                 it++;
             }
-        } else {
-            break;
         }
     }
-    return count;
+
+    if (habitToday(todo)) count += 1 - lastDay;
+
+    return count * 5;
 }
 
 /*
