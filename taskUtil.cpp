@@ -190,26 +190,22 @@ Task *searchTask() {
 /*
     Print task in a tree structure.
 */
-void printTaskTreeRec(Task *task, int depth, bool onlyActive, bool onlyIncomplete) {
-    if (onlyActive && task->status != TASK_ACTIVE) return;
-    if (onlyIncomplete && task->status == TASK_COMPLETED) return;
+void printTaskTreeRec(Task *task, int depth, int maxLevel) {
+    if (task->status > maxLevel) return;
 
     for (int i = 0; i < depth; i++) {
         cout << "   ";
     }
 
     cout << getColor(getTaskColor(task)) << "* ";
-    if (onlyIncomplete && task->status == TASK_INACTIVE) cout << "(inactive) ";
-    if (!onlyActive && !onlyIncomplete) {
-        if (task->status == TASK_INACTIVE) cout << "(inactive) ";
-        else if (task->status == TASK_CANCELED) cout << "(canceled) ";
-        else if (task->status == TASK_COMPLETED) cout << "(completed) ";
-    }
+    if (task->status == TASK_INACTIVE) cout << "(inactive) ";
+    else if (task->status == TASK_CANCELED) cout << "(canceled) ";
+    else if (task->status == TASK_COMPLETED) cout << "(completed) ";
 
     cout << task->code << " - " << task->name << "\n";
 
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
-        printTaskTreeRec(*it, depth + 1, onlyActive, onlyIncomplete);
+        printTaskTreeRec(*it, depth + 1, maxLevel);
     }
     cout << getColor("BRIGHT_WHITE");
 }
@@ -218,9 +214,10 @@ void printTaskTreeRec(Task *task, int depth, bool onlyActive, bool onlyIncomplet
     Print all tasks in a tree structure.
 */
 void printTaskTree() {
-    if (getNComms() == 1) printTaskTreeRec(rootTask, 0, true, false);
-    else if (getToken(1) == "incomplete") printTaskTreeRec(rootTask, 0, false, true);
-    else if (getToken(1) == "all") printTaskTreeRec(rootTask, 0, false, false);
+    if (getNComms() == 1) printTaskTreeRec(rootTask, 0, TASK_ACTIVE);
+    else if (getToken(1) == "inactive") printTaskTreeRec(rootTask, 0, TASK_INACTIVE);
+    else if (getToken(1) == "incomplete") printTaskTreeRec(rootTask, 0, TASK_CANCELED);
+    else if (getToken(1) == "all") printTaskTreeRec(rootTask, 0, TASK_COMPLETED);
     else printf("Invalid option.\n");
 
     printf("\n");
