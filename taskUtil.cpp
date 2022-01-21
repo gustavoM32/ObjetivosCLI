@@ -87,8 +87,8 @@ void listStatusTasks(list<Task *> tasks, string statusName) {
         string color;
         if (statusName == "active") color = "CYAN";
         else if (statusName == "inactive") color = "BRIGHT_BLACK";
-        else if (statusName == "completed") color = "GREEN";
         else if (statusName == "canceled") color = "RED";
+        else if (statusName == "completed") color = "GREEN";
 
         for (auto it = tasks.begin(); it != tasks.end(); it++) {
             Task *subtask = *it;

@@ -137,7 +137,7 @@ void moveTask(Task* newParent) {
 */
 void listSubtasks(Task* task) {
     int i;
-    string statusNames[4] = {"active", "inactive", "completed", "canceled"};
+    string statusNames[4] = {"active", "inactive", "canceled", "completed"};
     list<Task *> lists[4];
     for (auto it = task->subtasks.begin(); it != task->subtasks.end(); it++) {
         Task *subtask = *it;
@@ -231,10 +231,10 @@ void setSubtaskStatus(Task *task) {
         status = TASK_ACTIVE;
     } else if (statusName == "inactive") {
         status = TASK_INACTIVE;
-    } else if (statusName == "completed") {
-        status = TASK_COMPLETED;
     } else if (statusName == "canceled") {
         status = TASK_CANCELED;
+    } else if (statusName == "completed") {
+        status = TASK_COMPLETED;
     } else {
         printf("\"%s\" is not a valid status.\n\n", statusName.c_str());
         return;
