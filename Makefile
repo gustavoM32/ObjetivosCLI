@@ -1,15 +1,16 @@
 CC = g++
 override CFLAGS+=-Wall -g -Wno-write-strings
 LIBS = -lreadline
-MODULES = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o todo.o util.o # ioold.o
+objects = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o \
+todo.o util.o
 
 #----
 
-objetivos: objectives.cpp objectives.hpp $(MODULES)
-	$(CC) $(CFLAGS) objectives.cpp $(MODULES) -o objetivos $(LIBS)
+objetivos: objectives.cpp objectives.hpp $(objects)
+	$(CC) $(CFLAGS) objectives.cpp $(objects) -o objetivos $(LIBS)
 
-recomp: clear objetivos
-	$(CC) $(CFLAGS) objectives.cpp $(MODULES) -o release/objetivos $(LIBS)
+recomp: clean objetivos
+	$(CC) $(CFLAGS) objectives.cpp $(objects) -o release/objetivos $(LIBS)
 
 calendar.o: calendar.cpp calendar.hpp
 	$(CC) $(CFLAGS) -c calendar.cpp
@@ -38,8 +39,6 @@ todo.o: todo.cpp todo.hpp
 util.o: util.cpp util.hpp
 	$(CC) $(CFLAGS) -c util.cpp
 
-# ioold.o: ioold.cpp ioold.hpp
-	# $(CC) $(CFLAGS) -c ioold.cpp
-
-clear:
-	rm *.o objetivos
+.PHONY: clean
+clean:
+	-rm *.o objetivos
