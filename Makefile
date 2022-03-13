@@ -1,44 +1,23 @@
 CC = g++
 override CFLAGS+=-Wall -g -Wno-write-strings
 LIBS = -lreadline
-objects = calendar.o calendarUtil.o help.o io.o period.o task.o taskUtil.o \
-todo.o util.o
+
+CPP_FILES = $(wildcard *.cpp)
+OBJECTS = $(patsubst %.cpp, %.o, $(CPP_FILES))
 
 #----
-
-objetivos: objectives.cpp objectives.hpp $(objects)
-	$(CC) $(CFLAGS) objectives.cpp $(objects) -o objetivos $(LIBS)
+objetivos: $(OBJECTS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
+	rm *.d
 
 recomp: clean objetivos
-	$(CC) $(CFLAGS) objectives.cpp $(objects) -o release/objetivos $(LIBS)
+	cp objetivos release/objetivos
 
-calendar.o: calendar.cpp calendar.hpp
-	$(CC) $(CFLAGS) -c calendar.cpp
+%.o: %.cpp
+	$(CC) $(CFLAGS) -MMD -c $< -o $@
 
-calendarUtil.o: calendarUtil.cpp calendarUtil.hpp
-	$(CC) $(CFLAGS) -c calendarUtil.cpp
-
-help.o: help.cpp help.hpp
-	$(CC) $(CFLAGS) -c help.cpp
-
-io.o: io.cpp io.hpp
-	$(CC) $(CFLAGS) -c io.cpp
-
-period.o: period.cpp period.hpp
-	$(CC) $(CFLAGS) -c period.cpp
-
-task.o: task.cpp task.hpp
-	$(CC) $(CFLAGS) -c task.cpp
-
-taskUtil.o: taskUtil.cpp taskUtil.hpp
-	$(CC) $(CFLAGS) -c taskUtil.cpp
-
-todo.o: todo.cpp todo.hpp
-	$(CC) $(CFLAGS) -c todo.cpp
-
-util.o: util.cpp util.hpp
-	$(CC) $(CFLAGS) -c util.cpp
+-include $(shell find . -name "*.d" 2> /dev/null)
 
 .PHONY: clean
 clean:
-	-rm *.o objetivos
+	rm -f *.o *.d objetivos
