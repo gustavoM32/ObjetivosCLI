@@ -224,27 +224,36 @@ string toUppercase(string s) {
 }
 
 /*
-    Replaces new line characters to escaped ones.
+    Return a new string replacing some special characters with their escaped
+    version.
 */
-string escapeNewLines(string s) {
-    size_t start_pos = 0;
-    while((start_pos = s.find("\n", start_pos)) != string::npos) {
-        s.replace(start_pos, 1, "\\n");
-        start_pos += 2;
+string escapeString(string &s) {
+    string r;
+    for (char c : s) {
+        if (c == '\\') r += "\\\\";
+        else if (c == '\n') r += "\\n";
+        else if (c == '\t') r += "\\t";
+        else r += c;
     }
-    return s;
+    return r;
 }
 
 /*
-    Replaces escaped new line characters to real ones.
+    Return a new string replacing escaped characters with the actual characters.
 */
-string unescapeNewLines(string s) {
-    size_t start_pos = 0;
-    while((start_pos = s.find("\\n", start_pos)) != string::npos) {
-        s.replace(start_pos, 2, "\n");
-        start_pos += 1;
+string unescapeString(string &s) {
+    string r;
+    bool escape = true;
+    for (int i = 0; i < int(s.size()); i++) {
+        if (escape) {
+            if (s[i] == '\\') r += '\\';
+            else if (s[i] == 'n') r += '\n';
+            else if (s[i] == 't') r += '\t';
+            escape = false;
+        } else if (s[i] == '\\') escape = true;
+        else r += s[i];
     }
-    return s;
+    return r;
 }
 
 /*

@@ -39,9 +39,9 @@ std::string toLowercase(std::string);
 
 std::string toUppercase(std::string);
 
-std::string escapeNewLines(std::string s);
+std::string escapeString(std::string &s);
 
-std::string unescapeNewLines(std::string s);
+std::string unescapeString(std::string &s);
 
 void copyFile(char *orig, char *dest);
 
