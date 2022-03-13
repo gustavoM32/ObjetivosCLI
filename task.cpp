@@ -308,7 +308,7 @@ void printHistory(Task* task) {
     }
     for (auto it = task->history.begin(); it != task->history.end(); it++) {
         Note *note = *it;
-        cout << setfill(' ') << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
+        cout << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
         cout << colorString("(" + formatDate(note->date, true) + ") ", "BRIGHT_CYAN");
         if (note->motivation) cout << "(Motivação) ";
         cout << note->text << "\n";

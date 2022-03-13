@@ -121,7 +121,7 @@ void printWeekSummary(bool showAll) {
         
         cout << colorString("    Horas    ", "BRIGHT_BLUE");
         for (int h = 0; h < 24; h++) {
-            cout << colorString("|", "BRIGHT_BLUE") << setfill('0') << getColor("BRIGHT_CYAN") << setw(2) << h << getColor("BRIGHT_WHITE") << " ";
+            cout << colorString("|", "BRIGHT_BLUE") << setfill('0') << getColor("BRIGHT_CYAN") << setw(2) << h << getColor("BRIGHT_WHITE") << setfill(' ') << " ";
         }
         cout << "\n";
 
