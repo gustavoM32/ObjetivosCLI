@@ -371,6 +371,9 @@ void printPlan(Task *task) {
                 lineLen = 2;
                 cout << getColor("BRIGHT_WHITE");
             }
+        } else if (c == '\t') {
+            palavra += "    ";
+            lineLen += 4;
         } else if (c == ' ') {
             if (lineLen + palavra.size() > LINE_LEN) {
                 cout << "\n" << palavra << " ";
