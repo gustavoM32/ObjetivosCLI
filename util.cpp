@@ -243,7 +243,7 @@ string escapeString(string &s) {
 */
 string unescapeString(string &s) {
     string r;
-    bool escape = true;
+    bool escape = false;
     for (int i = 0; i < int(s.size()); i++) {
         if (escape) {
             if (s[i] == '\\') r += '\\';
