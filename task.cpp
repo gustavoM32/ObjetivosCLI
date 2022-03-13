@@ -356,7 +356,7 @@ void printPlan(Task *task) {
         if (c == '#') cout << getColor("BRIGHT_BLUE");
 
         if (c == '*') {
-            cout << colorString("*", "BRIGHT_BLUE");
+            palavra += colorString("*", "BRIGHT_BLUE");
             lineLen++;
         } else if (c == '\n') {
             if (lineLen + palavra.size() > LINE_LEN) {
