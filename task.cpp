@@ -319,6 +319,51 @@ void printHistory(Task* task) {
 }
 
 /*
+    Opens a text editor to edit all plans of 'task'.
+*/
+void editPlans(Task *task) {
+    string file_names;
+    const string plans_folder_path = "plans/";
+
+    // create files with plan texts
+    for (string plan_name : task->plan_order) {
+        ofstream file;
+        string file_name = plans_folder_path + plan_name + ".md";
+        file.open(file_name);
+        file << task->plans[plan_name];
+        file.close();
+        file_names += " ";
+        file_names += file_name;
+    }
+
+    // let user edit them;
+    system((string("nvim -p") + file_names).c_str());
+
+    list<string> old_plan_order = task->plan_order;
+    
+    // get new plan texts
+    for (string plan_name : old_plan_order) {
+        ifstream file;
+        stringstream stream;
+        string file_name = plans_folder_path + plan_name + ".md";
+        file.open(file_name);
+        stream << file.rdbuf();
+        file.close();
+  
+        string new_text = stream.str();
+        removeTrailingNewLines(new_text);
+
+        if (!new_text.empty()) {
+            task->plans[plan_name] = new_text;
+        } else {
+            task->plans.erase(plan_name);
+            task->plan_order.remove(plan_name);
+        }
+
+        system((string("rm ") + file_name).c_str());
+    }
+}
+
 /*
     Opens a text editor to edit some plan of 'task'.
 */
@@ -614,6 +659,12 @@ void taskMenu(Task* task) {
             if (validArgs(0)) {
                 curMenu = TODOS_MENU;
                 return;
+            }
+        } else if (commandName == "plans") {
+            if (validArgs(0)) {
+                editPlans(task);
+                saveAll();
+                showHead = true;
             }
         } else if (commandName == "plan") {
             if (validArgs(1)) {
