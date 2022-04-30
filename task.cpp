@@ -1,12 +1,15 @@
+#include <cstring>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <queue>
-#include <cstring>
-#include <stdlib.h>
-#include <unistd.h>
+
 #include "calendar.hpp"
 #include "help.hpp"
 #include "io.hpp"
@@ -408,6 +411,28 @@ void editPlan(Task* task) {
     system((string("rm ") + file_name).c_str());
 }
 
+void renamePlan(Task *task) {
+    string old_name = getToken(1);
+    string new_name = getToken(2);
+
+    auto plan_it = find(task->plan_order.begin(), task->plan_order.end(), old_name);
+
+    if (plan_it == task->plan_order.end()) {
+        printf("Plan '%s' doesn't exist\n\n", old_name.c_str());
+        return;
+    }
+
+    if (task->plans.find(new_name) != task->plans.end()) {
+        printf("Plan '%s' already exists\n\n", new_name.c_str());
+        return;
+    }
+
+    task->plans[new_name] = task->plans[old_name];
+    task->plans.erase(old_name);
+
+    *plan_it = new_name; 
+}
+
 void prioritizePlan(Task *task) {
     string plan_name = getToken(1);
     if (task->plans.find(plan_name) == task->plans.end()) {
@@ -679,6 +704,12 @@ void taskMenu(Task* task) {
         } else if (commandName == "plan") {
             if (validArgs(1)) {
                 editPlan(task);
+                saveAll();
+                showHead = true;
+            }
+        } else if (commandName == "plan-rename") {
+            if (validArgs(2)) {
+                renamePlan(task);
                 saveAll();
                 showHead = true;
             }

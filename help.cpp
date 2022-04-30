@@ -27,6 +27,7 @@ void printHelp(int page) {
         helpItems.push_back("history - mostra histórico");
         helpItems.push_back("plans - edita todos os planos do objetivo");
         helpItems.push_back("plan \"nome\" - edita plano especificado do objetivo");
+        helpItems.push_back("plan-rename \"nome-anterior\" \"novo-nome\" - altera nome do plano");
         helpItems.push_back("view \"nome\" - mostra texto do plano");
         helpItems.push_back("ls - lista to-dos");
         helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
