@@ -363,6 +363,25 @@ void editPlan(Task* task) {
     system((string("rm ") + file_name).c_str());
 }
 
+void listPlans(Task *task) {
+    cout << "  ";
+    bool first = true;
+    for (auto plan_name : task->plan_order) {
+        if (first) {
+            cout << getColor("BLUE");
+            cout << "> ";
+        } else {
+            cout << getColor("CYAN");
+        }
+        cout << plan_name;
+        if (first) cout << " <";
+        cout << "  ";
+        first = false;
+    }
+    cout << "\n\n";
+    cout << getColor("BRIGHT_WHITE");
+}
+
 void printPlan(string plan_text) {
     uint size = plan_text.size();
     if (size == 0) return;
@@ -502,7 +521,10 @@ void showTaskInfo(Task *task) {
     printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
     listSubtasks(task);
     printLine(SECONDARY_LEVEL);
-    printPlan(task->plans[task->plan_order.front()]);
+    if (!task->plan_order.empty()) {
+        listPlans(task);
+        printPlan(task->plans[task->plan_order.front()]);
+    }
 }
 
 /*
