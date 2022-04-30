@@ -3,6 +3,7 @@
 /*************************************/
 #include <string>
 #include <list>
+#include <map>
 #include <ctime>
 
 #define LINE_LEN 160
@@ -58,7 +59,8 @@ struct Note {
 struct Task {
     std::string name;
     std::string code;
-    std::string plan;
+    std::list<std::string> plan_order;
+    std::map<std::string, std::string> plans; // (plan name, plan text)
     std::string color;
     int status;
 	std::list<Note *> history;

@@ -60,7 +60,6 @@ Task* createTask(string name, string code) {
     Task* newTask = new Task;
     newTask->name = name;
     newTask->code = code;
-    newTask->plan = "";
     newTask->status = TASK_ACTIVE;
     newTask->color = "NONE";
     newTask->rootTodo = createTodo("To-dos", newTask, nullptr);
@@ -280,4 +279,16 @@ void printRecentHistory(Task* task) {
         it++;
     }
     cout << "\n";
+}
+
+/*
+    Remove extra new line characters from 'text'. Adds one if not already
+    present and text is not empty.
+*/
+void removeTrailingNewLines(string &text) {
+    while (!text.empty() && text.back() == '\n')
+        text.pop_back();
+
+    if (!text.empty())
+        text += '\n';
 }

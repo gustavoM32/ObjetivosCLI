@@ -25,7 +25,7 @@ void printHelp(int page) {
         helpItems.push_back("sts - abre menu de sub-objetivos");
         helpItems.push_back("tds - abre menu de to-dos");
         helpItems.push_back("history - mostra histórico");
-        helpItems.push_back("plan - edita plano do objetivo");
+        helpItems.push_back("plan \"nome\" - edita plano especificado do objetivo");
         helpItems.push_back("ls - lista to-dos");
         helpItems.push_back("cd <código> - abre o menu de um sub-objetivo");
         helpItems.push_back("cd .. - vai para o objetivo pai");

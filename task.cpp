@@ -319,39 +319,58 @@ void printHistory(Task* task) {
 }
 
 /*
-    Opens a text editor to edit the plan of 'task'.
+/*
+    Opens a text editor to edit some plan of 'task'.
 */
 void editPlan(Task* task) {
     fstream file;
     stringstream stream;
-    file.open("temp.md", fstream::out);
-    file << task->plan;
-    file.close();
-    system("nvim temp.md");
-    file.open("temp.md", fstream::in);
+    const string plans_folder_path = "plans/";
     
+    string plan_name = getToken(1);
+    string file_name = plans_folder_path + plan_name + ".md";
+
+    bool already_exists = task->plans.find(plan_name) != task->plans.end();
+
+    string old_text = already_exists ? task->plans[plan_name] : "";
+
+    // create file with plan text
+    file.open(file_name, fstream::out);
+    file << old_text;
+    file.close();
+
+    // let user edit it
+    system((string("nvim ") + file_name).c_str());
+    
+    // get new plan text
+    file.open(file_name, fstream::in);
     stream << file.rdbuf();
-    task->plan = stream.str();
-    int end = task->plan.size() - 1;
-    if (end >= 0) {
-        if (task->plan[end] != '\n') {
-            task->plan += '\n';
-        } else {
-            while (end > 0 && task->plan[end - 1] == '\n') end--;
-            task->plan = task->plan.substr(0, end + 1);
-        }
+    file.close();
+
+    string new_text = stream.str();
+
+    removeTrailingNewLines(new_text);
+
+    if (!new_text.empty()) {
+        task->plans[plan_name] = new_text;
+        task->plan_order.remove(plan_name);
+        task->plan_order.push_front(plan_name);
+    } else if (already_exists) {
+        task->plans.erase(plan_name);
+        task->plan_order.remove(plan_name);
     }
-    system("rm temp.md");
+
+    system((string("rm ") + file_name).c_str());
 }
 
-void printPlan(Task *task) {
-    uint size = task->plan.size();
+void printPlan(string plan_text) {
+    uint size = plan_text.size();
     if (size == 0) return;
     cout << "  ";
     int lineLen = 2;
     string palavra;
     for (uint i = 0; i < size; i++) {
-        char c = task->plan[i];
+        char c = plan_text[i];
 
         if (c == '#') cout << getColor("BRIGHT_BLUE");
 
@@ -483,7 +502,7 @@ void showTaskInfo(Task *task) {
     printTitle("Sub-objetivos", SECONDARY_LEVEL, false);
     listSubtasks(task);
     printLine(SECONDARY_LEVEL);
-    printPlan(task);
+    printPlan(task->plans[task->plan_order.front()]);
 }
 
 /*
@@ -575,7 +594,7 @@ void taskMenu(Task* task) {
                 return;
             }
         } else if (commandName == "plan") {
-            if (validArgs(0)) {
+            if (validArgs(1)) {
                 editPlan(task);
                 saveAll();
                 showHead = true;

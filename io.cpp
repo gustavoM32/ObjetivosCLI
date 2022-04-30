@@ -161,8 +161,14 @@ void saveTodo(Todo* todo, FILE* output, int depth) {
 void saveTask(Task* task, FILE* output, int depth) {
     fpfInd(output, depth);
     fprintf(output, "\"%s\" \"%s\" %d \"%s\"\n", task->name.c_str(), task->code.c_str(), task->status, task->color.c_str());
+
     fpfInd(output, depth);
-    fprintf(output, "\"%s\"\n", escapeString(task->plan).c_str());
+    fprintf(output, "%ld\n", task->plan_order.size());
+    for (string plan_name : task->plan_order) {
+        fpfInd(output, depth);
+        fprintf(output, "\"%s\" \"%s\"\n", plan_name.c_str(), escapeString(task->plans[plan_name]).c_str());
+    }
+
     fpfInd(output, depth);
     fprintf(output, "%ld\n", task->history.size());
     for (auto it = task->history.begin(); it != task->history.end(); it++) {
@@ -260,8 +266,15 @@ Task* loadTask(FILE* input) {
     task->color = getToken(3);
 
     getLine(input);
-    string planText = getToken(0);
-    task->plan = unescapeString(planText);
+    count = stoi(getToken(0));
+    while (count--) {
+        getLine(input);
+        string plan_name = getToken(0);
+        string plan_text = getToken(1);
+
+        task->plans[plan_name] = unescapeString(plan_text);
+        task->plan_order.push_back(plan_name);
+    }
 
     getLine(input);
     count = stoi(getToken(0));

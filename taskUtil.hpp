@@ -38,4 +38,6 @@ std::string getMotivation(Task *task);
 
 void printRecentHistory(Task* task);
 
+void removeTrailingNewLines(std::string &text);
+
 #endif
