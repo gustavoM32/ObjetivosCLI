@@ -408,6 +408,16 @@ void editPlan(Task* task) {
     system((string("rm ") + file_name).c_str());
 }
 
+void prioritizePlan(Task *task) {
+    string plan_name = getToken(1);
+    if (task->plans.find(plan_name) == task->plans.end()) {
+        printf("Plan '%s' doesn't exist\n\n", plan_name.c_str());
+        return;
+    }
+    task->plan_order.remove(plan_name);
+    task->plan_order.push_front(plan_name);
+}
+
 void listPlans(Task *task) {
     cout << "  ";
     bool first = true;
@@ -669,6 +679,12 @@ void taskMenu(Task* task) {
         } else if (commandName == "plan") {
             if (validArgs(1)) {
                 editPlan(task);
+                saveAll();
+                showHead = true;
+            }
+        } else if (commandName == "view") {
+            if (validArgs(1)) {
+                prioritizePlan(task);
                 saveAll();
                 showHead = true;
             }
