@@ -74,6 +74,9 @@ int main(int argc, char **argv) {
     
     rootTask = createTask("Objetivos", "OBJS");
 
+    system("mkdir -p data");
+    system("mkdir -p plans");
+
     // if (argc > 1) loadAllOld();
     // else loadAll();
 
