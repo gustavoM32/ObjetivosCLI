@@ -374,8 +374,18 @@ void editPlan(Task* task) {
     fstream file;
     stringstream stream;
     const string plans_folder_path = "plans/";
+    string plan_name;
+
+    if (getNComms() == 1) {
+        if (task->plan_order.empty()) {
+            plan_name = "plan";
+        } else {
+            plan_name = task->plan_order.front();
+        }
+    } else {
+        plan_name = getToken(1);
+    }
     
-    string plan_name = getToken(1);
     string file_name = plans_folder_path + plan_name + ".md";
 
     bool already_exists = task->plans.find(plan_name) != task->plans.end();
@@ -702,7 +712,7 @@ void taskMenu(Task* task) {
                 showHead = true;
             }
         } else if (commandName == "plan") {
-            if (validArgs(1)) {
+            if (getNComms() == 1 || validArgs(1)) {
                 editPlan(task);
                 saveAll();
                 showHead = true;
