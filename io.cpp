@@ -31,14 +31,14 @@ int getNComms() {
     and "sentences with spaces" and stores it into BUFFER.
 */
 int getLine(FILE *stream) {
-    char c;
+    char c, last=' ';
     int inCommand = 0;
     int inSpaced = 0;
     buffer.clear();
     string command = "";
     while ((c = getc(stream)) != '\n') {
         if (!inCommand) {
-            if (c == SENTENCE_LIMIT) {
+            if (c == SENTENCE_LIMIT && last != '\\') {
                 inCommand = 1;
                 inSpaced = 1;
             } else if (c != ' ') {
@@ -46,7 +46,7 @@ int getLine(FILE *stream) {
                 command += c;
             }
         } else {
-            if (inSpaced && c == SENTENCE_LIMIT) {
+            if (inSpaced && c == SENTENCE_LIMIT && last != '\\') {
                 inCommand = 0;
                 inSpaced = 0;
                 buffer.push_back(command);
@@ -59,6 +59,7 @@ int getLine(FILE *stream) {
                 command += c;
             }
         }
+        last = c;
     }
     if (inSpaced) {
         return 1;

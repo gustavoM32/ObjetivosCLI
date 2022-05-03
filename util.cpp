@@ -233,6 +233,7 @@ string escapeString(string &s) {
         if (c == '\\') r += "\\\\";
         else if (c == '\n') r += "\\n";
         else if (c == '\t') r += "\\t";
+        else if (c == '"') r += "\\\"";
         else r += c;
     }
     return r;
@@ -249,6 +250,7 @@ string unescapeString(string &s) {
             if (s[i] == '\\') r += '\\';
             else if (s[i] == 'n') r += '\n';
             else if (s[i] == 't') r += '\t';
+            else if (s[i] == '"') r += '"';
             escape = false;
         } else if (s[i] == '\\') escape = true;
         else r += s[i];
