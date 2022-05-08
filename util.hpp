@@ -23,6 +23,8 @@ std::string formatDate(long int time, bool showYear = false);
 
 long int getTime(int day, int month, int year, int hour, int min, int sec);
 
+int getWeekday(long int time);
+
 time_t getDayStart(time_t time);
 
 time_t getPersonalDayStart(time_t time);
