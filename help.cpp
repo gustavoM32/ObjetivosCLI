@@ -67,7 +67,7 @@ void printHelp(int page) {
         helpItems.push_back("time <id> [hora] - edita horário de um agendamento");
         helpItems.push_back("date <id> [data] - edita data de um agendamento");
         helpItems.push_back("est <id> estimativa - estima tempo para um agendamento");
-        helpItems.push_back("post <id> <dias> [keep] - adia um agendamento em dias");
+        helpItems.push_back("post <id> <dias|dia da semana> [keep] - adia um agendamento em dias");
         helpItems.push_back("delay <id> <horas> - adia um agendamento em horas");
         helpItems.push_back("clear <id> - remove um agendamento");
         helpItems.push_back("complete <id> - completa o to-do relacionado a um agendamento");
