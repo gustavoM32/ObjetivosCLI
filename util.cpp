@@ -146,6 +146,15 @@ long int getTime(int day, int month, int year, int hour, int min, int sec) {
 }
 
 /*
+    Return the week day, with sunday = 0.
+*/
+int getWeekday(long int time) {
+    struct tm *structTime;
+    structTime = localtime(&time);
+    return structTime->tm_wday;
+}
+
+/*
     Returns new time from 'oldTime' with changed 'hour', 'min' and 'sec'.
 */
 long int changeTime(long int oldTime, int hour, int min, int sec) {

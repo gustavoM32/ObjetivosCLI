@@ -1,21 +1,42 @@
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <algorithm>
-#include <cstring>
-#include <string>
+#include "calendar.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "calendar.hpp"
+
+#include <algorithm>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
 #include "calendarUtil.hpp"
-#include "objectives.hpp"
-#include "io.hpp"
-#include "util.hpp"
 #include "help.hpp"
+#include "io.hpp"
+#include "objectives.hpp"
 #include "todo.hpp"
+#include "util.hpp"
 
 using namespace std;
+
+const map<string, int> WEEKDAYS({
+    {"dom", 0},
+    {"sun", 0},
+    {"seg", 1},
+    {"mon", 1},
+    {"ter", 2},
+    {"tue", 2},
+    {"qua", 3},
+    {"wed", 3},
+    {"qui", 4},
+    {"thu", 4},
+    {"sex", 5},
+    {"fri", 5},
+    {"sab", 6},
+    {"sat", 6}
+});
 
 /*
     Creates a schedule for a todo.
@@ -127,15 +148,35 @@ void editScheduleEstimate() {
 }
 
 void postponeSchedule() {
+    // post id delay_in_days [keep]
+    // post id next_weekday [keep]
     int id = calendar->schedules.size() - stoi(getToken(1));
     Schedule *sched = ithSchedule(calendar->schedules, id);
 
     if (sched == nullptr) return;
-
-    int delay = stoi(getToken(2));
+    
+    // treat prioritized schedules as yesterday
     if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
+
+    string delay_string = getToken(2);
+    int delay;
+
+    try {
+        delay = stoi(delay_string);
+    } catch (const std::invalid_argument& ia) {
+        if (WEEKDAYS.find(delay_string) != WEEKDAYS.end()) {
+            int cur_weekday = getWeekday(sched->date);
+            int delay_weekday = WEEKDAYS.at(delay_string);
+            delay = (6 + delay_weekday - cur_weekday) % 7 + 1;
+        } else {
+            printf("Invalid value for schedule delay.\n\n");
+            return;
+        }
+    }
+
     sched->date += SECS_IN_A_DAY * delay;
-    if (getNComms() != 4 || getToken(3) == "keep") {
+    
+    if (getNComms() == 3 || getToken(3) != "keep") {
         sched->timeSet = 0;
         sched->date = changeTime(sched->date, 0, 0, 0);
     }
