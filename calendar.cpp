@@ -20,6 +20,23 @@
 
 using namespace std;
 
+const map<string, int> WEEKDAYS({
+    {"dom", 0},
+    {"sun", 0},
+    {"seg", 1},
+    {"mon", 1},
+    {"ter", 2},
+    {"tue", 2},
+    {"qua", 3},
+    {"wed", 3},
+    {"qui", 4},
+    {"thu", 4},
+    {"sex", 5},
+    {"fri", 5},
+    {"sab", 6},
+    {"sat", 6}
+});
+
 /*
     Creates a schedule for a todo.
 */
