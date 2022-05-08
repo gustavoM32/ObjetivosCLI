@@ -135,7 +135,7 @@ void postponeSchedule() {
     int delay = stoi(getToken(2));
     if (sched->date == 0) sched->date = changeTime(getCurrentTime() - SECS_IN_A_DAY, 0, 0, 0);
     sched->date += SECS_IN_A_DAY * delay;
-    if (getNComms() != 4 || getToken(3) == "keep") {
+    if (getNComms() == 3 || getToken(3) != "keep") {
         sched->timeSet = 0;
         sched->date = changeTime(sched->date, 0, 0, 0);
     }
