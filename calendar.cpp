@@ -1,19 +1,22 @@
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <algorithm>
-#include <cstring>
-#include <string>
+#include "calendar.hpp"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "calendar.hpp"
+
+#include <algorithm>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+
 #include "calendarUtil.hpp"
-#include "objectives.hpp"
-#include "io.hpp"
-#include "util.hpp"
 #include "help.hpp"
+#include "io.hpp"
+#include "objectives.hpp"
 #include "todo.hpp"
+#include "util.hpp"
 
 using namespace std;
 
