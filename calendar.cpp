@@ -232,6 +232,12 @@ void completeTodo() {
 
     if (sched == nullptr) return;
 
+    if (sched == calendar->periodSched) {
+        cout << "Não é possível concluir uma tarefa enquanto seu período está rodando\n\n";
+        // TODO: REFACTOR: make function to stop a period, then call it here
+        return;
+    }
+
     Todo *todo = sched->todo;
 
     if (!changeTodoStatus(todo, TODO_COMPLETED)) return;
