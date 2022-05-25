@@ -636,3 +636,22 @@ void writeFile(const string &file_path, const string &content) {
     file << content;
     file.close();
 }
+
+set<string> getDirectoryFiles(const string &directory_path) {
+    DIR *dir; struct dirent *diread;
+    set<string> files;
+
+    if ((dir = opendir(directory_path.c_str())) != nullptr) {
+        while ((diread = readdir(dir)) != nullptr) {
+            string file_name = diread->d_name;
+            if (file_name == "." || file_name == "..") continue;
+            files.insert(file_name);
+        }
+
+        closedir(dir);
+    } else {
+        throw string("Failed to open directory '") + directory_path + "'";
+    }
+
+    return files;
+}

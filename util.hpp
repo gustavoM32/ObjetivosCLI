@@ -5,6 +5,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 
 #include "objectives.hpp"
@@ -100,6 +101,8 @@ std::string getColor(std::string color);
 void printTitle(std::string text, std::string symbol, bool extraSpace = true);
 
 void printLine(std::string symbol, bool extraSpace = true);
+
+std::set<std::string> getDirectoryFiles(const std::string &directory_path);
 
 std::string readFile(const std::string &file_path);
 
