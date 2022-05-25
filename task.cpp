@@ -6,6 +6,7 @@
 #include <iostream>
 #include <iomanip>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -327,6 +328,7 @@ void printHistory(Task* task) {
 */
 void editPlans(Task *task) { // TODO: REFACTOR
     string file_names;
+    set<string> all_plan_files;
 
     // create files with plan texts
     for (string plan_name : task->plan_order) {
@@ -339,18 +341,35 @@ void editPlans(Task *task) { // TODO: REFACTOR
     // let user edit them
     system((string("nvim -p") + file_names).c_str());
 
+    try {
+        all_plan_files = getDirectoryFiles(PLANS_FOLDER_PATH);
+    } catch (string &e) {
+        cerr << e << endl;
+        cout << "Failed to save plan files. Work may be recovered in plans folder, quit program to avoid data loss.\n\n";
+        return;
+    }
+
     list<string> old_plan_order = task->plan_order;
     
     // get new plan texts
-    for (string plan_name : old_plan_order) {
-        string file_path = PLANS_FOLDER_PATH + plan_name + ".md";
+    for (string file_name : all_plan_files) {
+        string plan_name = file_name;
+
+        if (plan_name.size() > 3 && plan_name.substr(plan_name.size() - 3, 3) == ".md") {
+            plan_name = plan_name.substr(0, plan_name.size() - 3);
+        }
+
+        string file_path = PLANS_FOLDER_PATH + file_name;
   
         string new_text = readFile(file_path);
         removeTrailingNewLines(new_text);
 
         if (!new_text.empty()) {
+            if (task->plans.find(plan_name) == task->plans.end()) {
+                task->plan_order.push_back(plan_name);
+            }
             task->plans[plan_name] = new_text;
-        } else {
+        } else if (task->plans.find(plan_name) != task->plans.end()) {
             task->plans.erase(plan_name);
             task->plan_order.remove(plan_name);
         }
