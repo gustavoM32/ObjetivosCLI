@@ -1,10 +1,12 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 /*************************************/
-#include <string>
+#include <stdio.h>
+
 #include <list>
 #include <map>
-#include <stdio.h>
+#include <string>
+
 #include "objectives.hpp"
 
 extern std::map<std::string, int> colors;

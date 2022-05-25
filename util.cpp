@@ -1,15 +1,17 @@
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <algorithm>
-#include <list>
 #include <ctime>
-#include <limits>
 #include <stdlib.h>
-#include "util.hpp"
-#include "taskUtil.hpp"
+
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <list>
+#include <sstream>
+#include <string>
+
 #include "objectives.hpp"
+#include "taskUtil.hpp"
+#include "util.hpp"
 
 using namespace std;
 

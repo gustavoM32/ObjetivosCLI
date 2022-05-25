@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
 #include <queue>
+#include <sstream>
+#include <string>
 
 #include "calendar.hpp"
 #include "help.hpp"
