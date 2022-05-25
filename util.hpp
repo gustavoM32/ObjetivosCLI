@@ -104,6 +104,8 @@ void printLine(std::string symbol, bool extraSpace = true);
 
 std::set<std::string> getDirectoryFiles(const std::string &directory_path);
 
+void clearDirectory(const std::string &directory_path);
+
 std::string readFile(const std::string &file_path);
 
 void writeFile(const std::string &file_path, const std::string &content);

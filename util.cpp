@@ -1,4 +1,5 @@
 #include <ctime>
+#include <dirent.h>
 #include <stdlib.h>
 
 #include <algorithm>
@@ -654,4 +655,9 @@ set<string> getDirectoryFiles(const string &directory_path) {
     }
 
     return files;
+}
+
+void clearDirectory(const string &directory_path) {
+    system((string("rm -r ") + directory_path).c_str());
+    system((string("mkdir ") + directory_path).c_str());
 }
