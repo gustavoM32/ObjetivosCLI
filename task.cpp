@@ -329,6 +329,19 @@ void printHistory(Task* task) {
 void editPlans(Task *task) { // TODO: REFACTOR
     string file_names;
     set<string> all_plan_files;
+    
+    // check if its not empty
+    try {
+        all_plan_files = getDirectoryFiles(PLANS_FOLDER_PATH);
+    } catch (string &e) {
+        cerr << e << endl;
+        cout << "Failed to open plans directory\n\n";
+        return;
+    }
+
+    if (!all_plan_files.empty()) {
+        clearDirectory(PLANS_FOLDER_PATH);
+    }
 
     // create files with plan texts
     for (string plan_name : task->plan_order) {
