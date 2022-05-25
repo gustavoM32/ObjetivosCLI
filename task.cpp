@@ -3,7 +3,6 @@
 #include <unistd.h>
 
 #include <algorithm>
-#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <queue>
@@ -324,36 +323,28 @@ void printHistory(Task* task) {
 /*
     Opens a text editor to edit all plans of 'task'.
 */
-void editPlans(Task *task) {
+void editPlans(Task *task) { // TODO: REFACTOR
     string file_names;
     const string plans_folder_path = "plans/";
 
     // create files with plan texts
     for (string plan_name : task->plan_order) {
-        ofstream file;
-        string file_name = plans_folder_path + plan_name + ".md";
-        file.open(file_name);
-        file << task->plans[plan_name];
-        file.close();
+        string file_path = plans_folder_path + plan_name + ".md";
+        writeFile(file_path, task->plans[plan_name]);
         file_names += " ";
-        file_names += file_name;
+        file_names += file_path;
     }
 
-    // let user edit them;
+    // let user edit them
     system((string("nvim -p") + file_names).c_str());
 
     list<string> old_plan_order = task->plan_order;
     
     // get new plan texts
     for (string plan_name : old_plan_order) {
-        ifstream file;
-        stringstream stream;
-        string file_name = plans_folder_path + plan_name + ".md";
-        file.open(file_name);
-        stream << file.rdbuf();
-        file.close();
+        string file_path = plans_folder_path + plan_name + ".md";
   
-        string new_text = stream.str();
+        string new_text = readFile(file_path);
         removeTrailingNewLines(new_text);
 
         if (!new_text.empty()) {
@@ -363,7 +354,7 @@ void editPlans(Task *task) {
             task->plan_order.remove(plan_name);
         }
 
-        system((string("rm ") + file_name).c_str());
+        system((string("rm ") + file_path).c_str());
     }
 }
 
@@ -371,8 +362,6 @@ void editPlans(Task *task) {
     Opens a text editor to edit some plan of 'task'.
 */
 void editPlan(Task* task) {
-    fstream file;
-    stringstream stream;
     const string plans_folder_path = "plans/";
     string plan_name;
 
@@ -386,27 +375,20 @@ void editPlan(Task* task) {
         plan_name = getToken(1);
     }
     
-    string file_name = plans_folder_path + plan_name + ".md";
+    string file_path = plans_folder_path + plan_name + ".md";
 
     bool already_exists = task->plans.find(plan_name) != task->plans.end();
 
     string old_text = already_exists ? task->plans[plan_name] : "";
 
     // create file with plan text
-    file.open(file_name, fstream::out);
-    file << old_text;
-    file.close();
+    writeFile(file_path, old_text);
 
     // let user edit it
-    system((string("nvim ") + file_name).c_str());
+    system((string("nvim ") + file_path).c_str());
     
     // get new plan text
-    file.open(file_name, fstream::in);
-    stream << file.rdbuf();
-    file.close();
-
-    string new_text = stream.str();
-
+    string new_text = readFile(file_path);
     removeTrailingNewLines(new_text);
 
     if (!new_text.empty()) {
@@ -418,7 +400,7 @@ void editPlan(Task* task) {
         task->plan_order.remove(plan_name);
     }
 
-    system((string("rm ") + file_name).c_str());
+    system((string("rm ") + file_path).c_str());
 }
 
 void renamePlan(Task *task) {
