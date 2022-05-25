@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <algorithm>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -616,4 +617,22 @@ void printTitle(string text, string symbol, bool extraSpace) {
     title += "\n";
     if (extraSpace) title += "\n";
     cout << colorString(title, "CYAN");
+}
+
+string readFile(const string &file_path) {
+    stringstream stream;
+    ifstream file;
+
+    file.open(file_path);
+    stream << file.rdbuf();
+    file.close();
+
+    return stream.str();
+}
+
+void writeFile(const string &file_path, const string &content) {
+    ofstream file;
+    file.open(file_path);
+    file << content;
+    file.close();
 }

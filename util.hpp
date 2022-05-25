@@ -100,5 +100,10 @@ std::string getColor(std::string color);
 void printTitle(std::string text, std::string symbol, bool extraSpace = true);
 
 void printLine(std::string symbol, bool extraSpace = true);
+
+std::string readFile(const std::string &file_path);
+
+void writeFile(const std::string &file_path, const std::string &content);
+
 /*************************************/
 #endif
