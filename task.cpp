@@ -18,6 +18,8 @@
 
 using namespace std;
 
+const string PLANS_FOLDER_PATH = "./plans/";
+
 static Task *selectedTask;
 
 /*
@@ -325,11 +327,10 @@ void printHistory(Task* task) {
 */
 void editPlans(Task *task) { // TODO: REFACTOR
     string file_names;
-    const string plans_folder_path = "plans/";
 
     // create files with plan texts
     for (string plan_name : task->plan_order) {
-        string file_path = plans_folder_path + plan_name + ".md";
+        string file_path = PLANS_FOLDER_PATH + plan_name + ".md";
         writeFile(file_path, task->plans[plan_name]);
         file_names += " ";
         file_names += file_path;
@@ -342,7 +343,7 @@ void editPlans(Task *task) { // TODO: REFACTOR
     
     // get new plan texts
     for (string plan_name : old_plan_order) {
-        string file_path = plans_folder_path + plan_name + ".md";
+        string file_path = PLANS_FOLDER_PATH + plan_name + ".md";
   
         string new_text = readFile(file_path);
         removeTrailingNewLines(new_text);
@@ -362,7 +363,6 @@ void editPlans(Task *task) { // TODO: REFACTOR
     Opens a text editor to edit some plan of 'task'.
 */
 void editPlan(Task* task) {
-    const string plans_folder_path = "plans/";
     string plan_name;
 
     if (getNComms() == 1) {
@@ -375,7 +375,7 @@ void editPlan(Task* task) {
         plan_name = getToken(1);
     }
     
-    string file_path = plans_folder_path + plan_name + ".md";
+    string file_path = PLANS_FOLDER_PATH + plan_name + ".md";
 
     bool already_exists = task->plans.find(plan_name) != task->plans.end();
 
