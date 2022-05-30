@@ -197,9 +197,13 @@ void removeTodo(Task* task) {
 
     if (todo == nullptr) return;
 
-    if (calendar->periodSched != nullptr) {
-        cout << "Não é possível remover tarefa enquanto um período está rodando\n\n";
-        return;
+    Todo *runningPeriodAncestor = calendar->periodSched->todo;
+    while (runningPeriodAncestor != nullptr) {
+        if (runningPeriodAncestor == todo) {
+            cout << "Não é possível remover tarefa enquanto algum período seu está rodando\n\n";
+            return;
+        }
+        runningPeriodAncestor = runningPeriodAncestor->parent;
     }
 
     list<Period *> periods;
