@@ -447,17 +447,25 @@ void changePrioritizedStatus() {
 void printHabits(bool printAll) {
     int i = 0;
     int printed = 0;
-    for (auto it = calendar->habits.begin(); it != calendar->habits.end(); it++) {
-        Todo *todo = *it;
+    for (Todo *todo : calendar->habits) {
         i++;
         if (!printAll && habitToday(todo)) continue;
-        cout << "    " << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
-        cout << getTodoFullName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + "%)\n", "BRIGHT_CYAN");
+        if (printed % 4 == 0) cout << "    ";
+
+        cout << getColor("BRIGHT_BLUE") << setw(2) << i << ". " << getColor("BRIGHT_WHITE");
+        cout << getTodoShortName(todo) << colorString(" (" + to_string(countHabitRecord(todo)) + "%)", "BRIGHT_CYAN");
         printed++;
+        if (printed % 4 == 0) {
+            cout << "\n";
+        } else {
+            cout << "   ";
+        }
     }
 
-    cout << "    ";
+    if (printed % 4 != 0) cout << "\n";
+
     if (printed == 0) {
+        cout << "    ";
         if (printAll) cout << "Não há hábitos\n";
         else cout << "Nenhum hábito pendente!\n";
     }
