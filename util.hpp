@@ -88,6 +88,8 @@ time_t getTodoTotalTime(Todo *todo);
 
 void getIdPath(std::string path, std::list<size_t> &ids);
 
+std::string getTodoShortName(Todo *todo);
+
 std::string getTodoFullName(Todo *todo);
 
 std::string getTodoPath(Todo *todo);

@@ -544,6 +544,13 @@ void getIdPath(string path, list<size_t> &ids) {
     }
 }
 
+string getTodoShortName(Todo *todo) {
+    string name = colorString(todo->task->code, getTaskColor(todo->task));
+    name += colorString(" > ", "BRIGHT_BLUE");
+    name += todo->name;
+    return name;
+}
+
 string getTodoFullName(Todo *todo) {
     string name = "";
 
