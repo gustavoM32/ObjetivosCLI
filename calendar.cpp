@@ -242,7 +242,7 @@ void completeTodo() {
 
     if (!changeTodoStatus(todo, TODO_COMPLETED)) return;
 
-    cout << "To-do \"" << todo->task << " > " << todo->name << "\" completed.\n\n";
+    cout << "To-do \"" << getTodoShortName(todo) << "\" completed.\n\n";
 
     updateCalendar();
 }
@@ -267,7 +267,7 @@ void touchTodo() {
 
     period->start = period->end = getCurrentTime();
 
-    printf("Hábito \"%s > %s\" cumprido!\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+    printf("Hábito \"%s\" cumprido!\n\n", getTodoShortName(period->todo).c_str());
 }
 
 
@@ -289,7 +289,7 @@ void startPeriod() {
         time_t taskDur = period->end - period->start;
 
         string formatedDur = formatDur(taskDur);
-        printf("Período \"%s > %s\" encerrado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+        printf("Período \"%s\" encerrado. Duração: %s.\n\n", getTodoShortName(period->todo).c_str(), formatedDur.c_str());
     }
 
     id = calendar->schedules.size() - stoi(getToken(1));
@@ -305,7 +305,7 @@ void startPeriod() {
 
     period->start = period->end = getCurrentTime();
 
-    printf("Período \"%s > %s\" iniciado. Digite 'stop' para parar.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str());
+    printf("Período \"%s\" iniciado. Digite 'stop' para parar.\n\n", getTodoShortName(period->todo).c_str());
 }
 
 /*
@@ -331,7 +331,7 @@ void stopPeriod() {
     taskDur = period->end - period->start;
 
     formatedDur = formatDur(taskDur);
-    printf("Período \"%s > %s\" encerrado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Período \"%s\" encerrado. Duração: %s.\n\n", getTodoShortName(period->todo).c_str(), formatedDur.c_str());
     calendar->periodSched = nullptr;
 }
 
@@ -357,7 +357,7 @@ void cancelPeriod() {
     delete period;
 
     formatedDur = formatDur(taskDur);
-    printf("Period \"%s > %s\" cancelado. Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Period \"%s\" cancelado. Duração: %s.\n\n", getTodoShortName(period->todo).c_str(), formatedDur.c_str());
     calendar->periodSched = nullptr;
 }
 
@@ -382,7 +382,7 @@ void showTaskPeriodTime() {
 
     taskDur = period->end - period->start;
     formatedDur = formatDur(taskDur);
-    printf("Tempo gasto no período \"%s > %s\": %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+    printf("Tempo gasto no período \"%s\": %s.\n\n", getTodoShortName(period->todo).c_str(), formatedDur.c_str());
 }
 
 /*
@@ -404,7 +404,7 @@ void periodWarning() {
         if (last != nullptr) {
             taskDur = getCurrentTime() - last->end;
             formatedDur = formatDur(taskDur);
-            printf("Tempo desde o último período \"%s > %s\": %s\n\n", last->todo->task->code.c_str(), last->todo->name.c_str(), formatedDur.c_str());
+            printf("Tempo desde o último período \"%s\": %s\n\n", getTodoShortName(last->todo).c_str(), formatedDur.c_str());
         }
     } else {
         todo = calendar->periodSched->todo;
@@ -413,7 +413,7 @@ void periodWarning() {
         period->end = getCurrentTime();
         taskDur = period->end - period->start;
         formatedDur = formatDur(taskDur);
-        printf("Período \"%s > %s\" em execução! Duração: %s.\n\n", period->todo->task->code.c_str(), period->todo->name.c_str(), formatedDur.c_str());
+        printf("Período \"%s\" em execução! Duração: %s.\n\n", getTodoShortName(period->todo).c_str(), formatedDur.c_str());
     }
 }
 
