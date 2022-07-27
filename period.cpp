@@ -1,14 +1,17 @@
-#include <iostream>
-#include <iomanip>
-#include <string>
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
-#include "period.hpp"
-#include "util.hpp"
-#include "io.hpp"
-#include "help.hpp"
+
+#include <iomanip>
+#include <iostream>
+#include <string>
+
 #include "calendar.hpp"
+#include "help.hpp"
+#include "io.hpp"
+#include "period.hpp"
+#include "periodUtil.hpp"
+#include "util.hpp"
 
 using namespace std;
 
@@ -97,7 +100,7 @@ void reducePeriod(Task *task, list<Period *> &periods) {
     Lists task periods.
 */
 void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
-    int i = 1;
+    int i = 0;
     string formatedStartTime;
     string formatedEndTime;
     string formatedDur;
@@ -116,15 +119,9 @@ void listPeriods(Task *task, list<Period *> &periods, bool showAll) {
     if (periods.size() == 0) {
         printf("    Não há períodos.\n");
     }
-    for (auto it = periods.begin(); it != periods.end(); it++) {
-        Period *period = *it;
-        formatedStartTime = formatTime(period->start);
-        formatedEndTime = formatTime(period->end);
-        formatedDur = formatDur(period->end - period->start);
-        periodName = getTodoPath(period->todo);
-        cout << "    " << getColor("CYAN") << setw(3) << i << "." << getColor("BRIGHT_WHITE");
-        cout << " [" << formatedStartTime << " ... " << formatedEndTime << "]   " << formatedDur << "   \"" << periodName << "\"\n";
-        i++;
+
+    for (Period *p : periods) {
+        cout << "    " << getColor("CYAN") << setw(3) << ++i << "." << getColor("BRIGHT_WHITE") << " " << periodToString(p) << "\n";
     }
     cout << "\n";
     printLine(MAIN_LEVEL);
