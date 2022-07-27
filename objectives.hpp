@@ -28,7 +28,6 @@ struct Todo;
 struct Period {
     long int start;
     long int end;
-    std::string name; // remover após conversão
     Todo *todo;
 };
 
