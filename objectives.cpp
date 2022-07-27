@@ -3,14 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "objectives.hpp"
-#include "util.hpp"
-#include "task.hpp"
-#include "taskUtil.hpp"
-#include "io.hpp"
 #include "calendar.hpp"
 #include "calendarUtil.hpp"
 #include "help.hpp"
+#include "io.hpp"
+#include "objectives.hpp"
+#include "periodUtil.hpp"
+#include "task.hpp"
+#include "taskUtil.hpp"
+#include "util.hpp"
 
 using namespace std;
 
@@ -48,6 +49,12 @@ bool generalCommands(string commandName) {
     } else if (commandName == "tree") {
         if (getNComms() == 1 || getNComms() == 2) {
             printTaskTree();
+        } else {
+            printf("Número inválido de argumentos.\n\n");
+        }
+    } else if (commandName == "aps") {
+        if (getNComms() == 1 || getNComms() == 2) {
+            printAllPeriods();
         } else {
             printf("Número inválido de argumentos.\n\n");
         }

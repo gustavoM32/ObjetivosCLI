@@ -85,6 +85,7 @@ void printHelp(int page) {
     helpItems.push_back("cal - vai para o calendário");
     helpItems.push_back("week [all] - mostra resumo semanal");
     helpItems.push_back("tree [inactive|incomplete|all] - mostra árvore de objetivos");
+    helpItems.push_back("aps [all|<número de períodos>] - mostra os períodos mais recentes");
     helpItems.push_back("help - mostra esse menu");
     helpItems.push_back("save - salva todos os dados");
     helpItems.push_back("exit - sai do programa");
