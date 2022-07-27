@@ -439,8 +439,7 @@ Note *ithNote(list<Note *> &notes, size_t i) {
     Period compare function.
 */
 bool periodComp(const Period *p1, const Period *p2) {
-    if (p1->start < p2->start) return true;
-    return false;
+    return p1->start < p2->start;
 }
 
 /*
