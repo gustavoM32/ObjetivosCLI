@@ -553,6 +553,11 @@ string getTodoShortName(Todo *todo) {
 string getTodoFullName(Todo *todo) {
     string name = "";
 
+    if (todo->parent == nullptr) {
+        name += colorString(todo->task->code, getTaskColor(todo->task));
+        return name;
+    }
+
     if (todo->parent->parent == nullptr) {
         name += colorString(todo->task->code, getTaskColor(todo->task));
     } else {
