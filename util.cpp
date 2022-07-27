@@ -573,12 +573,12 @@ string getTodoPath(Todo *todo) {
     string name = "";
 
     if (todo->parent == nullptr) {
-        return todo->task->name;
+        return colorString(todo->task->code, getTaskColor(todo->task));
     }
 
     if (todo->parent->parent != nullptr) {
         name += getTodoPath(todo->parent);
-        name += " > ";
+        name += colorString(" > ", "BRIGHT_BLUE");
     }
 
     name += todo->name;
