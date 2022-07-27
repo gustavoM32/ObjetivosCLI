@@ -94,7 +94,7 @@ void printWeekSummary(bool showAll) {
     }
 
     long int maxDur = maxp->end - maxp->start;
-    if (maxDur > 36000) {
+    if (maxDur > 72000) {
         cout << "Período com duração anormal!\n";
         cout << maxp->todo->task->code << ": " << formatDur(maxDur) << "\n";
         return;
