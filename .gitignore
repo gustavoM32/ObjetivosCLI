@@ -20,3 +20,6 @@ protótipo.pdf
 
 # graphics test folder
 graphics
+
+# IDE folders
+.vscode
