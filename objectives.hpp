@@ -1,6 +1,5 @@
-#ifndef OBJECTIVES_HPP
-#define OBJECTIVES_HPP
-/*************************************/
+#pragma once
+
 #include <string>
 #include <list>
 #include <map>
@@ -84,5 +83,3 @@ extern Task *curTask;
 void freeAll();
 
 bool generalCommands(std::string commandName);
-/*************************************/
-#endif

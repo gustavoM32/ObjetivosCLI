@@ -1,6 +1,5 @@
-#ifndef TASK_HPP
-#define TASK_HPP
-/*************************************/
+#pragma once
+
 #include <string>
 #include "objectives.hpp"
 #include "period.hpp"
@@ -38,5 +37,3 @@ void setSubtaskStatus(Task *);
 void subtasksMenu(Task *);
 
 void taskMenu(Task *);
-/*************************************/
-#endif

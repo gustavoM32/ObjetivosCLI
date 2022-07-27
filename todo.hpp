@@ -1,6 +1,5 @@
-#ifndef TODO_HPP
-#define TODO_HPP
-/*************************************/
+#pragma once
+
 #include <string>
 #include <time.h>
 #include "objectives.hpp"
@@ -26,5 +25,3 @@ void removeTodo(Task* task);
 void listTodos(Task* task, bool showHidden);
 
 void todosMenu(Task* task);
-/*************************************/
-#endif

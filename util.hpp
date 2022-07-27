@@ -1,6 +1,5 @@
-#ifndef UTIL_HPP
-#define UTIL_HPP
-/*************************************/
+#pragma once
+
 #include <stdio.h>
 
 #include <list>
@@ -111,6 +110,3 @@ void clearDirectory(const std::string &directory_path);
 std::string readFile(const std::string &file_path);
 
 void writeFile(const std::string &file_path, const std::string &content);
-
-/*************************************/
-#endif

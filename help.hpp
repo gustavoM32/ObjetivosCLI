@@ -1,6 +1,3 @@
-#ifndef HELP_HPP
-#define HELP_HPP
-/*************************************/
+#pragma once
+
 void printHelp(int page);
-/*************************************/
-#endif

@@ -1,5 +1,4 @@
-#ifndef CALENDAR_HPP
-#define CALENDAR_HPP
+#pragma once
 
 #include "objectives.hpp"
 
@@ -10,5 +9,3 @@ void periodWarning();
 Calendar *createCalendar();
 
 void calendarMenu();
-
-#endif

@@ -1,6 +1,5 @@
-#ifndef IO_HPP
-#define IO_HPP
-/*************************************/
+#pragma once
+
 #include <stdio.h>
 #include "objectives.hpp"
 
@@ -23,5 +22,3 @@ void saveAll();
 Task *loadTask(FILE *);
 
 void loadAll();
-/*************************************/
-#endif

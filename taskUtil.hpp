@@ -1,5 +1,4 @@
-#ifndef TASKUTIL_HPP
-#define TASKUTIL_HPP
+#pragma once
 
 #include <list>
 #include "objectives.hpp"
@@ -39,5 +38,3 @@ std::string getMotivation(Task *task);
 void printRecentHistory(Task* task);
 
 void removeTrailingNewLines(std::string &text);
-
-#endif

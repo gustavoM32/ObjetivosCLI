@@ -1,5 +1,4 @@
-#ifndef CALENDARUTIL_HPP
-#define CALENDARUTIL_HPP
+#pragma once
 
 extern std::string wDayName[];
 extern std::string wDayShort[];
@@ -17,5 +16,3 @@ void sortCalendar();
 // void updateCalendarTask(Calendar *calendar, Task *task);
 
 void printWeekSummary(bool showAll);
-
-#endif
