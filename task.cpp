@@ -352,7 +352,7 @@ void editPlans(Task *task) { // TODO: REFACTOR
     }
 
     // let user edit them
-    system((string("nvim -p +'cd plans'") + file_names).c_str());
+    system((string("nvim -u ./init.vim -p +'cd plans'") + file_names).c_str());
 
     try {
         all_plan_files = getDirectoryFiles(PLANS_FOLDER_PATH);
@@ -417,7 +417,7 @@ void editPlan(Task* task) {
     writeFile(file_path, old_text);
 
     // let user edit it
-    system((string("nvim ") + file_path).c_str());
+    system((string("nvim -u ./init.vim ") + file_path).c_str());
     
     // get new plan text
     string new_text = readFile(file_path);
